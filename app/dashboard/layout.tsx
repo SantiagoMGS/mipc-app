@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Menu, X, LogOut, Package, Users } from 'lucide-react';
+import { Menu, X, LogOut, Package, Users, Cpu } from 'lucide-react';
 import { authService } from '@/lib/api';
 
 interface DashboardLayoutProps {
@@ -25,6 +25,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       name: 'Clientes',
       icon: Users,
       path: '/dashboard/clientes',
+    },
+    {
+      name: 'Tipos de Dispositivo',
+      icon: Cpu,
+      path: '/dashboard/tipos-dispositivo',
     },
   ];
 

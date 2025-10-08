@@ -175,4 +175,60 @@ export const customersService = {
   },
 };
 
+// Servicios para Device Types/Tipos de Dispositivo
+export const deviceTypesService = {
+  // Obtener todos los tipos de dispositivo con paginación
+  getAll: async (params?: {
+    limit?: number;
+    page?: number;
+    withDeleted?: boolean;
+  }) => {
+    const queryParams = new URLSearchParams();
+
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.page) queryParams.append('page', params.page.toString());
+    // Solo enviar withDeleted si es true
+    if (params?.withDeleted === true) {
+      queryParams.append('withDeleted', 'true');
+    }
+
+    const url = `/device-types${
+      queryParams.toString() ? `?${queryParams.toString()}` : ''
+    }`;
+    console.log('🔗 URL de petición:', url);
+    const response = await api.get(url);
+    return response.data;
+  },
+
+  // Obtener un tipo de dispositivo por ID
+  getById: async (id: string) => {
+    const response = await api.get(`/device-types/${id}`);
+    return response.data;
+  },
+
+  // Crear un nuevo tipo de dispositivo
+  create: async (data: any) => {
+    const response = await api.post('/device-types', data);
+    return response.data;
+  },
+
+  // Actualizar un tipo de dispositivo
+  update: async (id: string, data: any) => {
+    const response = await api.patch(`/device-types/${id}`, data);
+    return response.data;
+  },
+
+  // Eliminar un tipo de dispositivo
+  delete: async (id: string) => {
+    const response = await api.delete(`/device-types/${id}`);
+    return response.data;
+  },
+
+  // Reactivar un tipo de dispositivo (cambiar isActive a true)
+  reactivate: async (id: string) => {
+    const response = await api.patch(`/device-types/${id}`, { isActive: true });
+    return response.data;
+  },
+};
+
 export default api;

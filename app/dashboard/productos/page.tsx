@@ -229,7 +229,7 @@ export default function ProductosPage() {
           className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
         >
           <Plus className="w-5 h-5" />
-          Nuevo Item
+          <span className="hidden sm:inline">Nuevo Item</span>
         </button>
       </div>
 

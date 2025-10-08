@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { authService, API_URLS } from '@/lib/api';
-import { Lock, User, AlertCircle } from 'lucide-react';
+import { Lock, User, AlertCircle, Eye, EyeOff } from 'lucide-react';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -14,6 +14,7 @@ export default function LoginPage() {
   const [error, setError] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [currentAPI, setCurrentAPI] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
     setCurrentAPI(API_URLS.production);
@@ -119,7 +120,7 @@ export default function LoginPage() {
                 value={formData.email}
                 onChange={handleChange}
                 className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-                placeholder="admin@mipc.com.co"
+                placeholder="Ingresa tu usuario"
               />
             </div>
           </div>
@@ -138,13 +139,24 @@ export default function LoginPage() {
               <input
                 id="password"
                 name="password"
-                type="password"
+                type={showPassword ? 'text' : 'password'}
                 required
                 value={formData.password}
                 onChange={handleChange}
-                className="block w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
+                className="block w-full pl-10 pr-12 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
                 placeholder="Ingresa tu contraseña"
               />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600 transition-colors"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-5 w-5" />
+                ) : (
+                  <Eye className="h-5 w-5" />
+                )}
+              </button>
             </div>
           </div>
 

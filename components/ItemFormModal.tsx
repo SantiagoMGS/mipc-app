@@ -69,7 +69,7 @@ export default function ItemFormModal({
     const value = e.target.value;
     // Remover todo excepto números
     const numbersOnly = value.replace(/\D/g, '');
-    
+
     if (numbersOnly === '') {
       setPriceInput('');
       setFormData({ ...formData, price: 0 });
@@ -211,7 +211,9 @@ export default function ItemFormModal({
                 placeholder="1.500.000"
               />
             </div>
-            <p className="mt-1 text-xs text-gray-500">Solo números enteros, sin decimales</p>
+            <p className="mt-1 text-xs text-gray-500">
+              Solo números enteros, sin decimales
+            </p>
           </div>
 
           {/* Descripción */}

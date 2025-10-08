@@ -12,7 +12,8 @@ interface DashboardLayoutProps {
 export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const router = useRouter();
   const pathname = usePathname();
-  const [isSidebarOpen, setIsSidebarOpen] = useState(true);
+  const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Cerrado por defecto en móvil
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const menuItems = [
     {
@@ -33,13 +34,18 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   };
 
+  const handleMenuItemClick = (path: string) => {
+    router.push(path);
+    setIsMobileMenuOpen(false); // Cerrar menú móvil al navegar
+  };
+
   return (
     <div className="flex h-screen bg-gray-100">
-      {/* Sidebar */}
+      {/* Sidebar Desktop - Oculto en móvil */}
       <aside
         className={`${
           isSidebarOpen ? 'w-64' : 'w-20'
-        } bg-white shadow-lg transition-all duration-300 ease-in-out flex flex-col`}
+        } bg-white shadow-lg transition-all duration-300 ease-in-out flex-col hidden lg:flex`}
       >
         {/* Logo Section */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
@@ -97,25 +103,96 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         </div>
       </aside>
 
+      {/* Mobile Menu Overlay */}
+      {isMobileMenuOpen && (
+        <div
+          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+          onClick={() => setIsMobileMenuOpen(false)}
+        >
+          <div
+            className="bg-white w-64 h-full shadow-xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Mobile Menu Header */}
+            <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
+              <h1 className="text-xl font-bold text-primary-600">MIPC</h1>
+              <button
+                onClick={() => setIsMobileMenuOpen(false)}
+                className="p-2 rounded-lg hover:bg-gray-100 transition-colors"
+              >
+                <X className="w-5 h-5 text-gray-600" />
+              </button>
+            </div>
+
+            {/* Mobile Menu Items */}
+            <nav className="px-3 py-4 space-y-2">
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                const isActive = pathname === item.path;
+
+                return (
+                  <button
+                    key={item.path}
+                    onClick={() => handleMenuItemClick(item.path)}
+                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                      isActive
+                        ? 'bg-primary-500 text-white'
+                        : 'text-gray-700 hover:bg-gray-100'
+                    }`}
+                  >
+                    <Icon className="w-5 h-5 flex-shrink-0" />
+                    <span className="font-medium">{item.name}</span>
+                  </button>
+                );
+              })}
+            </nav>
+
+            {/* Mobile Logout Button */}
+            <div className="absolute bottom-0 left-0 right-0 px-3 py-4 border-t border-gray-200 bg-white">
+              <button
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  handleLogout();
+                }}
+                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+              >
+                <LogOut className="w-5 h-5 flex-shrink-0" />
+                <span className="font-medium">Cerrar Sesión</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Main Content */}
       <main className="flex-1 overflow-auto">
         {/* Top Bar */}
-        <header className="h-16 bg-white shadow-sm flex items-center justify-between px-6">
-          <h2 className="text-xl font-semibold text-gray-800">
+        <header className="h-16 bg-white shadow-sm flex items-center justify-between px-4 md:px-6">
+          {/* Mobile Menu Button */}
+          <button
+            onClick={() => setIsMobileMenuOpen(true)}
+            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 transition-colors"
+          >
+            <Menu className="w-6 h-6 text-gray-600" />
+          </button>
+
+          <h2 className="text-lg md:text-xl font-semibold text-gray-800">
             Sistema de Gestión
           </h2>
-          <div className="flex items-center gap-4">
-            <div className="text-right">
+
+          <div className="flex items-center gap-2 md:gap-4">
+            <div className="text-right hidden sm:block">
               <p className="text-sm font-medium text-gray-700">Usuario</p>
               <p className="text-xs text-gray-500">Administrador</p>
             </div>
-            <div className="w-10 h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold">
+            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold text-sm md:text-base">
               U
             </div>
           </div>
-        </header>{' '}
+        </header>
+
         {/* Page Content */}
-        <div className="p-6">{children}</div>
+        <div className="p-4 md:p-6">{children}</div>
       </main>
     </div>
   );

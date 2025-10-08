@@ -26,6 +26,7 @@ export default function ItemFormModal({
     description: '',
     itemType: 'PRODUCTO',
   });
+  const [priceInput, setPriceInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -38,6 +39,7 @@ export default function ItemFormModal({
         description: item.description,
         itemType: item.itemType,
       });
+      setPriceInput(item.price.toLocaleString('es-CO'));
     } else {
       setFormData({
         name: '',
@@ -46,6 +48,7 @@ export default function ItemFormModal({
         description: '',
         itemType: 'PRODUCTO',
       });
+      setPriceInput('');
     }
     setError('');
   }, [item, isOpen]);
@@ -58,8 +61,24 @@ export default function ItemFormModal({
     const { name, value } = e.target;
     setFormData({
       ...formData,
-      [name]: name === 'price' ? parseFloat(value) || 0 : value,
+      [name]: value,
     });
+  };
+
+  const handlePriceChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    // Remover todo excepto números
+    const numbersOnly = value.replace(/\D/g, '');
+    
+    if (numbersOnly === '') {
+      setPriceInput('');
+      setFormData({ ...formData, price: 0 });
+      return;
+    }
+
+    const numericValue = parseInt(numbersOnly, 10);
+    setPriceInput(numericValue.toLocaleString('es-CO'));
+    setFormData({ ...formData, price: numericValue });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -177,18 +196,22 @@ export default function ItemFormModal({
             >
               Precio <span className="text-red-500">*</span>
             </label>
-            <input
-              type="number"
-              id="price"
-              name="price"
-              required
-              step="0.01"
-              min="0"
-              value={formData.price}
-              onChange={handleChange}
-              className="block w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-              placeholder="1500.50"
-            />
+            <div className="relative">
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">
+                $
+              </span>
+              <input
+                type="text"
+                id="price"
+                name="price"
+                required
+                value={priceInput}
+                onChange={handlePriceChange}
+                className="block w-full pl-8 pr-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                placeholder="1.500.000"
+              />
+            </div>
+            <p className="mt-1 text-xs text-gray-500">Solo números enteros, sin decimales</p>
           </div>
 
           {/* Descripción */}

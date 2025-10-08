@@ -365,10 +365,7 @@ export default function ProductosPage() {
                     }`}
                   >
                     <span className="text-2xl font-bold text-primary-600">
-                      $
-                      {item.price.toLocaleString('es-CO', {
-                        minimumFractionDigits: 2,
-                      })}
+                      ${item.price.toLocaleString('es-CO')}
                     </span>
                     <div className="flex gap-2">
                       {!item.isActive ? (

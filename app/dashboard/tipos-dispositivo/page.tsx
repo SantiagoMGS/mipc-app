@@ -7,7 +7,15 @@ import DeviceTypeFormModal from '@/components/DeviceTypeFormModal';
 import Toast from '@/components/Toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
-import { Cpu, Edit, Trash2, Plus, Search, AlertCircle, RefreshCw } from 'lucide-react';
+import {
+  Cpu,
+  Edit,
+  Trash2,
+  Plus,
+  Search,
+  AlertCircle,
+  RefreshCw,
+} from 'lucide-react';
 
 export default function TiposDispositivoPage() {
   const [deviceTypes, setDeviceTypes] = useState<DeviceType[]>([]);
@@ -296,7 +304,9 @@ export default function TiposDispositivoPage() {
               <div
                 key={deviceType.id}
                 className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden ${
-                  !deviceType.isActive ? 'opacity-60 border-2 border-gray-300' : ''
+                  !deviceType.isActive
+                    ? 'opacity-60 border-2 border-gray-300'
+                    : ''
                 }`}
               >
                 {/* Badges de estado */}
@@ -315,7 +325,11 @@ export default function TiposDispositivoPage() {
                   </div>
                 )}
 
-                <div className={`p-6 ${(!deviceType.isActive || deviceType.deletedAt) ? 'pt-3' : ''}`}>
+                <div
+                  className={`p-6 ${
+                    !deviceType.isActive || deviceType.deletedAt ? 'pt-3' : ''
+                  }`}
+                >
                   {/* Ícono y nombre */}
                   <div className="flex items-center gap-3 mb-4">
                     <div className="p-3 bg-primary-100 rounded-lg">

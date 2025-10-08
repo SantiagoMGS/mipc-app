@@ -198,8 +198,8 @@ export default function ClientesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">Clientes</h1>
-          <p className="text-gray-600 mt-2">
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Clientes</h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
             Gestiona tu base de datos de clientes
           </p>
         </div>
@@ -213,7 +213,7 @@ export default function ClientesPage() {
       </div>
 
       {/* Filtros y búsqueda */}
-      <div className="bg-white rounded-lg shadow-md p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
         <div className="flex flex-col md:flex-row gap-4">
           {/* Búsqueda */}
           <div className="flex-1 relative">
@@ -223,7 +223,7 @@ export default function ClientesPage() {
               placeholder="Buscar por nombre, documento, email o teléfono..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             />
           </div>
         </div>
@@ -231,26 +231,26 @@ export default function ClientesPage() {
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
         </div>
       )}
 
       {/* Loading */}
       {isLoading ? (
-        <div className="bg-white rounded-lg shadow-md p-12 text-center">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-          <p className="mt-4 text-gray-600">Cargando clientes...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Cargando clientes...</p>
         </div>
       ) : filteredCustomers.length === 0 ? (
         /* Empty State */
-        <div className="bg-white rounded-lg shadow-md p-12 text-center">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
           <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
             No hay clientes para mostrar
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
             {searchTerm
               ? 'No se encontraron clientes con los filtros aplicados'
               : 'Comienza agregando tu primer cliente'}
@@ -272,10 +272,10 @@ export default function ClientesPage() {
             filteredCustomers.map((customer) => (
               <div
                 key={customer.id}
-                className="bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden"
+                className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden"
               >
                 {/* Header con tipo de documento */}
-                <div className="px-4 pt-4 pb-2 bg-gradient-to-r from-primary-50 to-primary-100">
+                <div className="px-4 pt-4 pb-2 bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20">
                   <div className="flex items-center justify-between">
                     <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary-500 text-white">
                       {customer.documentType}
@@ -288,20 +288,20 @@ export default function ClientesPage() {
 
                 <div className="p-4">
                   {/* Nombre completo */}
-                  <h3 className="text-xl font-semibold text-gray-800 mb-3">
+                  <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">
                     {customer.firstName} {customer.lastName}
                   </h3>
 
                   {/* Información de contacto */}
                   <div className="space-y-2 mb-4">
                     {customer.email && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                         <Mail className="w-4 h-4 text-primary-500 flex-shrink-0" />
                         <span className="truncate">{customer.email}</span>
                       </div>
                     )}
                     {customer.phoneNumber && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                         <Phone className="w-4 h-4 text-primary-500 flex-shrink-0" />
                         <span>{customer.phoneNumber}</span>
                       </div>
@@ -315,10 +315,10 @@ export default function ClientesPage() {
                   </div>
 
                   {/* Botones de acción */}
-                  <div className="flex gap-2 pt-3 border-t border-gray-200">
+                  <div className="flex gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
                     <button
                       onClick={() => openEditModal(customer)}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                       title="Editar"
                     >
                       <Edit className="w-4 h-4" />
@@ -326,7 +326,7 @@ export default function ClientesPage() {
                     </button>
                     <button
                       onClick={() => handleDeleteClick(customer)}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                       title="Eliminar"
                     >
                       <Trash2 className="w-4 h-4" />

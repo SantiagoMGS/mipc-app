@@ -58,22 +58,22 @@ export default function Pagination({
   const endItem = Math.min(currentPage * itemsPerPage, totalItems);
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4">
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
       <div className="flex flex-col md:flex-row items-center justify-between gap-4">
         {/* Items per page selector */}
         <div className="flex items-center gap-2">
-          <span className="text-sm text-gray-600">Mostrar:</span>
+          <span className="text-sm text-gray-600 dark:text-gray-400">Mostrar:</span>
           <select
             value={itemsPerPage}
             onChange={(e) => onItemsPerPageChange(Number(e.target.value))}
-            className="px-3 py-1 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
+            className="px-3 py-1 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 text-sm"
           >
             <option value={5}>5</option>
             <option value={10}>10</option>
             <option value={20}>20</option>
             <option value={50}>50</option>
           </select>
-          <span className="text-sm text-gray-600">
+          <span className="text-sm text-gray-600 dark:text-gray-400">
             {totalItems > 0 ? (
               <>
                 {startItem}-{endItem} de {totalItems}
@@ -91,10 +91,10 @@ export default function Pagination({
             <button
               onClick={() => onPageChange(currentPage - 1)}
               disabled={currentPage === 1}
-              className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               title="Página anterior"
             >
-              <ChevronLeft className="w-5 h-5 text-gray-600" />
+              <ChevronLeft className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
 
             {/* Page numbers */}
@@ -108,7 +108,7 @@ export default function Pagination({
                     ? 'bg-primary-500 text-white font-semibold'
                     : page === '...'
                     ? 'cursor-default text-gray-400'
-                    : 'hover:bg-gray-100 text-gray-700'
+                    : 'hover:bg-gray-100 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300'
                 }`}
               >
                 {page}
@@ -119,10 +119,10 @@ export default function Pagination({
             <button
               onClick={() => onPageChange(currentPage + 1)}
               disabled={currentPage === totalPages}
-              className="p-2 rounded-lg hover:bg-gray-100 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
               title="Página siguiente"
             >
-              <ChevronRight className="w-5 h-5 text-gray-600" />
+              <ChevronRight className="w-5 h-5 text-gray-600 dark:text-gray-400" />
             </button>
           </div>
         )}

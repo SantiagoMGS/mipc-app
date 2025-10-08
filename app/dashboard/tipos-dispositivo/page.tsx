@@ -213,10 +213,10 @@ export default function TiposDispositivoPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800">
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
             Tipos de Dispositivo
           </h1>
-          <p className="text-gray-600 mt-2">
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
             Gestiona los tipos de dispositivos disponibles
           </p>
         </div>
@@ -230,7 +230,7 @@ export default function TiposDispositivoPage() {
       </div>
 
       {/* Filtros y búsqueda */}
-      <div className="bg-white rounded-lg shadow-md p-4">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4">
         <div className="flex flex-col md:flex-row gap-4">
           {/* Búsqueda */}
           <div className="flex-1 relative">
@@ -240,12 +240,12 @@ export default function TiposDispositivoPage() {
               placeholder="Buscar por nombre..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+              className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             />
           </div>
 
           {/* Toggle para mostrar eliminados */}
-          <label className="flex items-center gap-2 px-4 py-2 border border-gray-300 rounded-lg cursor-pointer hover:bg-gray-50 transition-colors">
+          <label className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg cursor-pointer hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors">
             <input
               type="checkbox"
               checked={showDeleted}
@@ -255,33 +255,33 @@ export default function TiposDispositivoPage() {
               }}
               className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
             />
-            <span className="text-sm text-gray-700">Mostrar eliminados</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">Mostrar eliminados</span>
           </label>
         </div>
       </div>
 
       {/* Error Message */}
       {error && (
-        <div className="bg-red-50 border border-red-200 rounded-lg p-4 flex items-start gap-3">
-          <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700">{error}</p>
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
         </div>
       )}
 
       {/* Loading */}
       {isLoading ? (
-        <div className="bg-white rounded-lg shadow-md p-12 text-center">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-          <p className="mt-4 text-gray-600">Cargando tipos de dispositivo...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">Cargando tipos de dispositivo...</p>
         </div>
       ) : filteredDeviceTypes.length === 0 ? (
         /* Empty State */
-        <div className="bg-white rounded-lg shadow-md p-12 text-center">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
           <Cpu className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold text-gray-800 mb-2">
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
             No hay tipos de dispositivo para mostrar
           </h3>
-          <p className="text-gray-600 mb-6">
+          <p className="text-gray-600 dark:text-gray-400 mb-6">
             {searchTerm
               ? 'No se encontraron tipos de dispositivo con los filtros aplicados'
               : 'Comienza agregando tu primer tipo de dispositivo'}
@@ -303,9 +303,9 @@ export default function TiposDispositivoPage() {
             filteredDeviceTypes.map((deviceType) => (
               <div
                 key={deviceType.id}
-                className={`bg-white rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden ${
+                className={`bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden ${
                   !deviceType.isActive
-                    ? 'opacity-60 border-2 border-gray-300'
+                    ? 'opacity-60 border-2 border-gray-300 dark:border-gray-600'
                     : ''
                 }`}
               >
@@ -313,12 +313,12 @@ export default function TiposDispositivoPage() {
                 {(!deviceType.isActive || deviceType.deletedAt) && (
                   <div className="px-4 pt-3 flex gap-2 flex-wrap">
                     {!deviceType.isActive && (
-                      <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800">
+                      <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200">
                         INACTIVO
                       </span>
                     )}
                     {deviceType.deletedAt && (
-                      <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                      <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
                         ELIMINADO
                       </span>
                     )}
@@ -332,10 +332,10 @@ export default function TiposDispositivoPage() {
                 >
                   {/* Ícono y nombre */}
                   <div className="flex items-center gap-3 mb-4">
-                    <div className="p-3 bg-primary-100 rounded-lg">
-                      <Cpu className="w-6 h-6 text-primary-600" />
+                    <div className="p-3 bg-primary-100 dark:bg-primary-900/30 rounded-lg">
+                      <Cpu className="w-6 h-6 text-primary-600 dark:text-primary-400" />
                     </div>
-                    <h3 className="text-lg font-bold text-gray-800 flex-1">
+                    <h3 className="text-lg font-bold text-gray-800 dark:text-white flex-1">
                       {deviceType.name}
                     </h3>
                   </div>
@@ -345,7 +345,7 @@ export default function TiposDispositivoPage() {
                     {!deviceType.isActive ? (
                       <button
                         onClick={() => handleReactivate(deviceType)}
-                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
+                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
                         title="Reactivar"
                       >
                         <RefreshCw className="w-4 h-4" />
@@ -355,7 +355,7 @@ export default function TiposDispositivoPage() {
                       <>
                         <button
                           onClick={() => openEditModal(deviceType)}
-                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
+                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                           title="Editar"
                         >
                           <Edit className="w-4 h-4" />
@@ -363,7 +363,7 @@ export default function TiposDispositivoPage() {
                         </button>
                         <button
                           onClick={() => handleDeleteClick(deviceType)}
-                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                           title="Eliminar"
                         >
                           <Trash2 className="w-4 h-4" />

@@ -2,9 +2,24 @@
 
 import { Moon, Sun } from 'lucide-react';
 import { useTheme } from '@/contexts/ThemeContext';
+import { useEffect, useState } from 'react';
 
 export default function ThemeToggle() {
   const { theme, toggleTheme } = useTheme();
+  const [mounted, setMounted] = useState(false);
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  // Evitar hidratación incorrecta - mostrar placeholder hasta que esté montado
+  if (!mounted) {
+    return (
+      <div className="p-2 w-9 h-9 rounded-lg">
+        <div className="w-5 h-5" />
+      </div>
+    );
+  }
 
   return (
     <button

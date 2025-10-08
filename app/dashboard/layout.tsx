@@ -56,7 +56,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
         {/* Logo Section */}
         <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
           {isSidebarOpen && (
-            <h1 className="text-xl font-bold text-primary-600 dark:text-primary-500">MIPC</h1>
+            <h1 className="text-xl font-bold text-primary-600 dark:text-primary-500">
+              MIPC
+            </h1>
           )}
           <button
             onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -121,7 +123,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           >
             {/* Mobile Menu Header */}
             <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
-              <h1 className="text-xl font-bold text-primary-600 dark:text-primary-500">MIPC</h1>
+              <h1 className="text-xl font-bold text-primary-600 dark:text-primary-500">
+                MIPC
+              </h1>
               <button
                 onClick={() => setIsMobileMenuOpen(false)}
                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
@@ -185,21 +189,25 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <h2 className="text-lg md:text-xl font-semibold text-gray-800 dark:text-white">
             Sistema de Gestión
           </h2>
-          
+
           <div className="flex items-center gap-2 md:gap-4">
             {/* Theme Toggle */}
             <ThemeToggle />
-            
+
             <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Usuario</p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">Administrador</p>
+              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                Usuario
+              </p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">
+                Administrador
+              </p>
             </div>
             <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold text-sm md:text-base">
               U
             </div>
           </div>
         </header>
-        
+
         {/* Page Content */}
         <div className="p-4 md:p-6">{children}</div>
       </main>

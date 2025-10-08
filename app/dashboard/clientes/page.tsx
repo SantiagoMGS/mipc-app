@@ -198,7 +198,9 @@ export default function ClientesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Clientes</h1>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+            Clientes
+          </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
             Gestiona tu base de datos de clientes
           </p>
@@ -241,7 +243,9 @@ export default function ClientesPage() {
       {isLoading ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Cargando clientes...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            Cargando clientes...
+          </p>
         </div>
       ) : filteredCustomers.length === 0 ? (
         /* Empty State */

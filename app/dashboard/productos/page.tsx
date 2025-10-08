@@ -272,7 +272,9 @@ export default function ProductosPage() {
               }}
               className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
             />
-            <span className="text-sm text-gray-700 dark:text-gray-300">Mostrar eliminados</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              Mostrar eliminados
+            </span>
           </label>
         </div>
       </div>
@@ -289,7 +291,9 @@ export default function ProductosPage() {
       {isLoading ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Cargando items...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            Cargando items...
+          </p>
         </div>
       ) : filteredItems.length === 0 ? (
         /* Empty State */
@@ -321,7 +325,9 @@ export default function ProductosPage() {
               <div
                 key={item.id}
                 className={`bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden ${
-                  !item.isActive ? 'opacity-60 border-2 border-gray-300 dark:border-gray-600' : ''
+                  !item.isActive
+                    ? 'opacity-60 border-2 border-gray-300 dark:border-gray-600'
+                    : ''
                 }`}
               >
                 {/* Badge de tipo y estado */}

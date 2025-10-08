@@ -89,8 +89,12 @@ export default function LoginPage() {
           <div className="inline-block p-3 bg-primary-500 rounded-full mb-4">
             <Lock className="w-8 h-8 text-white" />
           </div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">Bienvenido</h1>
-          <p className="text-gray-600 dark:text-gray-400 mt-2">Sistema de Gestión MIPC</p>
+          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+            Bienvenido
+          </h1>
+          <p className="text-gray-600 dark:text-gray-400 mt-2">
+            Sistema de Gestión MIPC
+          </p>
         </div>
 
         {/* Error Message */}
@@ -99,7 +103,9 @@ export default function LoginPage() {
             <div className="flex items-start gap-3">
               <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
               <div className="flex-1">
-                <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+                <p className="text-sm text-red-700 dark:text-red-300">
+                  {error}
+                </p>
               </div>
             </div>
           </div>

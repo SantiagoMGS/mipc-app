@@ -255,7 +255,9 @@ export default function TiposDispositivoPage() {
               }}
               className="w-4 h-4 text-primary-600 rounded focus:ring-primary-500"
             />
-            <span className="text-sm text-gray-700 dark:text-gray-300">Mostrar eliminados</span>
+            <span className="text-sm text-gray-700 dark:text-gray-300">
+              Mostrar eliminados
+            </span>
           </label>
         </div>
       </div>
@@ -272,7 +274,9 @@ export default function TiposDispositivoPage() {
       {isLoading ? (
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
           <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-          <p className="mt-4 text-gray-600 dark:text-gray-400">Cargando tipos de dispositivo...</p>
+          <p className="mt-4 text-gray-600 dark:text-gray-400">
+            Cargando tipos de dispositivo...
+          </p>
         </div>
       ) : filteredDeviceTypes.length === 0 ? (
         /* Empty State */

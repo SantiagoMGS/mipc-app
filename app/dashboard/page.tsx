@@ -63,7 +63,9 @@ export default function DashboardPage() {
           onClick={() => router.push('/dashboard/clientes')}
           className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow cursor-pointer border-l-4 border-primary-500"
         >
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">Clientes</h3>
+          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
+            Clientes
+          </h3>
           <p className="text-gray-600 dark:text-gray-400 text-sm">
             Administra la información de clientes
           </p>
@@ -74,7 +76,9 @@ export default function DashboardPage() {
           <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-2">
             Órdenes de Servicio
           </h3>
-          <p className="text-gray-600 dark:text-gray-400 text-sm">Próximamente...</p>
+          <p className="text-gray-600 dark:text-gray-400 text-sm">
+            Próximamente...
+          </p>
         </div>
       </div>
 

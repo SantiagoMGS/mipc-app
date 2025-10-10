@@ -1,9 +1,12 @@
 export type DocumentType = 'CC' | 'NIT' | 'CE' | 'TI' | 'PASAPORTE';
+export type CustomerType = 'NATURAL' | 'JURIDICA';
 
 export interface Customer {
   id: string;
-  firstName: string;
-  lastName: string;
+  customerType: CustomerType;
+  firstName?: string;
+  lastName?: string;
+  businessName?: string;
   email?: string;
   phoneNumber?: string;
   documentType: DocumentType;
@@ -13,8 +16,10 @@ export interface Customer {
 }
 
 export interface CreateCustomerDto {
-  firstName: string;
-  lastName: string;
+  customerType: CustomerType;
+  firstName?: string;
+  lastName?: string;
+  businessName?: string;
   email?: string;
   phoneNumber?: string;
   documentType: DocumentType;

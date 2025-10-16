@@ -99,6 +99,7 @@ export default function CustomerFormModal({
         customerType: formData.customerType,
         documentType: formData.documentType,
         documentNumber: formData.documentNumber,
+        phoneNumber: formData.phoneNumber,
       };
 
       if (formData.customerType === 'NATURAL') {
@@ -116,10 +117,6 @@ export default function CustomerFormModal({
 
       if (formData.email && formData.email.trim() !== '') {
         dataToSubmit.email = formData.email;
-      }
-
-      if (formData.phoneNumber && formData.phoneNumber.trim() !== '') {
-        dataToSubmit.phoneNumber = formData.phoneNumber;
       }
 
       await onSubmit(dataToSubmit);
@@ -347,16 +344,17 @@ export default function CustomerFormModal({
                 htmlFor="phoneNumber"
                 className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
               >
-                Teléfono
+                Teléfono <span className="text-red-500">*</span>
               </label>
               <input
                 type="tel"
                 id="phoneNumber"
                 name="phoneNumber"
+                required
                 value={formData.phoneNumber}
                 onChange={handleChange}
                 className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                placeholder="3001234567 (opcional)"
+                placeholder="3001234567"
               />
             </div>
           </div>

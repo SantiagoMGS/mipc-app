@@ -10,7 +10,7 @@ export const API_URLS = {
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || API_URLS.production;
 
 const api = axios.create({
-  baseURL: 'http://localhost:3050',
+  baseURL: API_BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
@@ -276,12 +276,6 @@ export const devicesService = {
   // Inactivar/Eliminar un dispositivo (soft delete)
   delete: async (id: string) => {
     const response = await api.delete(`/devices/${id}`);
-    return response.data;
-  },
-
-  // Activar un dispositivo
-  activate: async (id: string) => {
-    const response = await api.patch(`/devices/${id}/activate`);
     return response.data;
   },
 };

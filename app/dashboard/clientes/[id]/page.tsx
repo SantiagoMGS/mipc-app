@@ -672,7 +672,7 @@ export default function ClienteDetallesPage() {
             className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
           >
             <Plus className="w-5 h-5" />
-            Agregar Dispositivo
+            <span className="hidden sm:inline">Agregar Dispositivo</span>
           </button>
         </div>
 

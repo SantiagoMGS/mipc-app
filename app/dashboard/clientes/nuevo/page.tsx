@@ -195,6 +195,7 @@ export default function NuevoClientePage() {
         customerType: customerData.customerType,
         documentType: customerData.documentType,
         documentNumber: customerData.documentNumber,
+        phoneNumber: customerData.phoneNumber,
       };
 
       // Agregar campos según tipo de cliente
@@ -214,10 +215,6 @@ export default function NuevoClientePage() {
       // Agregar campos opcionales
       if (customerData.email && customerData.email.trim() !== '') {
         dataToSubmit.email = customerData.email;
-      }
-
-      if (customerData.phoneNumber && customerData.phoneNumber.trim() !== '') {
-        dataToSubmit.phoneNumber = customerData.phoneNumber;
       }
 
       // Agregar dispositivos si hay alguno con datos
@@ -511,7 +508,7 @@ export default function NuevoClientePage() {
                   htmlFor="phoneNumber"
                   className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
                 >
-                  Teléfono
+                  Teléfono <span className="text-red-500">*</span>
                 </label>
                 <input
                   type="tel"
@@ -519,8 +516,9 @@ export default function NuevoClientePage() {
                   name="phoneNumber"
                   value={customerData.phoneNumber}
                   onChange={handleCustomerChange}
+                  required
                   className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
-                  placeholder="3001234567 (opcional)"
+                  placeholder="3001234567"
                 />
               </div>
             </div>

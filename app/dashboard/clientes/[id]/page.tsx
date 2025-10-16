@@ -192,6 +192,7 @@ export default function ClienteDetallesPage() {
         customerType: editableData.customerType,
         documentType: editableData.documentType,
         documentNumber: editableData.documentNumber,
+        phoneNumber: editableData.phoneNumber,
       };
 
       if (editableData.customerType === 'NATURAL') {
@@ -209,10 +210,6 @@ export default function ClienteDetallesPage() {
 
       if (editableData.email && editableData.email.trim() !== '') {
         dataToSubmit.email = editableData.email;
-      }
-
-      if (editableData.phoneNumber && editableData.phoneNumber.trim() !== '') {
-        dataToSubmit.phoneNumber = editableData.phoneNumber;
       }
 
       await customersService.update(customerId, dataToSubmit);
@@ -635,7 +632,7 @@ export default function ClienteDetallesPage() {
             <div>
               <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 flex items-center gap-2">
                 <Phone className="w-4 h-4" />
-                Teléfono
+                Teléfono <span className="text-red-500">*</span>
               </label>
               {isEditMode ? (
                 <input
@@ -643,11 +640,12 @@ export default function ClienteDetallesPage() {
                   name="phoneNumber"
                   value={editableData.phoneNumber}
                   onChange={handleChange}
+                  required
                   className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 />
               ) : (
                 <p className="text-gray-800 dark:text-white">
-                  {customer.phoneNumber || '-'}
+                  {customer.phoneNumber}
                 </p>
               )}
             </div>
@@ -770,7 +768,7 @@ export default function ClienteDetallesPage() {
                         >
                           <Edit className="w-4 h-4" />
                         </button>
-                        
+
                         {/* Botón dinámico según estado del dispositivo */}
                         {device.isActive !== false ? (
                           <button

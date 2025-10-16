@@ -10,7 +10,7 @@ export interface Customer {
   lastName?: string;
   businessName?: string;
   email?: string;
-  phoneNumber?: string;
+  phoneNumber: string;
   documentType: DocumentType;
   documentNumber: string;
   devices?: Device[];
@@ -24,7 +24,7 @@ export interface CreateCustomerDto {
   lastName?: string;
   businessName?: string;
   email?: string;
-  phoneNumber?: string;
+  phoneNumber: string;
   documentType: DocumentType;
   documentNumber: string;
   devices?: CreateDeviceDto[];

@@ -5,6 +5,7 @@ import { useRouter, usePathname } from 'next/navigation';
 import { Menu, X, LogOut, Package, Users, Cpu } from 'lucide-react';
 import { authService } from '@/lib/api';
 import ThemeToggle from '@/components/ThemeToggle';
+import ProtectedRoute from '@/components/ProtectedRoute';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -46,171 +47,173 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   };
 
   return (
-    <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
-      {/* Sidebar Desktop - Oculto en móvil */}
-      <aside
-        className={`${
-          isSidebarOpen ? 'w-64' : 'w-20'
-        } bg-white dark:bg-gray-800 shadow-lg transition-all duration-300 ease-in-out flex-col hidden lg:flex`}
-      >
-        {/* Logo Section */}
-        <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
-          {isSidebarOpen && (
-            <h1 className="text-xl font-bold text-primary-600 dark:text-primary-500">
-              MIPC
-            </h1>
-          )}
-          <button
-            onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-            className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-          >
-            {isSidebarOpen ? (
-              <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            ) : (
-              <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-            )}
-          </button>
-        </div>
-
-        {/* Menu Items */}
-        <nav className="flex-1 px-3 py-4 space-y-2">
-          {menuItems.map((item) => {
-            const Icon = item.icon;
-            const isActive = pathname === item.path;
-
-            return (
-              <button
-                key={item.path}
-                onClick={() => router.push(item.path)}
-                className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                  isActive
-                    ? 'bg-primary-500 text-white'
-                    : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                }`}
-              >
-                <Icon className="w-5 h-5 flex-shrink-0" />
-                {isSidebarOpen && (
-                  <span className="font-medium">{item.name}</span>
-                )}
-              </button>
-            );
-          })}
-        </nav>
-
-        {/* Logout Button */}
-        <div className="px-3 py-4 border-t border-gray-200 dark:border-gray-700">
-          <button
-            onClick={handleLogout}
-            className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-          >
-            <LogOut className="w-5 h-5 flex-shrink-0" />
-            {isSidebarOpen && (
-              <span className="font-medium">Cerrar Sesión</span>
-            )}
-          </button>
-        </div>
-      </aside>
-
-      {/* Mobile Menu Overlay */}
-      {isMobileMenuOpen && (
-        <div
-          className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-          onClick={() => setIsMobileMenuOpen(false)}
+    <ProtectedRoute>
+      <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+        {/* Sidebar Desktop - Oculto en móvil */}
+        <aside
+          className={`${
+            isSidebarOpen ? 'w-64' : 'w-20'
+          } bg-white dark:bg-gray-800 shadow-lg transition-all duration-300 ease-in-out flex-col hidden lg:flex`}
         >
-          <div
-            className="bg-white dark:bg-gray-800 w-64 h-full shadow-xl"
-            onClick={(e) => e.stopPropagation()}
-          >
-            {/* Mobile Menu Header */}
-            <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
+          {/* Logo Section */}
+          <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
+            {isSidebarOpen && (
               <h1 className="text-xl font-bold text-primary-600 dark:text-primary-500">
                 MIPC
               </h1>
-              <button
-                onClick={() => setIsMobileMenuOpen(false)}
-                className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
-              >
+            )}
+            <button
+              onClick={() => setIsSidebarOpen(!isSidebarOpen)}
+              className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
+              {isSidebarOpen ? (
                 <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
-              </button>
-            </div>
+              ) : (
+                <Menu className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+              )}
+            </button>
+          </div>
 
-            {/* Mobile Menu Items */}
-            <nav className="px-3 py-4 space-y-2">
-              {menuItems.map((item) => {
-                const Icon = item.icon;
-                const isActive = pathname === item.path;
+          {/* Menu Items */}
+          <nav className="flex-1 px-3 py-4 space-y-2">
+            {menuItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = pathname === item.path;
 
-                return (
-                  <button
-                    key={item.path}
-                    onClick={() => handleMenuItemClick(item.path)}
-                    className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
-                      isActive
-                        ? 'bg-primary-500 text-white'
-                        : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
-                    }`}
-                  >
-                    <Icon className="w-5 h-5 flex-shrink-0" />
+              return (
+                <button
+                  key={item.path}
+                  onClick={() => router.push(item.path)}
+                  className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                    isActive
+                      ? 'bg-primary-500 text-white'
+                      : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                  }`}
+                >
+                  <Icon className="w-5 h-5 flex-shrink-0" />
+                  {isSidebarOpen && (
                     <span className="font-medium">{item.name}</span>
-                  </button>
-                );
-              })}
-            </nav>
+                  )}
+                </button>
+              );
+            })}
+          </nav>
 
-            {/* Mobile Logout Button */}
-            <div className="absolute bottom-0 left-0 right-0 px-3 py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
-              <button
-                onClick={() => {
-                  setIsMobileMenuOpen(false);
-                  handleLogout();
-                }}
-                className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
-              >
-                <LogOut className="w-5 h-5 flex-shrink-0" />
+          {/* Logout Button */}
+          <div className="px-3 py-4 border-t border-gray-200 dark:border-gray-700">
+            <button
+              onClick={handleLogout}
+              className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+            >
+              <LogOut className="w-5 h-5 flex-shrink-0" />
+              {isSidebarOpen && (
                 <span className="font-medium">Cerrar Sesión</span>
-              </button>
-            </div>
+              )}
+            </button>
           </div>
-        </div>
-      )}
+        </aside>
 
-      {/* Main Content */}
-      <main className="flex-1 overflow-auto">
-        {/* Top Bar */}
-        <header className="h-16 bg-white dark:bg-gray-800 shadow-sm flex items-center justify-between px-4 md:px-6">
-          {/* Mobile Menu Button */}
-          <button
-            onClick={() => setIsMobileMenuOpen(true)}
-            className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+        {/* Mobile Menu Overlay */}
+        {isMobileMenuOpen && (
+          <div
+            className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
+            onClick={() => setIsMobileMenuOpen(false)}
           >
-            <Menu className="w-6 h-6 text-gray-600 dark:text-gray-400" />
-          </button>
+            <div
+              className="bg-white dark:bg-gray-800 w-64 h-full shadow-xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Mobile Menu Header */}
+              <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
+                <h1 className="text-xl font-bold text-primary-600 dark:text-primary-500">
+                  MIPC
+                </h1>
+                <button
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                >
+                  <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
+                </button>
+              </div>
 
-          <h2 className="text-lg md:text-xl font-semibold text-gray-800 dark:text-white">
-            Sistema de Gestión
-          </h2>
+              {/* Mobile Menu Items */}
+              <nav className="px-3 py-4 space-y-2">
+                {menuItems.map((item) => {
+                  const Icon = item.icon;
+                  const isActive = pathname === item.path;
 
-          <div className="flex items-center gap-2 md:gap-4">
-            {/* Theme Toggle */}
-            <ThemeToggle />
+                  return (
+                    <button
+                      key={item.path}
+                      onClick={() => handleMenuItemClick(item.path)}
+                      className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
+                        isActive
+                          ? 'bg-primary-500 text-white'
+                          : 'text-gray-700 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700'
+                      }`}
+                    >
+                      <Icon className="w-5 h-5 flex-shrink-0" />
+                      <span className="font-medium">{item.name}</span>
+                    </button>
+                  );
+                })}
+              </nav>
 
-            <div className="text-right hidden sm:block">
-              <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                Usuario
-              </p>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Administrador
-              </p>
-            </div>
-            <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold text-sm md:text-base">
-              U
+              {/* Mobile Logout Button */}
+              <div className="absolute bottom-0 left-0 right-0 px-3 py-4 border-t border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800">
+                <button
+                  onClick={() => {
+                    setIsMobileMenuOpen(false);
+                    handleLogout();
+                  }}
+                  className="w-full flex items-center gap-3 px-4 py-3 rounded-lg text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                >
+                  <LogOut className="w-5 h-5 flex-shrink-0" />
+                  <span className="font-medium">Cerrar Sesión</span>
+                </button>
+              </div>
             </div>
           </div>
-        </header>
+        )}
 
-        {/* Page Content */}
-        <div className="p-4 md:p-6">{children}</div>
-      </main>
-    </div>
+        {/* Main Content */}
+        <main className="flex-1 overflow-auto">
+          {/* Top Bar */}
+          <header className="h-16 bg-white dark:bg-gray-800 shadow-sm flex items-center justify-between px-4 md:px-6">
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setIsMobileMenuOpen(true)}
+              className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+            >
+              <Menu className="w-6 h-6 text-gray-600 dark:text-gray-400" />
+            </button>
+
+            <h2 className="text-lg md:text-xl font-semibold text-gray-800 dark:text-white">
+              Sistema de Gestión
+            </h2>
+
+            <div className="flex items-center gap-2 md:gap-4">
+              {/* Theme Toggle */}
+              <ThemeToggle />
+
+              <div className="text-right hidden sm:block">
+                <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
+                  Usuario
+                </p>
+                <p className="text-xs text-gray-500 dark:text-gray-400">
+                  Administrador
+                </p>
+              </div>
+              <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold text-sm md:text-base">
+                U
+              </div>
+            </div>
+          </header>
+
+          {/* Page Content */}
+          <div className="p-4 md:p-6">{children}</div>
+        </main>
+      </div>
+    </ProtectedRoute>
   );
 }

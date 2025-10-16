@@ -19,7 +19,13 @@ export default function LoginPage() {
 
   useEffect(() => {
     setCurrentAPI(API_URLS.production);
-  }, []);
+
+    // Si ya está autenticado, redirigir al dashboard
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      router.push('/dashboard');
+    }
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,16 +39,25 @@ export default function LoginPage() {
       );
 
       // Guardar el token y datos del usuario
-      localStorage.setItem(
-        'authToken',
-        response.accessToken || response.access_token || response.token
-      );
+      const token =
+        response.accessToken || response.access_token || response.token;
+      localStorage.setItem('authToken', token);
+
+      // Guardar en cookie para el middleware
+      document.cookie = `authToken=${token}; path=/; max-age=${
+        60 * 60 * 24 * 7
+      }`; // 7 días
+
       if (response.user) {
         localStorage.setItem('user', JSON.stringify(response.user));
       }
 
-      // Redirigir al dashboard
-      router.push('/dashboard');
+      // Verificar si hay una URL de redirección
+      const searchParams = new URLSearchParams(window.location.search);
+      const redirectUrl = searchParams.get('redirect') || '/dashboard';
+
+      // Usar replace en lugar de push para evitar volver atrás al login
+      router.replace(redirectUrl);
     } catch (err: any) {
       console.error('Error en login:', err);
 

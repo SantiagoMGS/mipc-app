@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Menu, X, LogOut, Package, Users, Cpu } from 'lucide-react';
+import { Menu, X, LogOut, Package, Users, Cpu, Home } from 'lucide-react';
 import { authService } from '@/lib/api';
 import ThemeToggle from '@/components/ThemeToggle';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -18,6 +18,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const menuItems = [
+    {
+      name: 'Inicio',
+      icon: Home,
+      path: '/dashboard',
+    },
     {
       name: 'Productos',
       icon: Package,

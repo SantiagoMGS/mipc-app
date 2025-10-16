@@ -47,7 +47,9 @@ export function useAuth() {
                 setIsAuthenticated(false);
                 setIsLoading(false);
                 if (pathname !== '/login') {
-                  router.push(`/login?redirect=${encodeURIComponent(pathname)}`);
+                  router.push(
+                    `/login?redirect=${encodeURIComponent(pathname)}`
+                  );
                 }
                 return;
               }

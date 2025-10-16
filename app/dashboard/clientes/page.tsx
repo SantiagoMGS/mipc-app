@@ -1,15 +1,15 @@
 'use client';
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { customersService } from '@/lib/api';
-import { Customer, CreateCustomerDto } from '@/types/customer';
-import CustomerFormModal from '@/components/CustomerFormModal';
+import { Customer } from '@/types/customer';
 import Toast from '@/components/Toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
 import {
   Users,
-  Edit,
+  Eye,
   Trash2,
   Plus,
   Search,
@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 
 export default function ClientesPage() {
+  const router = useRouter();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -30,10 +31,6 @@ export default function ClientesPage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-
-  // Modal states
-  const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingCustomer, setEditingCustomer] = useState<Customer | null>(null);
 
   // Toast state
   const [toast, setToast] = useState<{
@@ -72,8 +69,18 @@ export default function ClientesPage() {
     if (searchTerm) {
       filtered = filtered.filter(
         (customer) =>
-          customer.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          customer.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          (customer.firstName &&
+            customer.firstName
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())) ||
+          (customer.lastName &&
+            customer.lastName
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())) ||
+          (customer.businessName &&
+            customer.businessName
+              .toLowerCase()
+              .includes(searchTerm.toLowerCase())) ||
           customer.documentNumber
             .toLowerCase()
             .includes(searchTerm.toLowerCase()) ||
@@ -115,30 +122,6 @@ export default function ClientesPage() {
       setCustomers([]);
     } finally {
       setIsLoading(false);
-    }
-  };
-
-  const handleCreate = async (data: CreateCustomerDto) => {
-    await customersService.create(data);
-    setCurrentPage(1);
-    await loadCustomers();
-    setIsModalOpen(false);
-    setToast({
-      message: '¡Cliente creado exitosamente!',
-      type: 'success',
-    });
-  };
-
-  const handleUpdate = async (data: CreateCustomerDto) => {
-    if (editingCustomer) {
-      await customersService.update(editingCustomer.id, data);
-      await loadCustomers();
-      setIsModalOpen(false);
-      setEditingCustomer(null);
-      setToast({
-        message: '¡Cliente actualizado exitosamente!',
-        type: 'success',
-      });
     }
   };
 
@@ -184,13 +167,11 @@ export default function ClientesPage() {
   };
 
   const openCreateModal = () => {
-    setEditingCustomer(null);
-    setIsModalOpen(true);
+    router.push('/dashboard/clientes/nuevo');
   };
 
-  const openEditModal = (customer: Customer) => {
-    setEditingCustomer(customer);
-    setIsModalOpen(true);
+  const handleViewDetails = (customerId: string) => {
+    router.push(`/dashboard/clientes/${customerId}`);
   };
 
   return (
@@ -342,12 +323,12 @@ export default function ClientesPage() {
                   {/* Botones de acción */}
                   <div className="flex gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
                     <button
-                      onClick={() => openEditModal(customer)}
+                      onClick={() => handleViewDetails(customer.id)}
                       className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                      title="Editar"
+                      title="Ver Detalles"
                     >
-                      <Edit className="w-4 h-4" />
-                      <span className="text-sm font-medium">Editar</span>
+                      <Eye className="w-4 h-4" />
+                      <span className="text-sm font-medium">Ver Detalles</span>
                     </button>
                     <button
                       onClick={() => handleDeleteClick(customer)}
@@ -378,18 +359,6 @@ export default function ClientesPage() {
           }}
         />
       )}
-
-      {/* Modal de formulario */}
-      <CustomerFormModal
-        isOpen={isModalOpen}
-        onClose={() => {
-          setIsModalOpen(false);
-          setEditingCustomer(null);
-        }}
-        onSubmit={editingCustomer ? handleUpdate : handleCreate}
-        customer={editingCustomer}
-        title={editingCustomer ? 'Editar Cliente' : 'Nuevo Cliente'}
-      />
 
       {/* Toast notification */}
       {toast && (

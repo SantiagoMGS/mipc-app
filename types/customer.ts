@@ -1,3 +1,5 @@
+import { CreateDeviceDto, Device } from './device';
+
 export type DocumentType = 'CC' | 'NIT' | 'CE' | 'TI' | 'PASAPORTE';
 export type CustomerType = 'NATURAL' | 'JURIDICA';
 
@@ -11,6 +13,7 @@ export interface Customer {
   phoneNumber?: string;
   documentType: DocumentType;
   documentNumber: string;
+  devices?: Device[];
   createdAt?: string;
   updatedAt?: string;
 }
@@ -24,4 +27,5 @@ export interface CreateCustomerDto {
   phoneNumber?: string;
   documentType: DocumentType;
   documentNumber: string;
+  devices?: CreateDeviceDto[];
 }

@@ -231,4 +231,59 @@ export const deviceTypesService = {
   },
 };
 
+// Servicios para Devices/Dispositivos
+export const devicesService = {
+  // Obtener todos los dispositivos con paginación
+  getAll: async (params?: { limit?: number; page?: number }) => {
+    const queryParams = new URLSearchParams();
+
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.page) queryParams.append('page', params.page.toString());
+
+    const url = `/devices${
+      queryParams.toString() ? `?${queryParams.toString()}` : ''
+    }`;
+    console.log('🔗 URL de petición:', url);
+    const response = await api.get(url);
+    return response.data;
+  },
+
+  // Obtener un dispositivo por ID
+  getById: async (id: string) => {
+    const response = await api.get(`/devices/${id}`);
+    return response.data;
+  },
+
+  // Obtener dispositivos de un cliente específico
+  getByCustomerId: async (customerId: string) => {
+    const response = await api.get(`/devices/customer/${customerId}`);
+    return response.data;
+  },
+
+  // Crear un nuevo dispositivo para un cliente
+  createForCustomer: async (data: any) => {
+    const response = await api.post('/devices/customer', data);
+    return response.data;
+  },
+
+  // Actualizar un dispositivo
+  // TODO: Implementar cuando el endpoint esté disponible
+  update: async (id: string, data: any) => {
+    const response = await api.patch(`/devices/${id}`, data);
+    return response.data;
+  },
+
+  // Inactivar/Eliminar un dispositivo (soft delete)
+  delete: async (id: string) => {
+    const response = await api.delete(`/devices/${id}`);
+    return response.data;
+  },
+
+  // Activar un dispositivo
+  activate: async (id: string) => {
+    const response = await api.patch(`/devices/${id}/activate`);
+    return response.data;
+  },
+};
+
 export default api;

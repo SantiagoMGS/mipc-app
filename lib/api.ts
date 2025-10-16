@@ -278,6 +278,12 @@ export const devicesService = {
     const response = await api.delete(`/devices/${id}`);
     return response.data;
   },
+
+  // Activar un dispositivo
+  activate: async (id: string) => {
+    const response = await api.patch(`/devices/${id}/activate`);
+    return response.data;
+  },
 };
 
 export default api;

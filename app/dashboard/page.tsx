@@ -81,17 +81,6 @@ export default function DashboardPage() {
           </p>
         </div>
       </div>
-
-      {/* Sección de información */}
-      <div className="bg-primary-50 dark:bg-primary-900/20 border border-primary-200 dark:border-primary-800 rounded-lg p-6">
-        <h3 className="text-lg font-semibold text-primary-800 dark:text-primary-300 mb-2">
-          🎉 Sistema Listo
-        </h3>
-        <p className="text-primary-700 dark:text-primary-400">
-          El sistema está configurado y listo para usar. Utiliza el menú lateral
-          para navegar entre las diferentes secciones.
-        </p>
-      </div>
     </div>
   );
 }

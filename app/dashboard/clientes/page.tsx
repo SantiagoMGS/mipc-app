@@ -144,7 +144,8 @@ export default function ClientesPage() {
         console.error('Error al eliminar:', err);
         toast({
           title: 'Error',
-          description: 'Error al eliminar el cliente. Por favor, intenta de nuevo.',
+          description:
+            'Error al eliminar el cliente. Por favor, intenta de nuevo.',
           variant: 'destructive',
         });
       } finally {

@@ -162,7 +162,8 @@ export default function ProductosPage() {
         console.error('Error al eliminar:', err);
         toast({
           title: 'Error',
-          description: 'Error al eliminar el item. Por favor, intenta de nuevo.',
+          description:
+            'Error al eliminar el item. Por favor, intenta de nuevo.',
           variant: 'destructive',
         });
       } finally {

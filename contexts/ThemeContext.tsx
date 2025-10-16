@@ -19,13 +19,11 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setMounted(true);
     // Cargar el tema guardado del localStorage
     const savedTheme = localStorage.getItem('theme') as Theme | null;
-    console.log('🔍 Tema guardado en localStorage:', savedTheme);
-    
+
     if (savedTheme) {
       setTheme(savedTheme);
       if (savedTheme === 'dark') {
         document.documentElement.classList.add('dark');
-        console.log('🌙 Aplicando tema oscuro inicial');
       }
     } else {
       // Detectar preferencia del sistema
@@ -33,7 +31,6 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
         '(prefers-color-scheme: dark)'
       ).matches;
       const systemTheme = prefersDark ? 'dark' : 'light';
-      console.log('🖥️ Preferencia del sistema:', systemTheme);
       setTheme(systemTheme);
       if (systemTheme === 'dark') {
         document.documentElement.classList.add('dark');
@@ -42,18 +39,14 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const toggleTheme = () => {
-    console.log('🎨 toggleTheme called, current theme:', theme);
     const newTheme = theme === 'light' ? 'dark' : 'light';
-    console.log('🎨 Setting new theme:', newTheme);
     setTheme(newTheme);
     localStorage.setItem('theme', newTheme);
 
     if (newTheme === 'dark') {
       document.documentElement.classList.add('dark');
-      console.log('🌙 Dark mode activated, classList:', document.documentElement.classList.toString());
     } else {
       document.documentElement.classList.remove('dark');
-      console.log('☀️ Light mode activated, classList:', document.documentElement.classList.toString());
     }
   };
 

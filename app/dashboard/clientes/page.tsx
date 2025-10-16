@@ -4,9 +4,12 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { customersService } from '@/lib/api';
 import { Customer } from '@/types/customer';
-import Toast from '@/components/Toast';
+import { useToast } from '@/hooks/use-toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card } from '@/components/ui/card';
 import {
   Users,
   Eye,
@@ -20,6 +23,7 @@ import {
 
 export default function ClientesPage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [customers, setCustomers] = useState<Customer[]>([]);
   const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -31,12 +35,6 @@ export default function ClientesPage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
   const [totalItems, setTotalItems] = useState(0);
   const [totalPages, setTotalPages] = useState(0);
-
-  // Toast state
-  const [toast, setToast] = useState<{
-    message: string;
-    type: 'success' | 'error' | 'warning';
-  } | null>(null);
 
   // Confirm dialog state
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -138,15 +136,16 @@ export default function ClientesPage() {
       try {
         await customersService.delete(confirmDialog.customerId);
         await loadCustomers();
-        setToast({
-          message: '¡Cliente eliminado exitosamente!',
-          type: 'success',
+        toast({
+          title: 'Éxito',
+          description: '¡Cliente eliminado exitosamente!',
         });
       } catch (err: any) {
         console.error('Error al eliminar:', err);
-        setToast({
-          message: 'Error al eliminar el cliente. Por favor, intenta de nuevo.',
-          type: 'error',
+        toast({
+          title: 'Error',
+          description: 'Error al eliminar el cliente. Por favor, intenta de nuevo.',
+          variant: 'destructive',
         });
       } finally {
         setConfirmDialog({
@@ -357,15 +356,6 @@ export default function ClientesPage() {
             setItemsPerPage(perPage);
             setCurrentPage(1);
           }}
-        />
-      )}
-
-      {/* Toast notification */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
         />
       )}
 

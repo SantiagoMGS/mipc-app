@@ -10,7 +10,10 @@ import {
 } from '@/types/customer';
 import { CreateDeviceDto, StorageType } from '@/types/device';
 import { DeviceType } from '@/types/device-type';
-import Toast from '@/components/Toast';
+import { useToast } from '@/hooks/use-toast';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
 import {
   ArrowLeft,
   Plus,
@@ -42,6 +45,7 @@ const STORAGE_TYPES: { value: StorageType; label: string }[] = [
 
 export default function NuevoClientePage() {
   const router = useRouter();
+  const { toast } = useToast();
   const [deviceTypes, setDeviceTypes] = useState<DeviceType[]>([]);
   const [isLoadingDeviceTypes, setIsLoadingDeviceTypes] = useState(true);
 
@@ -63,12 +67,6 @@ export default function NuevoClientePage() {
 
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-
-  // Toast state
-  const [toast, setToast] = useState<{
-    message: string;
-    type: 'success' | 'error' | 'warning';
-  } | null>(null);
 
   // Cargar tipos de dispositivo
   useEffect(() => {
@@ -92,9 +90,10 @@ export default function NuevoClientePage() {
       setDeviceTypes(activeTypes);
     } catch (err) {
       console.error('Error al cargar tipos de dispositivo:', err);
-      setToast({
-        message: 'Error al cargar tipos de dispositivo',
-        type: 'error',
+      toast({
+        title: 'Error',
+        description: 'Error al cargar tipos de dispositivo',
+        variant: 'destructive',
       });
     } finally {
       setIsLoadingDeviceTypes(false);
@@ -243,13 +242,13 @@ export default function NuevoClientePage() {
 
       await customersService.create(dataToSubmit);
 
-      setToast({
-        message: `¡Cliente creado exitosamente${
+      toast({
+        title: 'Éxito',
+        description: `¡Cliente creado exitosamente${
           validDevices.length > 0
             ? ` con ${validDevices.length} dispositivo(s)`
             : ''
         }!`,
-        type: 'success',
       });
 
       // Redirigir después de un breve delay
@@ -773,15 +772,6 @@ export default function NuevoClientePage() {
           </button>
         </div>
       </form>
-
-      {/* Toast notification */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
     </div>
   );
 }

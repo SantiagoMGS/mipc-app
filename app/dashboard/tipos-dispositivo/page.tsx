@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react';
 import { deviceTypesService } from '@/lib/api';
 import { DeviceType, CreateDeviceTypeDto } from '@/types/device-type';
 import DeviceTypeFormModal from '@/components/DeviceTypeFormModal';
-import Toast from '@/components/Toast';
+import { useToast } from '@/hooks/use-toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Cpu,
   Edit,
@@ -18,6 +20,7 @@ import {
 } from 'lucide-react';
 
 export default function TiposDispositivoPage() {
+  const { toast } = useToast();
   const [deviceTypes, setDeviceTypes] = useState<DeviceType[]>([]);
   const [filteredDeviceTypes, setFilteredDeviceTypes] = useState<DeviceType[]>(
     []
@@ -38,12 +41,6 @@ export default function TiposDispositivoPage() {
   const [editingDeviceType, setEditingDeviceType] = useState<DeviceType | null>(
     null
   );
-
-  // Toast state
-  const [toast, setToast] = useState<{
-    message: string;
-    type: 'success' | 'error' | 'warning';
-  } | null>(null);
 
   // Confirm dialog state
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -119,9 +116,9 @@ export default function TiposDispositivoPage() {
     setCurrentPage(1);
     await loadDeviceTypes();
     setIsModalOpen(false);
-    setToast({
-      message: '¡Tipo de dispositivo creado exitosamente!',
-      type: 'success',
+    toast({
+      title: 'Éxito',
+      description: '¡Tipo de dispositivo creado exitosamente!',
     });
   };
 
@@ -131,9 +128,9 @@ export default function TiposDispositivoPage() {
       await loadDeviceTypes();
       setIsModalOpen(false);
       setEditingDeviceType(null);
-      setToast({
-        message: '¡Tipo de dispositivo actualizado exitosamente!',
-        type: 'success',
+      toast({
+        title: 'Éxito',
+        description: '¡Tipo de dispositivo actualizado exitosamente!',
       });
     }
   };
@@ -151,16 +148,17 @@ export default function TiposDispositivoPage() {
       try {
         await deviceTypesService.delete(confirmDialog.deviceTypeId);
         await loadDeviceTypes();
-        setToast({
-          message: '¡Tipo de dispositivo eliminado exitosamente!',
-          type: 'success',
+        toast({
+          title: 'Éxito',
+          description: '¡Tipo de dispositivo eliminado exitosamente!',
         });
       } catch (err: any) {
         console.error('Error al eliminar:', err);
-        setToast({
-          message:
+        toast({
+          title: 'Error',
+          description:
             'Error al eliminar el tipo de dispositivo. Por favor, intenta de nuevo.',
-          type: 'error',
+          variant: 'destructive',
         });
       } finally {
         setConfirmDialog({
@@ -184,16 +182,17 @@ export default function TiposDispositivoPage() {
     try {
       await deviceTypesService.reactivate(deviceType.id);
       await loadDeviceTypes();
-      setToast({
-        message: '¡Tipo de dispositivo reactivado exitosamente!',
-        type: 'success',
+      toast({
+        title: 'Éxito',
+        description: '¡Tipo de dispositivo reactivado exitosamente!',
       });
     } catch (err: any) {
       console.error('Error al reactivar:', err);
-      setToast({
-        message:
+      toast({
+        title: 'Error',
+        description:
           'Error al reactivar el tipo de dispositivo. Por favor, intenta de nuevo.',
-        type: 'error',
+        variant: 'destructive',
       });
     }
   };
@@ -412,15 +411,6 @@ export default function TiposDispositivoPage() {
             : 'Nuevo Tipo de Dispositivo'
         }
       />
-
-      {/* Toast notification */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
 
       {/* Confirm dialog */}
       <ConfirmDialog

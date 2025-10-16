@@ -16,7 +16,7 @@ import {
 import { Device, CreateDeviceForCustomerDto } from '@/types/device';
 import { DeviceType } from '@/types/device-type';
 import DeviceFormModal from '@/components/DeviceFormModal';
-import Toast from '@/components/Toast';
+import { useToast } from '@/hooks/use-toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import {
   ArrowLeft,
@@ -35,6 +35,17 @@ import {
   FileText,
   CreditCard,
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 const DOCUMENT_TYPES: { value: DocumentType; label: string }[] = [
   { value: 'CC', label: 'Cédula de Ciudadanía' },
@@ -53,6 +64,7 @@ export default function ClienteDetallesPage() {
   const router = useRouter();
   const params = useParams();
   const customerId = params.id as string;
+  const { toast } = useToast();
 
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [devices, setDevices] = useState<Device[]>([]);
@@ -76,12 +88,6 @@ export default function ClienteDetallesPage() {
 
   // Modal de dispositivo
   const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
-
-  // Toast state
-  const [toast, setToast] = useState<{
-    message: string;
-    type: 'success' | 'error' | 'warning';
-  } | null>(null);
 
   // Confirm dialog state
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -124,9 +130,10 @@ export default function ClienteDetallesPage() {
     } catch (err: any) {
       console.error('Error al cargar cliente:', err);
       setError('Error al cargar los datos del cliente');
-      setToast({
-        message: 'Error al cargar los datos del cliente',
-        type: 'error',
+      toast({
+        title: 'Error',
+        description: 'Error al cargar los datos del cliente',
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
@@ -215,9 +222,9 @@ export default function ClienteDetallesPage() {
       await customersService.update(customerId, dataToSubmit);
       await loadCustomerData();
       setIsEditMode(false);
-      setToast({
-        message: '¡Cliente actualizado exitosamente!',
-        type: 'success',
+      toast({
+        title: 'Éxito',
+        description: '¡Cliente actualizado exitosamente!',
       });
     } catch (err: any) {
       console.error('Error al actualizar cliente:', err);
@@ -228,9 +235,10 @@ export default function ClienteDetallesPage() {
       setError(
         Array.isArray(errorMessage) ? errorMessage.join(', ') : errorMessage
       );
-      setToast({
-        message: 'Error al actualizar el cliente',
-        type: 'error',
+      toast({
+        title: 'Error',
+        description: 'Error al actualizar el cliente',
+        variant: 'destructive',
       });
     } finally {
       setIsSaving(false);
@@ -241,9 +249,9 @@ export default function ClienteDetallesPage() {
     try {
       await devicesService.createForCustomer(data);
       await loadCustomerData(); // Recargar para obtener dispositivos actualizados
-      setToast({
-        message: '¡Dispositivo agregado exitosamente!',
-        type: 'success',
+      toast({
+        title: 'Éxito',
+        description: '¡Dispositivo agregado exitosamente!',
       });
     } catch (err: any) {
       console.error('Error al agregar dispositivo:', err);
@@ -264,9 +272,9 @@ export default function ClienteDetallesPage() {
       try {
         await devicesService.delete(confirmDialog.deviceId);
         await loadCustomerData();
-        setToast({
-          message: '¡Dispositivo inactivado exitosamente!',
-          type: 'success',
+        toast({
+          title: 'Éxito',
+          description: '¡Dispositivo inactivado exitosamente!',
         });
       } catch (err: any) {
         console.error('Error al inactivar dispositivo:', err);
@@ -274,11 +282,12 @@ export default function ClienteDetallesPage() {
           err.response?.data?.message ||
           err.message ||
           'Error al inactivar el dispositivo';
-        setToast({
-          message: Array.isArray(errorMessage)
+        toast({
+          title: 'Error',
+          description: Array.isArray(errorMessage)
             ? errorMessage.join(', ')
             : errorMessage,
-          type: 'error',
+          variant: 'destructive',
         });
       } finally {
         setConfirmDialog({
@@ -304,9 +313,9 @@ export default function ClienteDetallesPage() {
       // Recargar dispositivos
       const devicesData = await devicesService.getByCustomerId(customerId);
       setDevices(Array.isArray(devicesData) ? devicesData : []);
-      setToast({
-        message: '¡Dispositivo activado exitosamente!',
-        type: 'success',
+      toast({
+        title: 'Éxito',
+        description: '¡Dispositivo activado exitosamente!',
       });
     } catch (err: any) {
       console.error('Error al activar dispositivo:', err);
@@ -314,11 +323,12 @@ export default function ClienteDetallesPage() {
         err.response?.data?.message ||
         err.message ||
         'Error al activar el dispositivo';
-      setToast({
-        message: Array.isArray(errorMessage)
+      toast({
+        title: 'Error',
+        description: Array.isArray(errorMessage)
           ? errorMessage.join(', ')
           : errorMessage,
-        type: 'error',
+        variant: 'destructive',
       });
     }
   };
@@ -757,10 +767,10 @@ export default function ClienteDetallesPage() {
                         <button
                           onClick={() => {
                             /* TODO: Implementar edición */
-                            setToast({
-                              message:
+                            toast({
+                              title: 'Función no disponible',
+                              description:
                                 'La edición de dispositivos aún no está disponible',
-                              type: 'warning',
                             });
                           }}
                           className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
@@ -805,15 +815,6 @@ export default function ClienteDetallesPage() {
         customerId={customerId}
         deviceTypes={deviceTypes}
       />
-
-      {/* Toast notification */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
 
       {/* Confirm dialog */}
       <ConfirmDialog

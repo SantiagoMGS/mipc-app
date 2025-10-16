@@ -4,9 +4,11 @@ import { useState, useEffect } from 'react';
 import { itemsService } from '@/lib/api';
 import { Item, CreateItemDto } from '@/types/item';
 import ItemFormModal from '@/components/ItemFormModal';
-import Toast from '@/components/Toast';
+import { useToast } from '@/hooks/use-toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
 import {
   Package,
   Edit,
@@ -18,6 +20,7 @@ import {
 } from 'lucide-react';
 
 export default function ProductosPage() {
+  const { toast } = useToast();
   const [items, setItems] = useState<Item[]>([]);
   const [filteredItems, setFilteredItems] = useState<Item[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,12 +40,6 @@ export default function ProductosPage() {
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Item | null>(null);
-
-  // Toast state
-  const [toast, setToast] = useState<{
-    message: string;
-    type: 'success' | 'error' | 'warning';
-  } | null>(null);
 
   // Confirm dialog state
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -125,9 +122,9 @@ export default function ProductosPage() {
     setCurrentPage(1); // Volver a la primera página
     await loadItems();
     setIsModalOpen(false);
-    setToast({
-      message: '¡Item creado exitosamente!',
-      type: 'success',
+    toast({
+      title: 'Éxito',
+      description: '¡Item creado exitosamente!',
     });
   };
 
@@ -137,9 +134,9 @@ export default function ProductosPage() {
       await loadItems();
       setIsModalOpen(false);
       setEditingItem(null);
-      setToast({
-        message: '¡Item actualizado exitosamente!',
-        type: 'success',
+      toast({
+        title: 'Éxito',
+        description: '¡Item actualizado exitosamente!',
       });
     }
   };
@@ -157,15 +154,16 @@ export default function ProductosPage() {
       try {
         await itemsService.delete(confirmDialog.itemId);
         await loadItems();
-        setToast({
-          message: '¡Item eliminado exitosamente!',
-          type: 'success',
+        toast({
+          title: 'Éxito',
+          description: '¡Item eliminado exitosamente!',
         });
       } catch (err: any) {
         console.error('Error al eliminar:', err);
-        setToast({
-          message: 'Error al eliminar el item. Por favor, intenta de nuevo.',
-          type: 'error',
+        toast({
+          title: 'Error',
+          description: 'Error al eliminar el item. Por favor, intenta de nuevo.',
+          variant: 'destructive',
         });
       } finally {
         setConfirmDialog({
@@ -189,15 +187,16 @@ export default function ProductosPage() {
     try {
       await itemsService.reactivate(item.id);
       await loadItems();
-      setToast({
-        message: '¡Item reactivado exitosamente!',
-        type: 'success',
+      toast({
+        title: 'Éxito',
+        description: '¡Item reactivado exitosamente!',
       });
     } catch (err: any) {
       console.error('Error al reactivar:', err);
-      setToast({
-        message: 'Error al reactivar el item. Por favor, intenta de nuevo.',
-        type: 'error',
+      toast({
+        title: 'Error',
+        description: 'Error al reactivar el item. Por favor, intenta de nuevo.',
+        variant: 'destructive',
       });
     }
   };
@@ -434,15 +433,6 @@ export default function ProductosPage() {
         item={editingItem}
         title={editingItem ? 'Editar Item' : 'Nuevo Item'}
       />
-
-      {/* Toast notification */}
-      {toast && (
-        <Toast
-          message={toast.message}
-          type={toast.type}
-          onClose={() => setToast(null)}
-        />
-      )}
 
       {/* Confirm dialog */}
       <ConfirmDialog

@@ -2,7 +2,12 @@
 
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { Customer, CreateCustomerDto, DocumentType, CustomerType } from '@/types/customer';
+import {
+  Customer,
+  CreateCustomerDto,
+  DocumentType,
+  CustomerType,
+} from '@/types/customer';
 
 interface CustomerFormModalProps {
   isOpen: boolean;
@@ -73,7 +78,9 @@ export default function CustomerFormModal({
   }, [customer, isOpen]);
 
   const handleChange = (
-    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
   ) => {
     const { name, value } = e.target;
     setFormData({
@@ -139,8 +146,13 @@ export default function CustomerFormModal({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
-          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">{title}</h2>
-          <button onClick={onClose} className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors">
+          <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
+            {title}
+          </h2>
+          <button
+            onClick={onClose}
+            className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
+          >
             <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
           </button>
         </div>
@@ -151,7 +163,10 @@ export default function CustomerFormModal({
             </div>
           )}
           <div>
-            <label htmlFor="customerType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            <label
+              htmlFor="customerType"
+              className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+            >
               Tipo de Cliente <span className="text-red-500">*</span>
             </label>
             <select
@@ -163,14 +178,19 @@ export default function CustomerFormModal({
               className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             >
               {CUSTOMER_TYPES.map((type) => (
-                <option key={type.value} value={type.value}>{type.label}</option>
+                <option key={type.value} value={type.value}>
+                  {type.label}
+                </option>
               ))}
             </select>
           </div>
           {isNatural ? (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="firstName"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Nombre <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -185,7 +205,10 @@ export default function CustomerFormModal({
                 />
               </div>
               <div>
-                <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="lastName"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Apellido <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -203,7 +226,10 @@ export default function CustomerFormModal({
           ) : (
             <>
               <div>
-                <label htmlFor="businessName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                <label
+                  htmlFor="businessName"
+                  className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                >
                   Razón Social <span className="text-red-500">*</span>
                 </label>
                 <input
@@ -219,7 +245,10 @@ export default function CustomerFormModal({
               </div>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label htmlFor="firstName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label
+                    htmlFor="firstName"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
                     Nombre de Contacto
                   </label>
                   <input
@@ -233,7 +262,10 @@ export default function CustomerFormModal({
                   />
                 </div>
                 <div>
-                  <label htmlFor="lastName" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                  <label
+                    htmlFor="lastName"
+                    className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+                  >
                     Apellido de Contacto
                   </label>
                   <input
@@ -251,7 +283,10 @@ export default function CustomerFormModal({
           )}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="documentType" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label
+                htmlFor="documentType"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Tipo de Documento <span className="text-red-500">*</span>
               </label>
               <select
@@ -263,12 +298,17 @@ export default function CustomerFormModal({
                 className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 {DOCUMENT_TYPES.map((type) => (
-                  <option key={type.value} value={type.value}>{type.label}</option>
+                  <option key={type.value} value={type.value}>
+                    {type.label}
+                  </option>
                 ))}
               </select>
             </div>
             <div>
-              <label htmlFor="documentNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label
+                htmlFor="documentNumber"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Número de Documento <span className="text-red-500">*</span>
               </label>
               <input
@@ -286,7 +326,10 @@ export default function CustomerFormModal({
           </div>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <label htmlFor="email" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label
+                htmlFor="email"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Correo Electrónico
               </label>
               <input
@@ -300,7 +343,10 @@ export default function CustomerFormModal({
               />
             </div>
             <div>
-              <label htmlFor="phoneNumber" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+              <label
+                htmlFor="phoneNumber"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
                 Teléfono
               </label>
               <input

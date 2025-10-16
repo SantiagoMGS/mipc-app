@@ -282,7 +282,9 @@ export default function ClientesPage() {
                 <div className="px-4 pt-4 pb-2 bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20">
                   <div className="flex items-center justify-between">
                     <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary-500 text-white">
-                      {customer.customerType === 'NATURAL' ? 'PERSONA NATURAL' : 'PERSONA JURÍDICA'}
+                      {customer.customerType === 'NATURAL'
+                        ? 'PERSONA NATURAL'
+                        : 'PERSONA JURÍDICA'}
                     </span>
                   </div>
                   <div className="mt-2 flex items-center gap-2">
@@ -298,17 +300,22 @@ export default function ClientesPage() {
                 <div className="p-4">
                   {/* Nombre completo o Razón Social */}
                   <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">
-                    {customer.customerType === 'JURIDICA' && customer.businessName
+                    {customer.customerType === 'JURIDICA' &&
+                    customer.businessName
                       ? customer.businessName
-                      : `${customer.firstName || ''} ${customer.lastName || ''}`.trim() || 'Sin nombre'}
+                      : `${customer.firstName || ''} ${
+                          customer.lastName || ''
+                        }`.trim() || 'Sin nombre'}
                   </h3>
-                  
+
                   {/* Contacto de la empresa (si aplica) */}
-                  {customer.customerType === 'JURIDICA' && (customer.firstName || customer.lastName) && (
-                    <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                      <span className="font-medium">Contacto:</span> {customer.firstName} {customer.lastName}
-                    </p>
-                  )}
+                  {customer.customerType === 'JURIDICA' &&
+                    (customer.firstName || customer.lastName) && (
+                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                        <span className="font-medium">Contacto:</span>{' '}
+                        {customer.firstName} {customer.lastName}
+                      </p>
+                    )}
 
                   {/* Información de contacto */}
                   <div className="space-y-2 mb-4">

@@ -1,12 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { itemsService } from '@/lib/api';
 import { Item, CreateItemDto } from '@/types/item';
 import ItemFormModal from '@/components/ItemFormModal';
 import { useToast } from '@/hooks/use-toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
+import { 
+  useItems, 
+  useCreateItem, 
+  useUpdateItem, 
+  useDeleteItem, 
+  useReactivateItem 
+} from '@/hooks/useItems';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -21,21 +27,31 @@ import {
 
 export default function ProductosPage() {
   const { toast } = useToast();
-  const [items, setItems] = useState<Item[]>([]);
-  const [filteredItems, setFilteredItems] = useState<Item[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+  
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<'ALL' | 'PRODUCTO' | 'SERVICIO'>(
-    'ALL'
-  );
+  const [filterType, setFilterType] = useState<'ALL' | 'PRODUCTO' | 'SERVICIO'>('ALL');
   const [showDeleted, setShowDeleted] = useState(false);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+
+  // TanStack Query
+  const { data, isLoading, error } = useItems({ 
+    page: currentPage, 
+    limit: itemsPerPage, 
+    withDeleted: showDeleted 
+  });
+  const createItemMutation = useCreateItem();
+  const updateItemMutation = useUpdateItem();
+  const deleteItemMutation = useDeleteItem();
+  const reactivateItemMutation = useReactivateItem();
+
+  const items = data?.items || [];
+  const totalItems = data?.total || 0;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  const [filteredItems, setFilteredItems] = useState<Item[]>([]);
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -52,11 +68,7 @@ export default function ProductosPage() {
     itemName: '',
   });
 
-  // Cargar items al montar el componente
-  useEffect(() => {
-    loadItems();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, itemsPerPage, showDeleted]);
+  // Cargar items al montar el componente - ya no es necesario, TanStack Query lo hace automáticamente
 
   // Filtrar items cuando cambia el término de búsqueda o el filtro
   useEffect(() => {
@@ -88,56 +100,17 @@ export default function ProductosPage() {
     setFilteredItems(filtered);
   }, [items, searchTerm, filterType]);
 
-  const loadItems = async () => {
-    try {
-      setIsLoading(true);
-      setError('');
-      const response = await itemsService.getAll({
-        page: currentPage,
-        limit: itemsPerPage,
-        withDeleted: showDeleted,
-      });
-      console.log('📦 Datos recibidos de la API:', response);
-
-      // La API devuelve {data: [], total, page, limit}
-      const itemsArray = Array.isArray(response?.data)
-        ? response.data
-        : Array.isArray(response)
-        ? response
-        : [];
-
-      setItems(itemsArray);
-      setTotalItems(response?.total || 0);
-      setTotalPages(Math.ceil((response?.total || 0) / itemsPerPage));
-    } catch (err: any) {
-      console.error('Error al cargar items:', err);
-      setError('Error al cargar los items. Por favor, intenta de nuevo.');
-      setItems([]); // Asegurar que items sea un array vacío en caso de error
-    } finally {
-      setIsLoading(false);
-    }
-  };
   const handleCreate = async (data: CreateItemDto) => {
-    await itemsService.create(data);
-    setCurrentPage(1); // Volver a la primera página
-    await loadItems();
+    await createItemMutation.mutateAsync(data);
+    setCurrentPage(1);
     setIsModalOpen(false);
-    toast({
-      title: 'Éxito',
-      description: '¡Item creado exitosamente!',
-    });
   };
 
   const handleUpdate = async (data: CreateItemDto) => {
     if (editingItem) {
-      await itemsService.update(editingItem.id, data);
-      await loadItems();
+      await updateItemMutation.mutateAsync({ id: editingItem.id, data });
       setIsModalOpen(false);
       setEditingItem(null);
-      toast({
-        title: 'Éxito',
-        description: '¡Item actualizado exitosamente!',
-      });
     }
   };
 
@@ -152,20 +125,7 @@ export default function ProductosPage() {
   const handleDeleteConfirm = async () => {
     if (confirmDialog.itemId) {
       try {
-        await itemsService.delete(confirmDialog.itemId);
-        await loadItems();
-        toast({
-          title: 'Éxito',
-          description: '¡Item eliminado exitosamente!',
-        });
-      } catch (err: any) {
-        console.error('Error al eliminar:', err);
-        toast({
-          title: 'Error',
-          description:
-            'Error al eliminar el item. Por favor, intenta de nuevo.',
-          variant: 'destructive',
-        });
+        await deleteItemMutation.mutateAsync(confirmDialog.itemId);
       } finally {
         setConfirmDialog({
           isOpen: false,
@@ -184,22 +144,8 @@ export default function ProductosPage() {
     });
   };
 
-  const handleReactivate = async (item: Item) => {
-    try {
-      await itemsService.reactivate(item.id);
-      await loadItems();
-      toast({
-        title: 'Éxito',
-        description: '¡Item reactivado exitosamente!',
-      });
-    } catch (err: any) {
-      console.error('Error al reactivar:', err);
-      toast({
-        title: 'Error',
-        description: 'Error al reactivar el item. Por favor, intenta de nuevo.',
-        variant: 'destructive',
-      });
-    }
+  const handleReactivateClick = async (item: Item) => {
+    await reactivateItemMutation.mutateAsync(item.id);
   };
 
   const openCreateModal = () => {
@@ -283,7 +229,9 @@ export default function ProductosPage() {
       {error && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+          <p className="text-sm text-red-700 dark:text-red-300">
+            {error.message || 'Error al cargar los items'}
+          </p>
         </div>
       )}
 
@@ -376,7 +324,7 @@ export default function ProductosPage() {
                     <div className="flex gap-2">
                       {!item.isActive ? (
                         <button
-                          onClick={() => handleReactivate(item)}
+                          onClick={() => handleReactivateClick(item)}
                           className="p-2 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
                           title="Reactivar"
                         >

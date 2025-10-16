@@ -1,12 +1,18 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { deviceTypesService } from '@/lib/api';
 import { DeviceType, CreateDeviceTypeDto } from '@/types/device-type';
 import DeviceTypeFormModal from '@/components/DeviceTypeFormModal';
 import { useToast } from '@/hooks/use-toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
+import { 
+  useDeviceTypes, 
+  useCreateDeviceType, 
+  useUpdateDeviceType, 
+  useDeleteDeviceType, 
+  useReactivateDeviceType 
+} from '@/hooks/useDeviceTypes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -21,26 +27,34 @@ import {
 
 export default function TiposDispositivoPage() {
   const { toast } = useToast();
-  const [deviceTypes, setDeviceTypes] = useState<DeviceType[]>([]);
-  const [filteredDeviceTypes, setFilteredDeviceTypes] = useState<DeviceType[]>(
-    []
-  );
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+  
   const [searchTerm, setSearchTerm] = useState('');
   const [showDeleted, setShowDeleted] = useState(false);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+
+  // TanStack Query
+  const { data, isLoading, error } = useDeviceTypes({ 
+    page: currentPage, 
+    limit: itemsPerPage, 
+    withDeleted: showDeleted 
+  });
+  const createDeviceTypeMutation = useCreateDeviceType();
+  const updateDeviceTypeMutation = useUpdateDeviceType();
+  const deleteDeviceTypeMutation = useDeleteDeviceType();
+  const reactivateDeviceTypeMutation = useReactivateDeviceType();
+
+  const deviceTypes = data?.deviceTypes || [];
+  const totalItems = data?.total || 0;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  const [filteredDeviceTypes, setFilteredDeviceTypes] = useState<DeviceType[]>([]);
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingDeviceType, setEditingDeviceType] = useState<DeviceType | null>(
-    null
-  );
+  const [editingDeviceType, setEditingDeviceType] = useState<DeviceType | null>(null);
 
   // Confirm dialog state
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -52,12 +66,6 @@ export default function TiposDispositivoPage() {
     deviceTypeId: null,
     deviceTypeName: '',
   });
-
-  // Cargar tipos de dispositivo al montar el componente
-  useEffect(() => {
-    loadDeviceTypes();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, itemsPerPage, showDeleted]);
 
   // Filtrar tipos de dispositivo cuando cambia el término de búsqueda
   useEffect(() => {
@@ -79,59 +87,17 @@ export default function TiposDispositivoPage() {
     setFilteredDeviceTypes(filtered);
   }, [deviceTypes, searchTerm]);
 
-  const loadDeviceTypes = async () => {
-    try {
-      setIsLoading(true);
-      setError('');
-      const response = await deviceTypesService.getAll({
-        page: currentPage,
-        limit: itemsPerPage,
-        withDeleted: showDeleted,
-      });
-      console.log('📦 Datos recibidos de la API:', response);
-
-      // La API devuelve {data: [], total, page, limit}
-      const deviceTypesArray = Array.isArray(response?.data)
-        ? response.data
-        : Array.isArray(response)
-        ? response
-        : [];
-
-      setDeviceTypes(deviceTypesArray);
-      setTotalItems(response?.total || 0);
-      setTotalPages(Math.ceil((response?.total || 0) / itemsPerPage));
-    } catch (err: any) {
-      console.error('Error al cargar tipos de dispositivo:', err);
-      setError(
-        'Error al cargar los tipos de dispositivo. Por favor, intenta de nuevo.'
-      );
-      setDeviceTypes([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleCreate = async (data: CreateDeviceTypeDto) => {
-    await deviceTypesService.create(data);
+    await createDeviceTypeMutation.mutateAsync(data);
     setCurrentPage(1);
-    await loadDeviceTypes();
     setIsModalOpen(false);
-    toast({
-      title: 'Éxito',
-      description: '¡Tipo de dispositivo creado exitosamente!',
-    });
   };
 
   const handleUpdate = async (data: CreateDeviceTypeDto) => {
     if (editingDeviceType) {
-      await deviceTypesService.update(editingDeviceType.id, data);
-      await loadDeviceTypes();
+      await updateDeviceTypeMutation.mutateAsync({ id: editingDeviceType.id, data });
       setIsModalOpen(false);
       setEditingDeviceType(null);
-      toast({
-        title: 'Éxito',
-        description: '¡Tipo de dispositivo actualizado exitosamente!',
-      });
     }
   };
 
@@ -146,20 +112,7 @@ export default function TiposDispositivoPage() {
   const handleDeleteConfirm = async () => {
     if (confirmDialog.deviceTypeId) {
       try {
-        await deviceTypesService.delete(confirmDialog.deviceTypeId);
-        await loadDeviceTypes();
-        toast({
-          title: 'Éxito',
-          description: '¡Tipo de dispositivo eliminado exitosamente!',
-        });
-      } catch (err: any) {
-        console.error('Error al eliminar:', err);
-        toast({
-          title: 'Error',
-          description:
-            'Error al eliminar el tipo de dispositivo. Por favor, intenta de nuevo.',
-          variant: 'destructive',
-        });
+        await deleteDeviceTypeMutation.mutateAsync(confirmDialog.deviceTypeId);
       } finally {
         setConfirmDialog({
           isOpen: false,
@@ -179,22 +132,7 @@ export default function TiposDispositivoPage() {
   };
 
   const handleReactivate = async (deviceType: DeviceType) => {
-    try {
-      await deviceTypesService.reactivate(deviceType.id);
-      await loadDeviceTypes();
-      toast({
-        title: 'Éxito',
-        description: '¡Tipo de dispositivo reactivado exitosamente!',
-      });
-    } catch (err: any) {
-      console.error('Error al reactivar:', err);
-      toast({
-        title: 'Error',
-        description:
-          'Error al reactivar el tipo de dispositivo. Por favor, intenta de nuevo.',
-        variant: 'destructive',
-      });
-    }
+    await reactivateDeviceTypeMutation.mutateAsync(deviceType.id);
   };
 
   const openCreateModal = () => {
@@ -265,7 +203,9 @@ export default function TiposDispositivoPage() {
       {error && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+          <p className="text-sm text-red-700 dark:text-red-300">
+            {error.message || 'Error al cargar los tipos de dispositivo'}
+          </p>
         </div>
       )}
 

@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { customersService } from '@/lib/api';
 import { Customer } from '@/types/customer';
 import { useToast } from '@/hooks/use-toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
+import { useCustomers, useDeleteCustomer } from '@/hooks/useCustomers';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -24,17 +24,22 @@ import {
 export default function ClientesPage() {
   const router = useRouter();
   const { toast } = useToast();
-  const [customers, setCustomers] = useState<Customer[]>([]);
-  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState('');
+  
   const [searchTerm, setSearchTerm] = useState('');
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
-  const [totalItems, setTotalItems] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
+
+  // TanStack Query
+  const { data, isLoading, error } = useCustomers({ page: currentPage, limit: itemsPerPage });
+  const deleteCustomerMutation = useDeleteCustomer();
+
+  const customers = data?.customers || [];
+  const totalItems = data?.total || 0;
+  const totalPages = Math.ceil(totalItems / itemsPerPage);
+
+  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
 
   // Confirm dialog state
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -46,12 +51,6 @@ export default function ClientesPage() {
     customerId: null,
     customerName: '',
   });
-
-  // Cargar clientes al montar el componente
-  useEffect(() => {
-    loadCustomers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, itemsPerPage]);
 
   // Filtrar clientes cuando cambia el término de búsqueda
   useEffect(() => {
@@ -94,35 +93,6 @@ export default function ClientesPage() {
     setFilteredCustomers(filtered);
   }, [customers, searchTerm]);
 
-  const loadCustomers = async () => {
-    try {
-      setIsLoading(true);
-      setError('');
-      const response = await customersService.getAll({
-        page: currentPage,
-        limit: itemsPerPage,
-      });
-      console.log('📦 Datos recibidos de la API:', response);
-
-      // La API devuelve {data: [], total, page, limit}
-      const customersArray = Array.isArray(response?.data)
-        ? response.data
-        : Array.isArray(response)
-        ? response
-        : [];
-
-      setCustomers(customersArray);
-      setTotalItems(response?.total || 0);
-      setTotalPages(Math.ceil((response?.total || 0) / itemsPerPage));
-    } catch (err: any) {
-      console.error('Error al cargar clientes:', err);
-      setError('Error al cargar los clientes. Por favor, intenta de nuevo.');
-      setCustomers([]);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
   const handleDeleteClick = (customer: Customer) => {
     setConfirmDialog({
       isOpen: true,
@@ -134,20 +104,7 @@ export default function ClientesPage() {
   const handleDeleteConfirm = async () => {
     if (confirmDialog.customerId) {
       try {
-        await customersService.delete(confirmDialog.customerId);
-        await loadCustomers();
-        toast({
-          title: 'Éxito',
-          description: '¡Cliente eliminado exitosamente!',
-        });
-      } catch (err: any) {
-        console.error('Error al eliminar:', err);
-        toast({
-          title: 'Error',
-          description:
-            'Error al eliminar el cliente. Por favor, intenta de nuevo.',
-          variant: 'destructive',
-        });
+        await deleteCustomerMutation.mutateAsync(confirmDialog.customerId);
       } finally {
         setConfirmDialog({
           isOpen: false,
@@ -216,7 +173,9 @@ export default function ClientesPage() {
       {error && (
         <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-3">
           <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
-          <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
+          <p className="text-sm text-red-700 dark:text-red-300">
+            {error.message || 'Error al cargar los clientes'}
+          </p>
         </div>
       )}
 

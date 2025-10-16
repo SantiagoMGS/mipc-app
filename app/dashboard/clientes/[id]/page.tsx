@@ -2,22 +2,15 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import {
-  customersService,
-  devicesService,
-  deviceTypesService,
-} from '@/lib/api';
-import {
-  Customer,
-  CreateCustomerDto,
-  DocumentType,
-  CustomerType,
-} from '@/types/customer';
+import { deviceTypesService } from '@/lib/api';
+import { CreateCustomerDto, DocumentType, CustomerType } from '@/types/customer';
 import { Device, CreateDeviceForCustomerDto } from '@/types/device';
 import { DeviceType } from '@/types/device-type';
 import DeviceFormModal from '@/components/DeviceFormModal';
 import { useToast } from '@/hooks/use-toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import { useCustomer, useUpdateCustomer } from '@/hooks/useCustomers';
+import { useCustomerDevices, useCreateDeviceForCustomer, useDeleteDevice, useActivateDevice } from '@/hooks/useDevices';
 import {
   ArrowLeft,
   Edit,
@@ -66,13 +59,16 @@ export default function ClienteDetallesPage() {
   const customerId = params.id as string;
   const { toast } = useToast();
 
-  const [customer, setCustomer] = useState<Customer | null>(null);
-  const [devices, setDevices] = useState<Device[]>([]);
+  // TanStack Query hooks
+  const { data: customer, isLoading: isLoadingCustomer, error: customerError } = useCustomer(customerId);
+  const { data: devices = [], isLoading: isLoadingDevices } = useCustomerDevices(customerId);
+  const updateCustomerMutation = useUpdateCustomer();
+  const createDeviceMutation = useCreateDeviceForCustomer();
+  const deleteDeviceMutation = useDeleteDevice();
+  const activateDeviceMutation = useActivateDevice();
+
   const [deviceTypes, setDeviceTypes] = useState<DeviceType[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isEditMode, setIsEditMode] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
-  const [error, setError] = useState('');
 
   // Datos editables del cliente
   const [editableData, setEditableData] = useState<CreateCustomerDto>({
@@ -100,63 +96,43 @@ export default function ClienteDetallesPage() {
     deviceName: '',
   });
 
+  // Sincronizar editableData cuando customer cambia
   useEffect(() => {
-    loadCustomerData();
-    loadDeviceTypes();
-  }, [customerId]);
-
-  const loadCustomerData = async () => {
-    try {
-      setIsLoading(true);
-      setError('');
-      const customerData = await customersService.getById(customerId);
-      setCustomer(customerData);
-
-      // Cargar dispositivos usando el endpoint específico
-      const devicesData = await devicesService.getByCustomerId(customerId);
-      setDevices(Array.isArray(devicesData) ? devicesData : []);
-
-      // Inicializar datos editables
+    if (customer) {
       setEditableData({
-        customerType: customerData.customerType,
-        firstName: customerData.firstName || '',
-        lastName: customerData.lastName || '',
-        businessName: customerData.businessName || '',
-        email: customerData.email || '',
-        phoneNumber: customerData.phoneNumber || '',
-        documentType: customerData.documentType,
-        documentNumber: customerData.documentNumber,
+        customerType: customer.customerType,
+        firstName: customer.firstName || '',
+        lastName: customer.lastName || '',
+        businessName: customer.businessName || '',
+        email: customer.email || '',
+        phoneNumber: customer.phoneNumber || '',
+        documentType: customer.documentType,
+        documentNumber: customer.documentNumber,
       });
-    } catch (err: any) {
-      console.error('Error al cargar cliente:', err);
-      setError('Error al cargar los datos del cliente');
-      toast({
-        title: 'Error',
-        description: 'Error al cargar los datos del cliente',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsLoading(false);
     }
-  };
+  }, [customer]);
 
-  const loadDeviceTypes = async () => {
-    try {
-      const response = await deviceTypesService.getAll({ limit: 1000 });
-      const typesArray = Array.isArray(response?.data)
-        ? response.data
-        : Array.isArray(response)
-        ? response
-        : [];
+  // Cargar tipos de dispositivo (solo una vez)
+  useEffect(() => {
+    const loadDeviceTypes = async () => {
+      try {
+        const response = await deviceTypesService.getAll({ limit: 1000 });
+        const typesArray = Array.isArray(response?.data)
+          ? response.data
+          : Array.isArray(response)
+          ? response
+          : [];
 
-      const activeTypes = typesArray.filter(
-        (type: DeviceType) => type.isActive !== false
-      );
-      setDeviceTypes(activeTypes);
-    } catch (err) {
-      console.error('Error al cargar tipos de dispositivo:', err);
-    }
-  };
+        const activeTypes = typesArray.filter(
+          (type: DeviceType) => type.isActive !== false
+        );
+        setDeviceTypes(activeTypes);
+      } catch (err) {
+        console.error('Error al cargar tipos de dispositivo:', err);
+      }
+    };
+    loadDeviceTypes();
+  }, []);
 
   const handleEditClick = () => {
     setIsEditMode(true);
@@ -190,73 +166,46 @@ export default function ClienteDetallesPage() {
   };
 
   const handleSaveChanges = async () => {
-    try {
-      setIsSaving(true);
-      setError('');
+    if (!customer) return;
 
-      // Preparar datos para enviar
-      const dataToSubmit: CreateCustomerDto = {
-        customerType: editableData.customerType,
-        documentType: editableData.documentType,
-        documentNumber: editableData.documentNumber,
-        phoneNumber: editableData.phoneNumber,
-      };
+    // Preparar datos para enviar
+    const dataToSubmit: CreateCustomerDto = {
+      customerType: editableData.customerType,
+      documentType: editableData.documentType,
+      documentNumber: editableData.documentNumber,
+      phoneNumber: editableData.phoneNumber,
+    };
 
-      if (editableData.customerType === 'NATURAL') {
+    if (editableData.customerType === 'NATURAL') {
+      dataToSubmit.firstName = editableData.firstName;
+      dataToSubmit.lastName = editableData.lastName;
+    } else {
+      dataToSubmit.businessName = editableData.businessName;
+      if (editableData.firstName && editableData.firstName.trim() !== '') {
         dataToSubmit.firstName = editableData.firstName;
+      }
+      if (editableData.lastName && editableData.lastName.trim() !== '') {
         dataToSubmit.lastName = editableData.lastName;
-      } else {
-        dataToSubmit.businessName = editableData.businessName;
-        if (editableData.firstName && editableData.firstName.trim() !== '') {
-          dataToSubmit.firstName = editableData.firstName;
-        }
-        if (editableData.lastName && editableData.lastName.trim() !== '') {
-          dataToSubmit.lastName = editableData.lastName;
-        }
       }
+    }
 
-      if (editableData.email && editableData.email.trim() !== '') {
-        dataToSubmit.email = editableData.email;
-      }
+    if (editableData.email && editableData.email.trim() !== '') {
+      dataToSubmit.email = editableData.email;
+    }
 
-      await customersService.update(customerId, dataToSubmit);
-      await loadCustomerData();
-      setIsEditMode(false);
-      toast({
-        title: 'Éxito',
-        description: '¡Cliente actualizado exitosamente!',
+    try {
+      await updateCustomerMutation.mutateAsync({
+        id: customer.id,
+        data: dataToSubmit,
       });
+      setIsEditMode(false);
     } catch (err: any) {
       console.error('Error al actualizar cliente:', err);
-      const errorMessage =
-        err.response?.data?.message ||
-        err.message ||
-        'Error al actualizar el cliente';
-      setError(
-        Array.isArray(errorMessage) ? errorMessage.join(', ') : errorMessage
-      );
-      toast({
-        title: 'Error',
-        description: 'Error al actualizar el cliente',
-        variant: 'destructive',
-      });
-    } finally {
-      setIsSaving(false);
     }
   };
 
   const handleAddDevice = async (data: CreateDeviceForCustomerDto) => {
-    try {
-      await devicesService.createForCustomer(data);
-      await loadCustomerData(); // Recargar para obtener dispositivos actualizados
-      toast({
-        title: 'Éxito',
-        description: '¡Dispositivo agregado exitosamente!',
-      });
-    } catch (err: any) {
-      console.error('Error al agregar dispositivo:', err);
-      throw err;
-    }
+    await createDeviceMutation.mutateAsync(data);
   };
 
   const handleDeleteDeviceClick = (device: Device) => {
@@ -270,25 +219,7 @@ export default function ClienteDetallesPage() {
   const handleDeleteDeviceConfirm = async () => {
     if (confirmDialog.deviceId) {
       try {
-        await devicesService.delete(confirmDialog.deviceId);
-        await loadCustomerData();
-        toast({
-          title: 'Éxito',
-          description: '¡Dispositivo inactivado exitosamente!',
-        });
-      } catch (err: any) {
-        console.error('Error al inactivar dispositivo:', err);
-        const errorMessage =
-          err.response?.data?.message ||
-          err.message ||
-          'Error al inactivar el dispositivo';
-        toast({
-          title: 'Error',
-          description: Array.isArray(errorMessage)
-            ? errorMessage.join(', ')
-            : errorMessage,
-          variant: 'destructive',
-        });
+        await deleteDeviceMutation.mutateAsync(confirmDialog.deviceId);
       } finally {
         setConfirmDialog({
           isOpen: false,
@@ -308,29 +239,7 @@ export default function ClienteDetallesPage() {
   };
 
   const handleActivateDevice = async (device: Device) => {
-    try {
-      await devicesService.activate(device.id);
-      // Recargar dispositivos
-      const devicesData = await devicesService.getByCustomerId(customerId);
-      setDevices(Array.isArray(devicesData) ? devicesData : []);
-      toast({
-        title: 'Éxito',
-        description: '¡Dispositivo activado exitosamente!',
-      });
-    } catch (err: any) {
-      console.error('Error al activar dispositivo:', err);
-      const errorMessage =
-        err.response?.data?.message ||
-        err.message ||
-        'Error al activar el dispositivo';
-      toast({
-        title: 'Error',
-        description: Array.isArray(errorMessage)
-          ? errorMessage.join(', ')
-          : errorMessage,
-        variant: 'destructive',
-      });
-    }
+    await activateDeviceMutation.mutateAsync(device.id);
   };
 
   const getDeviceTypeName = (deviceTypeId?: string) => {
@@ -338,6 +247,9 @@ export default function ClienteDetallesPage() {
     const deviceType = deviceTypes.find((type) => type.id === deviceTypeId);
     return deviceType?.name || 'Desconocido';
   };
+
+  const isLoading = isLoadingCustomer || isLoadingDevices;
+  const error = customerError ? 'Error al cargar los datos del cliente' : '';
 
   if (isLoading) {
     return (
@@ -416,11 +328,11 @@ export default function ClienteDetallesPage() {
             </button>
             <button
               onClick={handleSaveChanges}
-              disabled={isSaving}
+              disabled={updateCustomerMutation.isPending}
               className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save className="w-5 h-5" />
-              {isSaving ? 'Guardando...' : 'Guardar Cambios'}
+              {updateCustomerMutation.isPending ? 'Guardando...' : 'Guardar Cambios'}
             </button>
           </div>
         )}

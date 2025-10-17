@@ -260,7 +260,9 @@ export default function OrdenesServicioPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-500 dark:text-gray-400">
-                            {new Date(order.createdAt).toLocaleDateString('es-CO')}
+                            {new Date(order.createdAt).toLocaleDateString(
+                              'es-CO'
+                            )}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">

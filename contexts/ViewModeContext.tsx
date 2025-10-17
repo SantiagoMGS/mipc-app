@@ -10,7 +10,9 @@ interface ViewModeContextType {
   toggleViewMode: () => void;
 }
 
-const ViewModeContext = createContext<ViewModeContextType | undefined>(undefined);
+const ViewModeContext = createContext<ViewModeContextType | undefined>(
+  undefined
+);
 
 export function ViewModeProvider({ children }: { children: React.ReactNode }) {
   const [viewMode, setViewModeState] = useState<ViewMode>('table');

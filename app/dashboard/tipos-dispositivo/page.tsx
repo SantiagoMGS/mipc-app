@@ -26,7 +26,14 @@ import {
 } from 'lucide-react';
 import { useViewMode } from '@/contexts/ViewModeContext';
 import { ViewModeToggle } from '@/components/ViewModeToggle';
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 export default function TiposDispositivoPage() {
   const { toast } = useToast();
@@ -259,15 +266,24 @@ export default function TiposDispositivoPage() {
           <Table>
             <TableHeader>
               <TableRow className="border-gray-200 dark:border-gray-700">
-                <TableHead className="text-gray-700 dark:text-gray-300">Nombre</TableHead>
-                <TableHead className="text-gray-700 dark:text-gray-300">Estado</TableHead>
-                <TableHead className="text-gray-700 dark:text-gray-300 text-right">Acciones</TableHead>
+                <TableHead className="text-gray-700 dark:text-gray-300">
+                  Nombre
+                </TableHead>
+                <TableHead className="text-gray-700 dark:text-gray-300">
+                  Estado
+                </TableHead>
+                <TableHead className="text-gray-700 dark:text-gray-300 text-right">
+                  Acciones
+                </TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
               {Array.isArray(filteredDeviceTypes) &&
                 filteredDeviceTypes.map((deviceType) => (
-                  <TableRow key={deviceType.id} className="border-gray-200 dark:border-gray-700">
+                  <TableRow
+                    key={deviceType.id}
+                    className="border-gray-200 dark:border-gray-700"
+                  >
                     <TableCell className="font-medium text-gray-900 dark:text-white">
                       {deviceType.name}
                     </TableCell>

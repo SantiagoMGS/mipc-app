@@ -6,7 +6,16 @@ import { useUsers } from '@/hooks/useUsers';
 import { UsersTable } from '@/components/UsersTable';
 import { UserFormModal } from '@/components/UserFormModal';
 import { Button } from '@/components/ui/button';
-import { Plus, Users as UsersIcon, Pencil, Trash2, Mail, Shield, Check, X } from 'lucide-react';
+import {
+  Plus,
+  Users as UsersIcon,
+  Pencil,
+  Trash2,
+  Mail,
+  Shield,
+  Check,
+  X,
+} from 'lucide-react';
 import { useViewMode } from '@/contexts/ViewModeContext';
 import { ViewModeToggle } from '@/components/ViewModeToggle';
 import { useDeleteUser } from '@/hooks/useUsers';
@@ -210,14 +219,20 @@ export default function UsersPage() {
                 className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden hover:shadow-lg transition-shadow"
               >
                 {/* Header con rol */}
-                <div className={`px-4 pt-4 pb-2 bg-gradient-to-r ${
-                  user.role === UserRole.ADMIN
-                    ? 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20'
-                    : user.role === UserRole.TECNICO
-                    ? 'from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20'
-                    : 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20'
-                }`}>
-                  <span className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${getRoleBadgeClass(user.role)}`}>
+                <div
+                  className={`px-4 pt-4 pb-2 bg-gradient-to-r ${
+                    user.role === UserRole.ADMIN
+                      ? 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20'
+                      : user.role === UserRole.TECNICO
+                      ? 'from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20'
+                      : 'from-green-50 to-green-100 dark:from-green-900/20 dark:to-green-800/20'
+                  }`}
+                >
+                  <span
+                    className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${getRoleBadgeClass(
+                      user.role
+                    )}`}
+                  >
                     {USER_ROLE_LABELS[user.role]}
                   </span>
                 </div>

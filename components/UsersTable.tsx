@@ -109,7 +109,11 @@ export function UsersTable({ users, onEdit, isLoading }: UsersTableProps) {
                   {user.email}
                 </TableCell>
                 <TableCell>
-                  <span className={`inline-block px-2.5 py-1 text-xs font-semibold rounded-full ${getRoleBadgeClass(user.role)}`}>
+                  <span
+                    className={`inline-block px-2.5 py-1 text-xs font-semibold rounded-full ${getRoleBadgeClass(
+                      user.role
+                    )}`}
+                  >
                     {USER_ROLE_LABELS[user.role]}
                   </span>
                 </TableCell>

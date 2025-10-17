@@ -39,6 +39,8 @@ import {
   RefreshCw,
 } from 'lucide-react';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import { ServiceOrderItems } from '@/components/ServiceOrderItems';
+import { ServiceOrderCosts } from '@/components/ServiceOrderCosts';
 
 export default function DetalleOrdenServicioPage() {
   const router = useRouter();
@@ -46,9 +48,14 @@ export default function DetalleOrdenServicioPage() {
   const orderId = params.id as string;
 
   // Queries
-  const { data: order, isLoading, error } = useServiceOrder(orderId);
+  const { data: order, isLoading, error, refetch } = useServiceOrder(orderId);
   const { data: customer } = useCustomer(order?.customerId || '');
   const { data: device } = useDevice(order?.deviceId || '');
+
+  // Handler para refrescar la orden después de agregar/eliminar items
+  const handleOrderUpdate = () => {
+    refetch();
+  };
 
   // Mutations
   const updateOrderMutation = useUpdateServiceOrder();
@@ -133,6 +140,18 @@ export default function DetalleOrdenServicioPage() {
     return STATUS_TRANSITIONS[order.status as ServiceOrderStatus] || [];
   };
 
+  // Determinar si se pueden agregar/eliminar items
+  const canEditItems = (): boolean => {
+    if (!order) return false;
+    const lockedStatuses: ServiceOrderStatus[] = [
+      'FACTURADO',
+      'CANCELADO',
+      'NO_REPARABLE',
+      'COMPLETO',
+    ];
+    return !lockedStatuses.includes(order.status as ServiceOrderStatus);
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
@@ -170,9 +189,9 @@ export default function DetalleOrdenServicioPage() {
   const availableStatuses = getAvailableStatuses();
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 p-6">
+        <div className="max-w-6xl mx-auto space-y-6 p-4 md:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push('/dashboard/ordenes-servicio')}
@@ -182,51 +201,53 @@ export default function DetalleOrdenServicioPage() {
             <ArrowLeft className="w-6 h-6 text-gray-600 dark:text-gray-400" />
           </button>
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
               Orden {order.orderNumber}
             </h1>
-            <p className="text-gray-600 dark:text-gray-400 mt-1">
+            <p className="text-sm md:text-base text-gray-600 dark:text-gray-400 mt-1">
               Creada el {new Date(order.createdAt).toLocaleDateString('es-CO')}
             </p>
           </div>
         </div>
 
-        <div className="flex gap-3">
+        <div className="flex gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
           {availableStatuses.length > 0 && (
             <Button
               onClick={handleOpenStatusModal}
               variant="outline"
-              className="flex items-center gap-2"
+              className="gap-2"
             >
               <RefreshCw className="w-5 h-5" />
-              Cambiar Estado
+              <span className="hidden md:inline">Cambiar Estado</span>
             </Button>
           )}
           {!isEditMode ? (
             <Button
               onClick={() => setIsEditMode(true)}
-              className="flex items-center gap-2"
+              className="gap-2"
             >
               <Edit className="w-5 h-5" />
-              Editar
+              <span className="hidden md:inline">Editar</span>
             </Button>
           ) : (
             <>
               <Button
                 onClick={handleCancelEdit}
                 variant="outline"
-                className="flex items-center gap-2"
+                className="gap-2"
               >
                 <X className="w-5 h-5" />
-                Cancelar
+                <span className="hidden md:inline">Cancelar</span>
               </Button>
               <Button
                 onClick={handleSaveChanges}
                 disabled={updateOrderMutation.isPending}
-                className="flex items-center gap-2"
+                className="gap-2"
               >
                 <Save className="w-5 h-5" />
-                {updateOrderMutation.isPending ? 'Guardando...' : 'Guardar'}
+                <span className="hidden md:inline">
+                  {updateOrderMutation.isPending ? 'Guardando...' : 'Guardar'}
+                </span>
               </Button>
             </>
           )}
@@ -234,8 +255,8 @@ export default function DetalleOrdenServicioPage() {
       </div>
 
       {/* Estado y Prioridad */}
-      <Card className="p-6">
-        <div className="flex items-center justify-between">
+      <Card className="p-4 md:p-6">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
               Estado Actual
@@ -258,10 +279,10 @@ export default function DetalleOrdenServicioPage() {
       </Card>
 
       {/* Información del Cliente */}
-      <Card className="p-6">
+      <Card className="p-4 md:p-6">
         <div className="flex items-center gap-2 mb-4">
           <User className="w-5 h-5 text-primary-500" />
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+          <h2 className="text-base md:text-lg font-semibold text-gray-800 dark:text-white">
             Información del Cliente
           </h2>
         </div>
@@ -310,10 +331,10 @@ export default function DetalleOrdenServicioPage() {
       </Card>
 
       {/* Información del Dispositivo */}
-      <Card className="p-6">
+      <Card className="p-4 md:p-6">
         <div className="flex items-center gap-2 mb-4">
           <Laptop className="w-5 h-5 text-primary-500" />
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+          <h2 className="text-base md:text-lg font-semibold text-gray-800 dark:text-white">
             Dispositivo
           </h2>
         </div>
@@ -364,21 +385,21 @@ export default function DetalleOrdenServicioPage() {
       </Card>
 
       {/* Descripción del Problema */}
-      <Card className="p-6">
+      <Card className="p-4 md:p-6">
         <div className="flex items-center gap-2 mb-4">
           <FileText className="w-5 h-5 text-primary-500" />
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
+          <h2 className="text-base md:text-lg font-semibold text-gray-800 dark:text-white">
             Descripción del Problema
           </h2>
         </div>
-        <p className="text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+        <p className="text-sm md:text-base text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
           {order.problemDescription}
         </p>
       </Card>
 
       {/* Diagnóstico y Observaciones */}
-      <Card className="p-6">
-        <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
+      <Card className="p-4 md:p-6">
+        <h2 className="text-base md:text-lg font-semibold text-gray-800 dark:text-white mb-4">
           Notas y Observaciones
         </h2>
 
@@ -455,39 +476,16 @@ export default function DetalleOrdenServicioPage() {
         </div>
       </Card>
 
-      {/* Información Financiera */}
-      <Card className="p-6">
-        <div className="flex items-center gap-2 mb-4">
-          <DollarSign className="w-5 h-5 text-primary-500" />
-          <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
-            Información Financiera
-          </h2>
-        </div>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Costo Total
-            </p>
-            <p className="text-xl font-bold text-gray-900 dark:text-white">
-              ${order.totalCost.toLocaleString('es-CO')}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">
-              Total Pagado
-            </p>
-            <p className="text-xl font-bold text-green-600 dark:text-green-400">
-              ${order.totalPaid.toLocaleString('es-CO')}
-            </p>
-          </div>
-          <div>
-            <p className="text-sm text-gray-600 dark:text-gray-400">Saldo</p>
-            <p className="text-xl font-bold text-orange-600 dark:text-orange-400">
-              ${order.balance.toLocaleString('es-CO')}
-            </p>
-          </div>
-        </div>
-      </Card>
+      {/* Items de la Orden */}
+      <ServiceOrderItems
+        orderId={order.id}
+        onOrderUpdate={handleOrderUpdate}
+        readOnly={!canEditItems()}
+        orderStatus={order.status}
+      />
+
+      {/* Resumen de Costos */}
+      <ServiceOrderCosts order={order} />
 
       {/* Modal de Cambio de Estado */}
       <ConfirmDialog

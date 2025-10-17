@@ -381,4 +381,27 @@ export const usersService = {
   },
 };
 
+// ==================== SERVICE ORDER ITEMS ====================
+export const serviceOrderItemsService = {
+  // Obtener items de una orden
+  getOrderItems: async (orderId: string) => {
+    const response = await api.get(`/service-orders/${orderId}/items`);
+    return response.data;
+  },
+
+  // Agregar item a una orden
+  addItem: async (orderId: string, data: any) => {
+    const response = await api.post(`/service-orders/${orderId}/items`, data);
+    return response.data;
+  },
+
+  // Eliminar item de una orden
+  removeItem: async (orderId: string, itemId: string) => {
+    const response = await api.delete(
+      `/service-orders/${orderId}/items/${itemId}`
+    );
+    return response.data;
+  },
+};
+
 export default api;

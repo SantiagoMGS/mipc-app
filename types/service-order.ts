@@ -25,9 +25,11 @@ export interface ServiceOrder {
   problemDescription: string;
   observations?: string;
   diagnosticNotes?: string;
-  totalCost: number;
+  laborCost: number; // Suma de items tipo SERVICIO
+  partsCost: number; // Suma de items tipo PRODUCTO
+  totalCost: number; // laborCost + partsCost (calculado por backend)
   totalPaid: number;
-  balance: number;
+  balance: number; // totalCost - totalPaid
   paymentStatus: PaymentStatus;
   isDelivered: boolean;
   invoice?: string;

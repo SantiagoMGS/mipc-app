@@ -20,10 +20,13 @@ import {
   Mail,
   Phone,
 } from 'lucide-react';
+import { useViewMode } from '@/contexts/ViewModeContext';
+import { ViewModeToggle } from '@/components/ViewModeToggle';
 
 export default function ClientesPage() {
   const router = useRouter();
   const { toast } = useToast();
+  const { viewMode } = useViewMode();
 
   const [searchTerm, setSearchTerm] = useState('');
 
@@ -146,13 +149,16 @@ export default function ClientesPage() {
             Gestiona tu base de datos de clientes
           </p>
         </div>
-        <button
-          onClick={openCreateModal}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          <span className="hidden sm:inline">Nuevo Cliente</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <ViewModeToggle />
+          <button
+            onClick={openCreateModal}
+            className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            <span className="hidden sm:inline">Nuevo Cliente</span>
+          </button>
+        </div>
       </div>
 
       {/* Filtros y búsqueda */}
@@ -213,98 +219,229 @@ export default function ClientesPage() {
           )}
         </div>
       ) : (
-        /* Customers Grid */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.isArray(filteredCustomers) &&
-            filteredCustomers.map((customer) => (
-              <div
-                key={customer.id}
-                className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden"
-              >
-                {/* Header con tipo de documento */}
-                <div className="px-4 pt-4 pb-2 bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20">
-                  <div className="flex items-center justify-between">
-                    <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary-500 text-white">
-                      {customer.customerType === 'NATURAL'
-                        ? 'PERSONA NATURAL'
-                        : 'PERSONA JURÍDICA'}
-                    </span>
-                  </div>
-                  <div className="mt-2 flex items-center gap-2">
-                    <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
-                      {customer.documentType}
-                    </span>
-                    <span className="text-sm text-gray-600 dark:text-gray-400">
-                      {customer.documentNumber}
-                    </span>
-                  </div>
-                </div>
-
-                <div className="p-4">
-                  {/* Nombre completo o Razón Social */}
-                  <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">
-                    {customer.customerType === 'JURIDICA' &&
-                    customer.businessName
-                      ? customer.businessName
-                      : `${customer.firstName || ''} ${
-                          customer.lastName || ''
-                        }`.trim() || 'Sin nombre'}
-                  </h3>
-
-                  {/* Contacto de la empresa (si aplica) */}
-                  {customer.customerType === 'JURIDICA' &&
-                    (customer.firstName || customer.lastName) && (
-                      <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
-                        <span className="font-medium">Contacto:</span>{' '}
-                        {customer.firstName} {customer.lastName}
-                      </p>
-                    )}
-
-                  {/* Información de contacto */}
-                  <div className="space-y-2 mb-4">
-                    {customer.email && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                        <Mail className="w-4 h-4 text-primary-500 flex-shrink-0" />
-                        <span className="truncate">{customer.email}</span>
-                      </div>
-                    )}
-                    {customer.phoneNumber && (
-                      <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
-                        <Phone className="w-4 h-4 text-primary-500 flex-shrink-0" />
-                        <span>{customer.phoneNumber}</span>
-                      </div>
-                    )}
-                    {!customer.email && !customer.phoneNumber && (
-                      <div className="flex items-center gap-2 text-sm text-gray-400 italic">
-                        <AlertCircle className="w-4 h-4" />
-                        <span>Sin información de contacto</span>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Botones de acción */}
-                  <div className="flex gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
-                    <button
-                      onClick={() => handleViewDetails(customer.id)}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                      title="Ver Detalles"
-                    >
-                      <Eye className="w-4 h-4" />
-                      <span className="text-sm font-medium">Ver Detalles</span>
-                    </button>
-                    <button
-                      onClick={() => handleDeleteClick(customer)}
-                      className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                      title="Eliminar"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                      <span className="text-sm font-medium">Eliminar</span>
-                    </button>
-                  </div>
-                </div>
+        /* Customers Table/Cards */
+        <>
+          {viewMode === 'table' ? (
+            /* Table View */
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-900/50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Tipo
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Documento
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Nombre
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Email
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Teléfono
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Acciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {Array.isArray(filteredCustomers) &&
+                      filteredCustomers.map((customer) => (
+                        <tr
+                          key={customer.id}
+                          className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                        >
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300">
+                              {customer.customerType === 'NATURAL'
+                                ? 'NATURAL'
+                                : 'JURÍDICA'}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900 dark:text-white">
+                              {customer.documentType}
+                            </div>
+                            <div className="text-xs text-gray-500 dark:text-gray-400">
+                              {customer.documentNumber}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                              {customer.customerType === 'JURIDICA' &&
+                              customer.businessName
+                                ? customer.businessName
+                                : `${customer.firstName || ''} ${
+                                    customer.lastName || ''
+                                  }`.trim() || 'Sin nombre'}
+                            </div>
+                            {customer.customerType === 'JURIDICA' &&
+                              (customer.firstName || customer.lastName) && (
+                                <div className="text-xs text-gray-500 dark:text-gray-400">
+                                  Contacto: {customer.firstName}{' '}
+                                  {customer.lastName}
+                                </div>
+                              )}
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm text-gray-900 dark:text-white flex items-center gap-1">
+                              {customer.email ? (
+                                <>
+                                  <Mail className="w-3 h-3 text-gray-400" />
+                                  <span className="truncate max-w-[200px]">
+                                    {customer.email}
+                                  </span>
+                                </>
+                              ) : (
+                                <span className="text-gray-400 italic">
+                                  Sin email
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm text-gray-900 dark:text-white flex items-center gap-1">
+                              {customer.phoneNumber ? (
+                                <>
+                                  <Phone className="w-3 h-3 text-gray-400" />
+                                  {customer.phoneNumber}
+                                </>
+                              ) : (
+                                <span className="text-gray-400 italic">
+                                  Sin teléfono
+                                </span>
+                              )}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div className="flex items-center justify-end gap-2">
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleViewDetails(customer.id)}
+                                className="inline-flex items-center gap-1"
+                              >
+                                <Eye className="w-4 h-4" />
+                                Ver
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="sm"
+                                onClick={() => handleDeleteClick(customer)}
+                                className="inline-flex items-center gap-1 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                                Eliminar
+                              </Button>
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
               </div>
-            ))}
-        </div>
+            </div>
+          ) : (
+            /* Cards View */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.isArray(filteredCustomers) &&
+                filteredCustomers.map((customer) => (
+                  <div
+                    key={customer.id}
+                    className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden"
+                  >
+                    {/* Header con tipo de documento */}
+                    <div className="px-4 pt-4 pb-2 bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20">
+                      <div className="flex items-center justify-between">
+                        <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary-500 text-white">
+                          {customer.customerType === 'NATURAL'
+                            ? 'PERSONA NATURAL'
+                            : 'PERSONA JURÍDICA'}
+                        </span>
+                      </div>
+                      <div className="mt-2 flex items-center gap-2">
+                        <span className="text-xs font-semibold text-gray-700 dark:text-gray-300">
+                          {customer.documentType}
+                        </span>
+                        <span className="text-sm text-gray-600 dark:text-gray-400">
+                          {customer.documentNumber}
+                        </span>
+                      </div>
+                    </div>
+
+                    <div className="p-4">
+                      {/* Nombre completo o Razón Social */}
+                      <h3 className="text-xl font-semibold text-gray-800 dark:text-white mb-3">
+                        {customer.customerType === 'JURIDICA' &&
+                        customer.businessName
+                          ? customer.businessName
+                          : `${customer.firstName || ''} ${
+                              customer.lastName || ''
+                            }`.trim() || 'Sin nombre'}
+                      </h3>
+
+                      {/* Contacto de la empresa (si aplica) */}
+                      {customer.customerType === 'JURIDICA' &&
+                        (customer.firstName || customer.lastName) && (
+                          <p className="text-sm text-gray-600 dark:text-gray-400 mb-3">
+                            <span className="font-medium">Contacto:</span>{' '}
+                            {customer.firstName} {customer.lastName}
+                          </p>
+                        )}
+
+                      {/* Información de contacto */}
+                      <div className="space-y-2 mb-4">
+                        {customer.email && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <Mail className="w-4 h-4 text-primary-500 flex-shrink-0" />
+                            <span className="truncate">{customer.email}</span>
+                          </div>
+                        )}
+                        {customer.phoneNumber && (
+                          <div className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
+                            <Phone className="w-4 h-4 text-primary-500 flex-shrink-0" />
+                            <span>{customer.phoneNumber}</span>
+                          </div>
+                        )}
+                        {!customer.email && !customer.phoneNumber && (
+                          <div className="flex items-center gap-2 text-sm text-gray-400 italic">
+                            <AlertCircle className="w-4 h-4" />
+                            <span>Sin información de contacto</span>
+                          </div>
+                        )}
+                      </div>
+
+                      {/* Botones de acción */}
+                      <div className="flex gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
+                        <button
+                          onClick={() => handleViewDetails(customer.id)}
+                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                          title="Ver Detalles"
+                        >
+                          <Eye className="w-4 h-4" />
+                          <span className="text-sm font-medium">
+                            Ver Detalles
+                          </span>
+                        </button>
+                        <button
+                          onClick={() => handleDeleteClick(customer)}
+                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                          title="Eliminar"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                          <span className="text-sm font-medium">Eliminar</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Paginación */}

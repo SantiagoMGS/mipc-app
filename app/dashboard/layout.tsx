@@ -15,6 +15,7 @@ import {
 import { authService } from '@/lib/api';
 import ThemeToggle from '@/components/ThemeToggle';
 import ProtectedRoute from '@/components/ProtectedRoute';
+import { ViewModeProvider } from '@/contexts/ViewModeContext';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -67,7 +68,8 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
   return (
     <ProtectedRoute>
-      <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+      <ViewModeProvider>
+        <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
         {/* Sidebar Desktop - Oculto en móvil */}
         <aside
           className={`${
@@ -233,6 +235,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           <div className="p-4 md:p-6">{children}</div>
         </main>
       </div>
+      </ViewModeProvider>
     </ProtectedRoute>
   );
 }

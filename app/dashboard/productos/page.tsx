@@ -24,9 +24,12 @@ import {
   AlertCircle,
   RefreshCw,
 } from 'lucide-react';
+import { useViewMode } from '@/contexts/ViewModeContext';
+import { ViewModeToggle } from '@/components/ViewModeToggle';
 
 export default function ProductosPage() {
   const { toast } = useToast();
+  const { viewMode } = useViewMode();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [filterType, setFilterType] = useState<'ALL' | 'PRODUCTO' | 'SERVICIO'>(
@@ -172,13 +175,16 @@ export default function ProductosPage() {
             Gestiona tu catálogo de productos y servicios
           </p>
         </div>
-        <button
-          onClick={openCreateModal}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          <span className="hidden sm:inline">Nuevo Item</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <ViewModeToggle />
+          <button
+            onClick={openCreateModal}
+            className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            <span className="hidden sm:inline">Nuevo Item</span>
+          </button>
+        </div>
       </div>
 
       {/* Filtros y búsqueda */}
@@ -268,94 +274,223 @@ export default function ProductosPage() {
           )}
         </div>
       ) : (
-        /* Items Grid */
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {Array.isArray(filteredItems) &&
-            filteredItems.map((item) => (
-              <div
-                key={item.id}
-                className={`bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden ${
-                  !item.isActive
-                    ? 'opacity-60 border-2 border-gray-300 dark:border-gray-600'
-                    : ''
-                }`}
-              >
-                {/* Badge de tipo y estado */}
-                <div className="px-4 pt-4 flex gap-2 flex-wrap">
-                  <span
-                    className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${
-                      item.itemType === 'PRODUCTO'
-                        ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
-                        : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
-                    }`}
-                  >
-                    {item.itemType}
-                  </span>
-                  {!item.isActive && (
-                    <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200">
-                      INACTIVO
-                    </span>
-                  )}
-                  {item.deletedAt && (
-                    <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                      ELIMINADO
-                    </span>
-                  )}
-                </div>
-
-                <div className="p-4">
-                  <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-1">
-                    {item.name}
-                  </h3>
-                  <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
-                    Código: {item.code}
-                  </p>
-                  {item.description && (
-                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
-                      {item.description}
-                    </p>
-                  )}
-                  <div
-                    className={`flex items-center justify-between ${
-                      !item.description ? 'mt-4' : ''
-                    }`}
-                  >
-                    <span className="text-2xl font-bold text-primary-600 dark:text-primary-500">
-                      ${item.price.toLocaleString('es-CO')}
-                    </span>
-                    <div className="flex gap-2">
-                      {!item.isActive ? (
-                        <button
-                          onClick={() => handleReactivateClick(item)}
-                          className="p-2 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
-                          title="Reactivar"
+        /* Items Table/Cards */
+        <>
+          {viewMode === 'table' ? (
+            /* Table View */
+            <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+                  <thead className="bg-gray-50 dark:bg-gray-900/50">
+                    <tr>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Código
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Nombre
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Tipo
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Descripción
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Precio
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Estado
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Acciones
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
+                    {Array.isArray(filteredItems) &&
+                      filteredItems.map((item) => (
+                        <tr
+                          key={item.id}
+                          className={`hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors ${
+                            !item.isActive ? 'opacity-60' : ''
+                          }`}
                         >
-                          <RefreshCw className="w-4 h-4" />
-                        </button>
-                      ) : (
-                        <>
-                          <button
-                            onClick={() => openEditModal(item)}
-                            className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                            title="Editar"
-                          >
-                            <Edit className="w-4 h-4" />
-                          </button>
-                          <button
-                            onClick={() => handleDeleteClick(item)}
-                            className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                            title="Eliminar"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        </>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                              {item.code}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900 dark:text-white">
+                              {item.name}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <span
+                              className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${
+                                item.itemType === 'PRODUCTO'
+                                  ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+                                  : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                              }`}
+                            >
+                              {item.itemType}
+                            </span>
+                          </td>
+                          <td className="px-6 py-4">
+                            <div className="text-sm text-gray-900 dark:text-white max-w-xs truncate">
+                              {item.description || '-'}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-semibold text-primary-600 dark:text-primary-400">
+                              ${item.price.toLocaleString('es-CO')}
+                            </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            {!item.isActive && (
+                              <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200">
+                                INACTIVO
+                              </span>
+                            )}
+                            {item.deletedAt && (
+                              <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                                ELIMINADO
+                              </span>
+                            )}
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
+                            <div className="flex items-center justify-end gap-2">
+                              {!item.isActive ? (
+                                <Button
+                                  variant="ghost"
+                                  size="sm"
+                                  onClick={() => handleReactivateClick(item)}
+                                  className="inline-flex items-center gap-1 text-green-600 dark:text-green-400"
+                                >
+                                  <RefreshCw className="w-4 h-4" />
+                                  Reactivar
+                                </Button>
+                              ) : (
+                                <>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => openEditModal(item)}
+                                    className="inline-flex items-center gap-1"
+                                  >
+                                    <Edit className="w-4 h-4" />
+                                    Editar
+                                  </Button>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => handleDeleteClick(item)}
+                                    className="inline-flex items-center gap-1 text-red-600 dark:text-red-400"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                    Eliminar
+                                  </Button>
+                                </>
+                              )}
+                            </div>
+                          </td>
+                        </tr>
+                      ))}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          ) : (
+            /* Cards View */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {Array.isArray(filteredItems) &&
+                filteredItems.map((item) => (
+                  <div
+                    key={item.id}
+                    className={`bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden ${
+                      !item.isActive
+                        ? 'opacity-60 border-2 border-gray-300 dark:border-gray-600'
+                        : ''
+                    }`}
+                  >
+                    {/* Badge de tipo y estado */}
+                    <div className="px-4 pt-4 flex gap-2 flex-wrap">
+                      <span
+                        className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${
+                          item.itemType === 'PRODUCTO'
+                            ? 'bg-blue-100 dark:bg-blue-900 text-blue-800 dark:text-blue-200'
+                            : 'bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-200'
+                        }`}
+                      >
+                        {item.itemType}
+                      </span>
+                      {!item.isActive && (
+                        <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200">
+                          INACTIVO
+                        </span>
+                      )}
+                      {item.deletedAt && (
+                        <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
+                          ELIMINADO
+                        </span>
                       )}
                     </div>
+
+                    <div className="p-4">
+                      <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-1">
+                        {item.name}
+                      </h3>
+                      <p className="text-sm text-gray-500 dark:text-gray-400 mb-2">
+                        Código: {item.code}
+                      </p>
+                      {item.description && (
+                        <p className="text-gray-600 dark:text-gray-400 text-sm mb-4 line-clamp-2">
+                          {item.description}
+                        </p>
+                      )}
+                      <div
+                        className={`flex items-center justify-between ${
+                          !item.description ? 'mt-4' : ''
+                        }`}
+                      >
+                        <span className="text-2xl font-bold text-primary-600 dark:text-primary-500">
+                          ${item.price.toLocaleString('es-CO')}
+                        </span>
+                        <div className="flex gap-2">
+                          {!item.isActive ? (
+                            <button
+                              onClick={() => handleReactivateClick(item)}
+                              className="p-2 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                              title="Reactivar"
+                            >
+                              <RefreshCw className="w-4 h-4" />
+                            </button>
+                          ) : (
+                            <>
+                              <button
+                                onClick={() => openEditModal(item)}
+                                className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                                title="Editar"
+                              >
+                                <Edit className="w-4 h-4" />
+                              </button>
+                              <button
+                                onClick={() => handleDeleteClick(item)}
+                                className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                                title="Eliminar"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </button>
+                            </>
+                          )}
+                        </div>
+                      </div>
+                    </div>
                   </div>
-                </div>
-              </div>
-            ))}
-        </div>
+                ))}
+            </div>
+          )}
+        </>
       )}
 
       {/* Paginación */}

@@ -47,15 +47,17 @@ export function ServiceOrderItems({
   // Mensajes según el estado
   const getReadOnlyMessage = () => {
     if (!readOnly || !orderStatus) return null;
-    
+
     const messages: Record<string, string> = {
       FACTURADO: 'No se pueden modificar items en órdenes facturadas',
       CANCELADO: 'No se pueden modificar items en órdenes canceladas',
       NO_REPARABLE: 'No se pueden modificar items en órdenes no reparables',
       COMPLETO: 'No se pueden modificar items en órdenes completadas',
     };
-    
-    return messages[orderStatus] || 'No se pueden modificar items en esta orden';
+
+    return (
+      messages[orderStatus] || 'No se pueden modificar items en esta orden'
+    );
   };
 
   const handleAddItem = async (data: AddItemToOrderDto) => {
@@ -105,7 +107,7 @@ export function ServiceOrderItems({
                 </Button>
               )}
             </div>
-            
+
             {/* Mensaje informativo cuando está en readOnly */}
             {readOnly && (
               <div className="flex items-start gap-2 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800 rounded-lg">
@@ -138,9 +140,7 @@ export function ServiceOrderItems({
                       <TableHead>Código</TableHead>
                       <TableHead>Tipo</TableHead>
                       <TableHead className="text-right">Cant.</TableHead>
-                      <TableHead className="text-right">
-                        Precio Unit.
-                      </TableHead>
+                      <TableHead className="text-right">Precio Unit.</TableHead>
                       <TableHead className="text-right">Descuento</TableHead>
                       <TableHead className="text-right">Subtotal</TableHead>
                       {!readOnly && (
@@ -205,11 +205,11 @@ export function ServiceOrderItems({
                 {items.map((orderItem) => (
                   <div
                     key={orderItem.id}
-                    className="border rounded-lg p-4 space-y-3"
+                    className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 space-y-3 bg-white dark:bg-gray-800"
                   >
                     <div className="flex items-start justify-between gap-2">
                       <div className="flex-1">
-                        <p className="font-medium text-sm">
+                        <p className="font-medium text-sm text-gray-900 dark:text-white">
                           {orderItem.item.name}
                         </p>
                         <p className="text-xs text-muted-foreground mt-1">
@@ -230,7 +230,7 @@ export function ServiceOrderItems({
                     <div className="grid grid-cols-2 gap-2 text-sm">
                       <div>
                         <span className="text-muted-foreground">Cantidad:</span>
-                        <span className="ml-1 font-medium">
+                        <span className="ml-1 font-medium text-gray-900 dark:text-white">
                           {orderItem.quantity}
                         </span>
                       </div>
@@ -238,7 +238,7 @@ export function ServiceOrderItems({
                         <span className="text-muted-foreground">
                           Precio Unit.:
                         </span>
-                        <span className="ml-1 font-medium">
+                        <span className="ml-1 font-medium text-gray-900 dark:text-white">
                           {formatCurrency(Number(orderItem.unitPrice))}
                         </span>
                       </div>
@@ -247,17 +247,19 @@ export function ServiceOrderItems({
                           <span className="text-muted-foreground">
                             Descuento:
                           </span>
-                          <span className="ml-1 font-medium text-green-600">
+                          <span className="ml-1 font-medium text-green-600 dark:text-green-400">
                             {formatCurrency(Number(orderItem.discount))}
                           </span>
                         </div>
                       )}
                     </div>
 
-                    <div className="flex items-center justify-between pt-2 border-t">
-                      <span className="text-sm font-semibold">Subtotal:</span>
+                    <div className="flex items-center justify-between pt-2 border-t border-gray-200 dark:border-gray-700">
+                      <span className="text-sm font-semibold text-gray-900 dark:text-white">
+                        Subtotal:
+                      </span>
                       <div className="flex items-center gap-2">
-                        <span className="text-base font-bold">
+                        <span className="text-base font-bold text-gray-900 dark:text-white">
                           {formatCurrency(Number(orderItem.subtotal))}
                         </span>
                         {!readOnly && (

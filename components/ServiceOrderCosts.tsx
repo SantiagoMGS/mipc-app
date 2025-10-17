@@ -57,7 +57,7 @@ export function ServiceOrderCosts({ order }: ServiceOrderCostsProps) {
           {/* Pagado */}
           <div className="flex justify-between items-center">
             <span className="text-muted-foreground">Pagado:</span>
-            <span className="font-medium text-green-600">
+            <span className="font-medium text-green-600 dark:text-green-400">
               {formatCurrency(order.totalPaid || 0)}
             </span>
           </div>
@@ -68,10 +68,10 @@ export function ServiceOrderCosts({ order }: ServiceOrderCostsProps) {
             <span
               className={`text-lg font-bold ${
                 order.balance > 0
-                  ? 'text-red-600'
+                  ? 'text-red-600 dark:text-red-400'
                   : order.balance < 0
-                  ? 'text-orange-600'
-                  : 'text-green-600'
+                  ? 'text-orange-600 dark:text-orange-400'
+                  : 'text-green-600 dark:text-green-400'
               }`}
             >
               {formatCurrency(order.balance || 0)}

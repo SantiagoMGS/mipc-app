@@ -138,7 +138,8 @@ export function AddItemDialog({ open, onClose, onSubmit }: AddItemDialogProps) {
               Seleccionar Item del Catálogo
               {searchQuery && (
                 <span className="text-muted-foreground text-sm ml-2">
-                  ({filteredItems.length} resultado{filteredItems.length !== 1 ? 's' : ''})
+                  ({filteredItems.length} resultado
+                  {filteredItems.length !== 1 ? 's' : ''})
                 </span>
               )}
             </Label>
@@ -147,22 +148,24 @@ export function AddItemDialog({ open, onClose, onSubmit }: AddItemDialogProps) {
                 <Loader2 className="h-6 w-6 animate-spin" />
               </div>
             ) : (
-              <ScrollArea className="h-[200px] border rounded-md p-2">
+              <ScrollArea className="h-[200px] border border-gray-200 dark:border-gray-700 rounded-md p-2">
                 <div className="space-y-2">
                   {filteredItems.map((item) => (
                     <div
                       key={item.id}
                       onClick={() => handleSelectItem(item)}
                       className={cn(
-                        'p-3 border rounded-lg cursor-pointer hover:bg-accent transition-colors',
+                        'p-3 border border-gray-200 dark:border-gray-700 rounded-lg cursor-pointer hover:bg-accent transition-colors',
                         selected?.id === item.id &&
-                          'border-primary bg-primary/5'
+                          'border-primary bg-primary/5 dark:bg-primary/10'
                       )}
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div className="flex-1">
                           <div className="flex items-center gap-2 mb-1">
-                            <span className="font-medium">{item.name}</span>
+                            <span className="font-medium text-gray-900 dark:text-white">
+                              {item.name}
+                            </span>
                             <Badge
                               variant={
                                 item.itemType === 'SERVICIO'
@@ -182,7 +185,7 @@ export function AddItemDialog({ open, onClose, onSubmit }: AddItemDialogProps) {
                             </p>
                           )}
                         </div>
-                        <span className="font-semibold text-sm whitespace-nowrap">
+                        <span className="font-semibold text-sm whitespace-nowrap text-gray-900 dark:text-white">
                           {formatCurrency(item.price)}
                         </span>
                       </div>
@@ -240,10 +243,12 @@ export function AddItemDialog({ open, onClose, onSubmit }: AddItemDialogProps) {
                 </div>
               </div>
 
-              <div className="bg-muted p-4 rounded-lg">
+              <div className="bg-muted dark:bg-gray-800 p-4 rounded-lg border border-gray-200 dark:border-gray-700">
                 <div className="flex justify-between items-center">
-                  <span className="text-lg font-semibold">Subtotal:</span>
-                  <span className="text-2xl font-bold">
+                  <span className="text-lg font-semibold text-gray-900 dark:text-white">
+                    Subtotal:
+                  </span>
+                  <span className="text-2xl font-bold text-gray-900 dark:text-white">
                     {formatCurrency(subtotal)}
                   </span>
                 </div>

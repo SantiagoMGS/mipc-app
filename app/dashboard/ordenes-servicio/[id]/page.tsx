@@ -189,7 +189,7 @@ export default function DetalleOrdenServicioPage() {
   const availableStatuses = getAvailableStatuses();
 
   return (
-        <div className="max-w-6xl mx-auto space-y-6 p-4 md:p-6">
+    <div className="max-w-6xl mx-auto space-y-6 p-4 md:p-6">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div className="flex items-center gap-4">
@@ -222,10 +222,7 @@ export default function DetalleOrdenServicioPage() {
             </Button>
           )}
           {!isEditMode ? (
-            <Button
-              onClick={() => setIsEditMode(true)}
-              className="gap-2"
-            >
+            <Button onClick={() => setIsEditMode(true)} className="gap-2">
               <Edit className="w-5 h-5" />
               <span className="hidden md:inline">Editar</span>
             </Button>
@@ -326,7 +323,9 @@ export default function DetalleOrdenServicioPage() {
             )}
           </div>
         ) : (
-          <p className="text-gray-500">Cargando información del cliente...</p>
+          <p className="text-gray-500 dark:text-gray-400">
+            Cargando información del cliente...
+          </p>
         )}
       </Card>
 
@@ -378,7 +377,7 @@ export default function DetalleOrdenServicioPage() {
             )}
           </div>
         ) : (
-          <p className="text-gray-500">
+          <p className="text-gray-500 dark:text-gray-400">
             Cargando información del dispositivo...
           </p>
         )}
@@ -466,7 +465,7 @@ export default function DetalleOrdenServicioPage() {
                 checked={isDelivered}
                 onChange={(e) => setIsDelivered(e.target.checked)}
                 disabled={!isEditMode}
-                className="w-5 h-5 text-primary-600 border-gray-300 rounded focus:ring-primary-500"
+                className="w-5 h-5 text-primary-600 bg-white dark:bg-gray-700 border-gray-300 dark:border-gray-600 rounded focus:ring-primary-500 focus:ring-offset-0 dark:focus:ring-offset-gray-800"
               />
               <Label htmlFor="isDelivered" className="cursor-pointer">
                 Equipo Entregado

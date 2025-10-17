@@ -12,7 +12,6 @@ import { ServiceOrderPriority, PRIORITY_LABELS } from '@/types/service-order';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card } from '@/components/ui/card';
 import {
   ArrowLeft,
   Save,
@@ -160,7 +159,7 @@ export default function NuevaOrdenServicioPage() {
 
       <form onSubmit={handleSubmit} className="space-y-6">
         {/* Cliente */}
-        <Card className="p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <div className="flex items-center gap-2 mb-4">
             <User className="w-5 h-5 text-primary-500" />
             <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
@@ -193,7 +192,7 @@ export default function NuevaOrdenServicioPage() {
 
             {/* Dropdown de resultados */}
             {showCustomerDropdown && customerSearchQuery.length >= 2 && (
-              <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-300 dark:border-gray-600 rounded-lg shadow-lg max-h-60 overflow-y-auto">
+              <div className="absolute z-10 mt-1 w-full bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700 rounded-lg shadow-lg max-h-60 overflow-y-auto">
                 {isSearching ? (
                   <div className="p-4 text-center text-gray-500 dark:text-gray-400">
                     Buscando...
@@ -208,7 +207,7 @@ export default function NuevaOrdenServicioPage() {
                       key={customer.id}
                       type="button"
                       onClick={() => handleCustomerSelect(customer)}
-                      className="w-full p-3 text-left hover:bg-gray-100 dark:hover:bg-gray-700 border-b border-gray-200 dark:border-gray-700 last:border-0"
+                      className="w-full p-3 text-left hover:bg-gray-50 dark:hover:bg-gray-700 border-b border-gray-100 dark:border-gray-700 last:border-0 transition-colors"
                     >
                       <div className="font-medium text-gray-900 dark:text-white">
                         {customer.customerType === 'JURIDICA' &&
@@ -216,11 +215,11 @@ export default function NuevaOrdenServicioPage() {
                           ? customer.businessName
                           : `${customer.firstName} ${customer.lastName}`}
                       </div>
-                      <div className="text-sm text-gray-500 dark:text-gray-400">
+                      <div className="text-sm text-gray-600 dark:text-gray-400">
                         {customer.documentType}: {customer.documentNumber}
                       </div>
                       {customer.phoneNumber && (
-                        <div className="text-sm text-gray-500 dark:text-gray-400">
+                        <div className="text-sm text-gray-600 dark:text-gray-400">
                           Tel: {customer.phoneNumber}
                         </div>
                       )}
@@ -231,12 +230,14 @@ export default function NuevaOrdenServicioPage() {
             )}
 
             {formErrors.customer && (
-              <p className="text-sm text-red-500 mt-1">{formErrors.customer}</p>
+              <p className="text-sm text-red-500 dark:text-red-400 mt-1">
+                {formErrors.customer}
+              </p>
             )}
 
             {selectedCustomer && (
               <div className="mt-3 p-3 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg">
-                <p className="text-sm font-medium text-green-800 dark:text-green-400">
+                <p className="text-sm font-medium text-green-800 dark:text-green-300">
                   Cliente seleccionado:{' '}
                   {selectedCustomer.customerType === 'JURIDICA' &&
                   selectedCustomer.businessName
@@ -246,11 +247,11 @@ export default function NuevaOrdenServicioPage() {
               </div>
             )}
           </div>
-        </Card>
+        </div>
 
         {/* Dispositivo (solo si hay cliente seleccionado) */}
         {selectedCustomer && (
-          <Card className="p-6">
+          <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
             <div className="flex items-center gap-2 mb-4">
               <Laptop className="w-5 h-5 text-primary-500" />
               <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
@@ -293,22 +294,24 @@ export default function NuevaOrdenServicioPage() {
                   ))}
               </select>
               {formErrors.device && (
-                <p className="text-sm text-red-500 mt-1">{formErrors.device}</p>
+                <p className="text-sm text-red-500 dark:text-red-400 mt-1">
+                  {formErrors.device}
+                </p>
               )}
               {Array.isArray(customerDevices) &&
                 customerDevices.length === 0 &&
                 !isLoadingDevices && (
-                  <p className="text-sm text-yellow-600 dark:text-yellow-400 mt-2 flex items-center gap-1">
+                  <p className="text-sm text-yellow-700 dark:text-yellow-400 mt-2 flex items-center gap-1">
                     <AlertTriangle className="w-4 h-4" />
                     Este cliente no tiene dispositivos registrados
                   </p>
                 )}
             </div>
-          </Card>
+          </div>
         )}
 
         {/* Técnico y Prioridad */}
-        <Card className="p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <div className="flex items-center gap-2 mb-4">
             <UserCog className="w-5 h-5 text-primary-500" />
             <h2 className="text-lg font-semibold text-gray-800 dark:text-white">
@@ -351,7 +354,7 @@ export default function NuevaOrdenServicioPage() {
                   ))}
               </select>
               {formErrors.technician && (
-                <p className="text-sm text-red-500 mt-1">
+                <p className="text-sm text-red-500 dark:text-red-400 mt-1">
                   {formErrors.technician}
                 </p>
               )}
@@ -376,10 +379,10 @@ export default function NuevaOrdenServicioPage() {
               </select>
             </div>
           </div>
-        </Card>
+        </div>
 
         {/* Descripción del Problema */}
-        <Card className="p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
           <h2 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
             Detalles del Servicio
           </h2>
@@ -409,7 +412,7 @@ export default function NuevaOrdenServicioPage() {
                 placeholder="Describa el problema reportado por el cliente..."
               />
               {formErrors.problemDescription && (
-                <p className="text-sm text-red-500 mt-1">
+                <p className="text-sm text-red-500 dark:text-red-400 mt-1">
                   {formErrors.problemDescription}
                 </p>
               )}
@@ -440,7 +443,7 @@ export default function NuevaOrdenServicioPage() {
               />
             </div>
           </div>
-        </Card>
+        </div>
 
         {/* Botones de Acción */}
         <div className="flex gap-3 justify-end">

@@ -41,6 +41,7 @@ import {
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { ServiceOrderItems } from '@/components/ServiceOrderItems';
 import { ServiceOrderCosts } from '@/components/ServiceOrderCosts';
+import { PaymentsSection } from '@/components/PaymentsSection';
 
 export default function DetalleOrdenServicioPage() {
   const router = useRouter();
@@ -481,6 +482,15 @@ export default function DetalleOrdenServicioPage() {
         onOrderUpdate={handleOrderUpdate}
         readOnly={!canEditItems()}
         orderStatus={order.status}
+      />
+
+      {/* Gestión de Pagos */}
+      <PaymentsSection
+        serviceOrderId={order.id}
+        orderStatus={order.status}
+        totalCost={order.totalCost || 0}
+        initialTotalPaid={order.totalPaid || 0}
+        initialPaymentStatus={order.paymentStatus}
       />
 
       {/* Resumen de Costos */}

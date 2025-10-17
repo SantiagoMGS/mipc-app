@@ -387,4 +387,48 @@ export const serviceOrderItemsService = {
   },
 };
 
+// ============================================
+// Payment Service
+// ============================================
+import { Payment, CreatePaymentDto, PaymentResponse } from '@/types/payment';
+
+export const paymentsService = {
+  /**
+   * Obtiene todos los pagos de una orden de servicio
+   */
+  getPayments: async (serviceOrderId: string): Promise<Payment[]> => {
+    const response = await api.get(
+      `/service-orders/${serviceOrderId}/payments`
+    );
+    return response.data;
+  },
+
+  /**
+   * Crea un nuevo pago para una orden de servicio
+   */
+  addPayment: async (
+    serviceOrderId: string,
+    data: CreatePaymentDto
+  ): Promise<PaymentResponse> => {
+    const response = await api.post(
+      `/service-orders/${serviceOrderId}/payments`,
+      data
+    );
+    return response.data;
+  },
+
+  /**
+   * Elimina un pago de una orden de servicio
+   */
+  removePayment: async (
+    serviceOrderId: string,
+    paymentId: string
+  ): Promise<PaymentResponse> => {
+    const response = await api.delete(
+      `/service-orders/${serviceOrderId}/payments/${paymentId}`
+    );
+    return response.data;
+  },
+};
+
 export default api;

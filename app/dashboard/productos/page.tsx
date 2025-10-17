@@ -365,10 +365,9 @@ export default function ProductosPage() {
                                   variant="ghost"
                                   size="sm"
                                   onClick={() => handleReactivateClick(item)}
-                                  className="inline-flex items-center gap-1 text-green-600 dark:text-green-400"
+                                  className="h-8 w-8 p-0 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/20"
                                 >
                                   <RefreshCw className="w-4 h-4" />
-                                  Reactivar
                                 </Button>
                               ) : (
                                 <>
@@ -376,19 +375,17 @@ export default function ProductosPage() {
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => openEditModal(item)}
-                                    className="inline-flex items-center gap-1"
+                                    className="h-8 w-8 p-0"
                                   >
                                     <Edit className="w-4 h-4" />
-                                    Editar
                                   </Button>
                                   <Button
                                     variant="ghost"
                                     size="sm"
                                     onClick={() => handleDeleteClick(item)}
-                                    className="inline-flex items-center gap-1 text-red-600 dark:text-red-400"
+                                    className="h-8 w-8 p-0 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20"
                                   >
                                     <Trash2 className="w-4 h-4" />
-                                    Eliminar
                                   </Button>
                                 </>
                               )}

@@ -24,9 +24,13 @@ import {
   AlertCircle,
   RefreshCw,
 } from 'lucide-react';
+import { useViewMode } from '@/contexts/ViewModeContext';
+import { ViewModeToggle } from '@/components/ViewModeToggle';
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 
 export default function TiposDispositivoPage() {
   const { toast } = useToast();
+  const { viewMode } = useViewMode();
 
   const [searchTerm, setSearchTerm] = useState('');
   const [showDeleted, setShowDeleted] = useState(false);
@@ -164,13 +168,16 @@ export default function TiposDispositivoPage() {
             Gestiona los tipos de dispositivos disponibles
           </p>
         </div>
-        <button
-          onClick={openCreateModal}
-          className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
-        >
-          <Plus className="w-5 h-5" />
-          <span className="hidden sm:inline">Nuevo Tipo</span>
-        </button>
+        <div className="flex items-center gap-3">
+          <ViewModeToggle />
+          <button
+            onClick={openCreateModal}
+            className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+          >
+            <Plus className="w-5 h-5" />
+            <span className="hidden sm:inline">Nuevo Tipo</span>
+          </button>
+        </div>
       </div>
 
       {/* Filtros y búsqueda */}
@@ -246,8 +253,75 @@ export default function TiposDispositivoPage() {
             </button>
           )}
         </div>
+      ) : viewMode === 'table' ? (
+        /* Table View */
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="border-gray-200 dark:border-gray-700">
+                <TableHead className="text-gray-700 dark:text-gray-300">Nombre</TableHead>
+                <TableHead className="text-gray-700 dark:text-gray-300">Estado</TableHead>
+                <TableHead className="text-gray-700 dark:text-gray-300 text-right">Acciones</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {Array.isArray(filteredDeviceTypes) &&
+                filteredDeviceTypes.map((deviceType) => (
+                  <TableRow key={deviceType.id} className="border-gray-200 dark:border-gray-700">
+                    <TableCell className="font-medium text-gray-900 dark:text-white">
+                      {deviceType.name}
+                    </TableCell>
+                    <TableCell>
+                      {deviceType.isActive ? (
+                        <span className="inline-block px-2.5 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400">
+                          Activo
+                        </span>
+                      ) : (
+                        <span className="inline-block px-2.5 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">
+                          Inactivo
+                        </span>
+                      )}
+                    </TableCell>
+                    <TableCell className="text-right">
+                      <div className="flex items-center justify-end gap-2">
+                        {!deviceType.isActive ? (
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => handleReactivate(deviceType)}
+                            className="h-8 w-8 p-0 text-green-600 dark:text-green-400 hover:text-green-700 dark:hover:text-green-300 hover:bg-green-50 dark:hover:bg-green-900/20"
+                          >
+                            <RefreshCw className="w-4 h-4" />
+                          </Button>
+                        ) : (
+                          <>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => openEditModal(deviceType)}
+                              className="h-8 w-8 p-0"
+                            >
+                              <Edit className="w-4 h-4" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="sm"
+                              onClick={() => handleDeleteClick(deviceType)}
+                              className="h-8 w-8 p-0 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </Button>
+                          </>
+                        )}
+                      </div>
+                    </TableCell>
+                  </TableRow>
+                ))}
+            </TableBody>
+          </Table>
+        </div>
       ) : (
-        /* Device Types Grid */
+        /* Cards View */
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {Array.isArray(filteredDeviceTypes) &&
             filteredDeviceTypes.map((deviceType) => (
@@ -295,29 +369,26 @@ export default function TiposDispositivoPage() {
                     {!deviceType.isActive ? (
                       <button
                         onClick={() => handleReactivate(deviceType)}
-                        className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                        className="flex-1 flex items-center justify-center px-3 py-2 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
                         title="Reactivar"
                       >
                         <RefreshCw className="w-4 h-4" />
-                        <span className="text-sm font-medium">Reactivar</span>
                       </button>
                     ) : (
                       <>
                         <button
                           onClick={() => openEditModal(deviceType)}
-                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                          className="flex-1 flex items-center justify-center px-3 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                           title="Editar"
                         >
                           <Edit className="w-4 h-4" />
-                          <span className="text-sm font-medium">Editar</span>
                         </button>
                         <button
                           onClick={() => handleDeleteClick(deviceType)}
-                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                          className="flex-1 flex items-center justify-center px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                           title="Eliminar"
                         >
                           <Trash2 className="w-4 h-4" />
-                          <span className="text-sm font-medium">Eliminar</span>
                         </button>
                       </>
                     )}

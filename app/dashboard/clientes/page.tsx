@@ -329,19 +329,17 @@ export default function ClientesPage() {
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleViewDetails(customer.id)}
-                                className="inline-flex items-center gap-1"
+                                className="h-8 w-8 p-0"
                               >
                                 <Eye className="w-4 h-4" />
-                                Ver
                               </Button>
                               <Button
                                 variant="ghost"
                                 size="sm"
                                 onClick={() => handleDeleteClick(customer)}
-                                className="inline-flex items-center gap-1 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300"
+                                className="h-8 w-8 p-0 text-red-600 dark:text-red-400 hover:text-red-700 dark:hover:text-red-300 hover:bg-red-50 dark:hover:bg-red-900/20"
                               >
                                 <Trash2 className="w-4 h-4" />
-                                Eliminar
                               </Button>
                             </div>
                           </td>
@@ -437,21 +435,17 @@ export default function ClientesPage() {
                       <div className="flex gap-2 pt-3 border-t border-gray-200 dark:border-gray-700">
                         <button
                           onClick={() => handleViewDetails(customer.id)}
-                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                          className="flex-1 flex items-center justify-center px-3 py-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                           title="Ver Detalles"
                         >
                           <Eye className="w-4 h-4" />
-                          <span className="text-sm font-medium">
-                            Ver Detalles
-                          </span>
                         </button>
                         <button
                           onClick={() => handleDeleteClick(customer)}
-                          className="flex-1 flex items-center justify-center gap-2 px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                          className="flex-1 flex items-center justify-center px-3 py-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                           title="Eliminar"
                         >
                           <Trash2 className="w-4 h-4" />
-                          <span className="text-sm font-medium">Eliminar</span>
                         </button>
                       </div>
                     </div>

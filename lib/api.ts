@@ -356,8 +356,65 @@ export const serviceOrdersService = {
 };
 
 // ==================== USERS ====================
+import {
+  User,
+  CreateUserDto,
+  UpdateUserDto,
+  PaginatedUsers,
+  UserFilters,
+} from '@/types/user';
+
 export const usersService = {
-  // Obtener técnicos activos
+  /**
+   * Obtiene todos los usuarios con paginación
+   */
+  getAll: async (filters?: UserFilters): Promise<PaginatedUsers> => {
+    const params = new URLSearchParams();
+    if (filters?.page) params.append('page', filters.page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.role) params.append('role', filters.role);
+    if (filters?.withDeleted !== undefined)
+      params.append('withDeleted', filters.withDeleted.toString());
+
+    const response = await api.get(`/users?${params.toString()}`);
+    return response.data;
+  },
+
+  /**
+   * Obtiene un usuario por ID
+   */
+  getById: async (id: string): Promise<User> => {
+    const response = await api.get(`/users/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Crea un nuevo usuario
+   */
+  create: async (data: CreateUserDto): Promise<User> => {
+    const response = await api.post('/users', data);
+    return response.data;
+  },
+
+  /**
+   * Actualiza un usuario existente
+   */
+  update: async (id: string, data: UpdateUserDto): Promise<User> => {
+    const response = await api.patch(`/users/${id}`, data);
+    return response.data;
+  },
+
+  /**
+   * Elimina un usuario (soft delete)
+   */
+  delete: async (id: string): Promise<User> => {
+    const response = await api.delete(`/users/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Obtener técnicos activos
+   */
   getTechnicians: async () => {
     const response = await api.get('/users/technicians');
     return response.data;

@@ -11,6 +11,7 @@ import {
   Cpu,
   Home,
   ClipboardList,
+  UserCog,
 } from 'lucide-react';
 import { authService } from '@/lib/api';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -52,6 +53,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       name: 'Tipos de Dispositivo',
       icon: Cpu,
       path: '/dashboard/tipos-dispositivo',
+    },
+    {
+      name: 'Usuarios',
+      icon: UserCog,
+      path: '/dashboard/usuarios',
     },
   ];
 

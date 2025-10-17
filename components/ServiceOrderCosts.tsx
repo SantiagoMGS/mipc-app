@@ -23,7 +23,9 @@ export function ServiceOrderCosts({ order }: ServiceOrderCostsProps) {
         <div className="space-y-3">
           {/* Mano de Obra */}
           <div className="flex justify-between items-center">
-            <span className="text-gray-600 dark:text-gray-400">Mano de Obra:</span>
+            <span className="text-gray-600 dark:text-gray-400">
+              Mano de Obra:
+            </span>
             <span className="font-medium text-gray-900 dark:text-white">
               {formatCurrency(order.laborCost || 0)}
             </span>
@@ -41,7 +43,9 @@ export function ServiceOrderCosts({ order }: ServiceOrderCostsProps) {
 
           {/* Total */}
           <div className="flex justify-between items-center">
-            <span className="text-lg font-semibold text-gray-800 dark:text-white">Total:</span>
+            <span className="text-lg font-semibold text-gray-800 dark:text-white">
+              Total:
+            </span>
             <span className="text-lg font-bold text-gray-900 dark:text-white">
               {formatCurrency(order.totalCost || 0)}
             </span>
@@ -59,7 +63,9 @@ export function ServiceOrderCosts({ order }: ServiceOrderCostsProps) {
 
           {/* Saldo */}
           <div className="flex justify-between items-center">
-            <span className="text-lg font-semibold text-gray-800 dark:text-white">Saldo:</span>
+            <span className="text-lg font-semibold text-gray-800 dark:text-white">
+              Saldo:
+            </span>
             <span
               className={`text-lg font-bold ${
                 order.balance > 0

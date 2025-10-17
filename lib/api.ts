@@ -12,9 +12,6 @@ const API_BASE_URL =
     ? process.env.NEXT_PUBLIC_API_URL || API_URLS.production
     : API_URLS.production;
 
-console.log('🌐 API Base URL configurada:', API_BASE_URL);
-console.log('📝 NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
-
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -40,61 +37,24 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    // TEMPORALMENTE DESHABILITADO PARA DEBUG
-    // if (error.response?.status === 401) {
-    //   localStorage.removeItem('authToken');
-    //   localStorage.removeItem('user');
+    if (error.response?.status === 401) {
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
 
-    //   // Eliminar cookie del middleware
-    //   document.cookie =
-    //     'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      // Eliminar cookie del middleware
+      document.cookie =
+        'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
 
-    //   window.location.href = '/login';
-    // }
-    console.error(
-      '🔴 Error interceptado:',
-      error.response?.status,
-      error.response?.data
-    );
+      window.location.href = '/login';
+    }
     return Promise.reject(error);
   }
 );
 
 export const authService = {
   login: async (email: string, password: string) => {
-    try {
-      console.log('🔐 Intentando login en:', api.defaults.baseURL);
-      console.log('📝 Datos enviados:', { email, password: '***' });
-      console.log('🌍 Window defined?:', typeof window !== 'undefined');
-      console.log('🔑 NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
-
-      const response = await api.post('/auth/login', { email, password });
-      console.log('✅ Login exitoso:', response.data);
-      return response.data;
-    } catch (error: any) {
-      console.error('❌ ======== ERROR EN LOGIN ========');
-      console.error('📍 URL completa:', api.defaults.baseURL + '/auth/login');
-      console.error('🔢 Status:', error.response?.status);
-      console.error('📦 Respuesta:', error.response?.data);
-      console.error('🔍 Headers enviados:', error.config?.headers);
-      console.error('📤 Datos enviados:', error.config?.data);
-      console.error('🌐 BaseURL del axios:', error.config?.baseURL);
-      console.error('❌ Error completo:', error);
-      console.error('================================');
-
-      // Mostrar alerta antes de lanzar el error para que el usuario vea qué pasó
-      if (typeof window !== 'undefined') {
-        const errorMsg =
-          error.response?.data?.message || error.message || 'Error desconocido';
-        alert(
-          `Error de login:\n${errorMsg}\n\nURL: ${
-            api.defaults.baseURL
-          }/auth/login\nStatus: ${error.response?.status || 'N/A'}`
-        );
-      }
-
-      throw error;
-    }
+    const response = await api.post('/auth/login', { email, password });
+    return response.data;
   },
 
   logout: () => {
@@ -134,7 +94,6 @@ export const itemsService = {
     const url = `/items${
       queryParams.toString() ? `?${queryParams.toString()}` : ''
     }`;
-    console.log('🔗 URL de petición:', url);
     const response = await api.get(url);
     return response.data;
   },
@@ -182,7 +141,6 @@ export const customersService = {
     const url = `/customers${
       queryParams.toString() ? `?${queryParams.toString()}` : ''
     }`;
-    console.log('🔗 URL de petición:', url);
     const response = await api.get(url);
     return response.data;
   },
@@ -244,7 +202,6 @@ export const deviceTypesService = {
     const url = `/device-types${
       queryParams.toString() ? `?${queryParams.toString()}` : ''
     }`;
-    console.log('🔗 URL de petición:', url);
     const response = await api.get(url);
     return response.data;
   },
@@ -292,7 +249,6 @@ export const devicesService = {
     const url = `/devices${
       queryParams.toString() ? `?${queryParams.toString()}` : ''
     }`;
-    console.log('🔗 URL de petición:', url);
     const response = await api.get(url);
     return response.data;
   },

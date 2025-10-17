@@ -59,17 +59,32 @@ export const authService = {
     try {
       console.log('🔐 Intentando login en:', api.defaults.baseURL);
       console.log('📝 Datos enviados:', { email, password: '***' });
+      console.log('🌍 Window defined?:', typeof window !== 'undefined');
+      console.log('🔑 NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
 
       const response = await api.post('/auth/login', { email, password });
       console.log('✅ Login exitoso:', response.data);
       return response.data;
     } catch (error: any) {
-      console.error('❌ Error en login:', error);
-      console.error('📍 URL:', api.defaults.baseURL + '/auth/login');
+      console.error('❌ ======== ERROR EN LOGIN ========');
+      console.error('📍 URL completa:', api.defaults.baseURL + '/auth/login');
+      console.error('🔢 Status:', error.response?.status);
+      console.error('📦 Respuesta:', error.response?.data);
+      console.error('🔍 Headers enviados:', error.config?.headers);
+      console.error('📤 Datos enviados:', error.config?.data);
+      console.error('🌐 BaseURL del axios:', error.config?.baseURL);
+      console.error('❌ Error completo:', error);
+      console.error('================================');
 
-      if (error.response) {
-        console.error('📦 Respuesta del servidor:', error.response.data);
-        console.error('🔢 Status:', error.response.status);
+      // Mostrar alerta antes de lanzar el error para que el usuario vea qué pasó
+      if (typeof window !== 'undefined') {
+        const errorMsg =
+          error.response?.data?.message || error.message || 'Error desconocido';
+        alert(
+          `Error de login:\n${errorMsg}\n\nURL: ${
+            api.defaults.baseURL
+          }/auth/login\nStatus: ${error.response?.status || 'N/A'}`
+        );
       }
 
       throw error;

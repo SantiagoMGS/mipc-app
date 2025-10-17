@@ -6,8 +6,14 @@ export const API_URLS = {
   local: 'http://localhost:3050',
 };
 
-// URL base de la API
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || API_URLS.production;
+// URL base de la API - Siempre usar production en Vercel
+const API_BASE_URL =
+  typeof window !== 'undefined'
+    ? process.env.NEXT_PUBLIC_API_URL || API_URLS.production
+    : API_URLS.production;
+
+console.log('🌐 API Base URL configurada:', API_BASE_URL);
+console.log('📝 NEXT_PUBLIC_API_URL:', process.env.NEXT_PUBLIC_API_URL);
 
 const api = axios.create({
   baseURL: API_BASE_URL,

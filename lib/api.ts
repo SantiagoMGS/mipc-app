@@ -40,16 +40,22 @@ api.interceptors.request.use(
 api.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('user');
+    // TEMPORALMENTE DESHABILITADO PARA DEBUG
+    // if (error.response?.status === 401) {
+    //   localStorage.removeItem('authToken');
+    //   localStorage.removeItem('user');
 
-      // Eliminar cookie del middleware
-      document.cookie =
-        'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+    //   // Eliminar cookie del middleware
+    //   document.cookie =
+    //     'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
 
-      window.location.href = '/login';
-    }
+    //   window.location.href = '/login';
+    // }
+    console.error(
+      '🔴 Error interceptado:',
+      error.response?.status,
+      error.response?.data
+    );
     return Promise.reject(error);
   }
 );

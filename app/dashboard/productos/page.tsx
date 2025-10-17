@@ -347,14 +347,13 @@ export default function ProductosPage() {
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            {!item.isActive && (
-                              <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-900 text-red-800 dark:text-red-200">
-                                INACTIVO
+                            {item.isActive ? (
+                              <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300">
+                                ACTIVO
                               </span>
-                            )}
-                            {item.deletedAt && (
-                              <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 dark:bg-gray-700 text-gray-800 dark:text-gray-200">
-                                ELIMINADO
+                            ) : (
+                              <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300">
+                                INACTIVO
                               </span>
                             )}
                           </td>

@@ -31,12 +31,12 @@ export function usePayments(serviceOrderId: string) {
     onSuccess: (response) => {
       // Actualizar la cache de pagos
       queryClient.invalidateQueries({ queryKey: ['payments', serviceOrderId] });
-      
+
       // Actualizar la orden de servicio específica
       queryClient.invalidateQueries({
         queryKey: serviceOrderKeys.detail(serviceOrderId),
       });
-      
+
       // Actualizar todas las listas de órdenes de servicio
       queryClient.invalidateQueries({
         queryKey: serviceOrderKeys.lists(),
@@ -83,12 +83,12 @@ export function usePayments(serviceOrderId: string) {
     onSuccess: (response) => {
       // Actualizar la cache de pagos
       queryClient.invalidateQueries({ queryKey: ['payments', serviceOrderId] });
-      
+
       // Actualizar la orden de servicio específica
       queryClient.invalidateQueries({
         queryKey: serviceOrderKeys.detail(serviceOrderId),
       });
-      
+
       // Actualizar todas las listas de órdenes de servicio
       queryClient.invalidateQueries({
         queryKey: serviceOrderKeys.lists(),

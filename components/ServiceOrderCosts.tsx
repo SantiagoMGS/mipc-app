@@ -2,13 +2,6 @@
 
 import { ServiceOrder } from '@/types/service-order';
 import { formatCurrency } from '@/lib/utils';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 
 interface ServiceOrderCostsProps {
@@ -17,27 +10,29 @@ interface ServiceOrderCostsProps {
 
 export function ServiceOrderCosts({ order }: ServiceOrderCostsProps) {
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Resumen de Costos</CardTitle>
-        <CardDescription>
+    <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md">
+      <div className="p-6">
+        <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+          Resumen de Costos
+        </h3>
+        <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
           Desglose de mano de obra, repuestos y pagos
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
+        </p>
+      </div>
+      <div className="px-6 pb-6">
         <div className="space-y-3">
           {/* Mano de Obra */}
           <div className="flex justify-between items-center">
-            <span className="text-muted-foreground">Mano de Obra:</span>
-            <span className="font-medium">
+            <span className="text-gray-600 dark:text-gray-400">Mano de Obra:</span>
+            <span className="font-medium text-gray-900 dark:text-white">
               {formatCurrency(order.laborCost || 0)}
             </span>
           </div>
 
           {/* Repuestos */}
           <div className="flex justify-between items-center">
-            <span className="text-muted-foreground">Repuestos:</span>
-            <span className="font-medium">
+            <span className="text-gray-600 dark:text-gray-400">Repuestos:</span>
+            <span className="font-medium text-gray-900 dark:text-white">
               {formatCurrency(order.partsCost || 0)}
             </span>
           </div>
@@ -46,8 +41,8 @@ export function ServiceOrderCosts({ order }: ServiceOrderCostsProps) {
 
           {/* Total */}
           <div className="flex justify-between items-center">
-            <span className="text-lg font-semibold">Total:</span>
-            <span className="text-lg font-bold">
+            <span className="text-lg font-semibold text-gray-800 dark:text-white">Total:</span>
+            <span className="text-lg font-bold text-gray-900 dark:text-white">
               {formatCurrency(order.totalCost || 0)}
             </span>
           </div>
@@ -56,7 +51,7 @@ export function ServiceOrderCosts({ order }: ServiceOrderCostsProps) {
 
           {/* Pagado */}
           <div className="flex justify-between items-center">
-            <span className="text-muted-foreground">Pagado:</span>
+            <span className="text-gray-600 dark:text-gray-400">Pagado:</span>
             <span className="font-medium text-green-600 dark:text-green-400">
               {formatCurrency(order.totalPaid || 0)}
             </span>
@@ -64,7 +59,7 @@ export function ServiceOrderCosts({ order }: ServiceOrderCostsProps) {
 
           {/* Saldo */}
           <div className="flex justify-between items-center">
-            <span className="text-lg font-semibold">Saldo:</span>
+            <span className="text-lg font-semibold text-gray-800 dark:text-white">Saldo:</span>
             <span
               className={`text-lg font-bold ${
                 order.balance > 0
@@ -78,7 +73,7 @@ export function ServiceOrderCosts({ order }: ServiceOrderCostsProps) {
             </span>
           </div>
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 }

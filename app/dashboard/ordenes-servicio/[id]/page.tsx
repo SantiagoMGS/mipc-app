@@ -22,7 +22,6 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Card } from '@/components/ui/card';
 import {
   ArrowLeft,
   Edit,
@@ -253,7 +252,7 @@ export default function DetalleOrdenServicioPage() {
       </div>
 
       {/* Estado y Prioridad */}
-      <Card className="p-4 md:p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 md:p-6">
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
           <div>
             <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
@@ -274,10 +273,10 @@ export default function DetalleOrdenServicioPage() {
             <PaymentStatusBadge status={order.paymentStatus} />
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Información del Cliente */}
-      <Card className="p-4 md:p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 md:p-6">
         <div className="flex items-center gap-2 mb-4">
           <User className="w-5 h-5 text-primary-500" />
           <h2 className="text-base md:text-lg font-semibold text-gray-800 dark:text-white">
@@ -328,10 +327,10 @@ export default function DetalleOrdenServicioPage() {
             Cargando información del cliente...
           </p>
         )}
-      </Card>
+      </div>
 
       {/* Información del Dispositivo */}
-      <Card className="p-4 md:p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 md:p-6">
         <div className="flex items-center gap-2 mb-4">
           <Laptop className="w-5 h-5 text-primary-500" />
           <h2 className="text-base md:text-lg font-semibold text-gray-800 dark:text-white">
@@ -382,10 +381,10 @@ export default function DetalleOrdenServicioPage() {
             Cargando información del dispositivo...
           </p>
         )}
-      </Card>
+      </div>
 
       {/* Descripción del Problema */}
-      <Card className="p-4 md:p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 md:p-6">
         <div className="flex items-center gap-2 mb-4">
           <FileText className="w-5 h-5 text-primary-500" />
           <h2 className="text-base md:text-lg font-semibold text-gray-800 dark:text-white">
@@ -395,10 +394,10 @@ export default function DetalleOrdenServicioPage() {
         <p className="text-sm md:text-base text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
           {order.problemDescription}
         </p>
-      </Card>
+      </div>
 
       {/* Diagnóstico y Observaciones */}
-      <Card className="p-4 md:p-6">
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 md:p-6">
         <h2 className="text-base md:text-lg font-semibold text-gray-800 dark:text-white mb-4">
           Notas y Observaciones
         </h2>
@@ -474,7 +473,7 @@ export default function DetalleOrdenServicioPage() {
             </div>
           </div>
         </div>
-      </Card>
+      </div>
 
       {/* Items de la Orden */}
       <ServiceOrderItems

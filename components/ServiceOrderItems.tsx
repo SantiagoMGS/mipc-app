@@ -5,13 +5,6 @@ import { useOrderItems } from '@/hooks/useOrderItems';
 import { AddItemDialog } from './AddItemDialog';
 import { AddItemToOrderDto } from '@/types/item';
 import { formatCurrency } from '@/lib/utils';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import {
   Table,
@@ -86,15 +79,17 @@ export function ServiceOrderItems({
 
   return (
     <>
-      <Card>
-        <CardHeader>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md">
+        <div className="p-6">
           <div className="flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <div>
-                <CardTitle>Items de la Orden</CardTitle>
-                <CardDescription>
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                  Items de la Orden
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
                   Productos y servicios incluidos en esta orden
-                </CardDescription>
+                </p>
               </div>
               {!readOnly && (
                 <Button
@@ -118,8 +113,8 @@ export function ServiceOrderItems({
               </div>
             )}
           </div>
-        </CardHeader>
-        <CardContent>
+        </div>
+        <div className="px-6 pb-6">
           {loading && items.length === 0 ? (
             <div className="flex items-center justify-center py-8">
               <Loader2 className="h-6 w-6 animate-spin mr-2" />
@@ -280,8 +275,8 @@ export function ServiceOrderItems({
               </div>
             </>
           )}
-        </CardContent>
-      </Card>
+        </div>
+      </div>
 
       <AddItemDialog
         open={dialogOpen}

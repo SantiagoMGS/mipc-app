@@ -256,7 +256,13 @@ export default function ClientesPage() {
                           className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                         >
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="inline-block px-2 py-1 text-xs font-semibold rounded-full bg-primary-100 dark:bg-primary-900/30 text-primary-700 dark:text-primary-300">
+                            <span
+                              className={`inline-block px-2 py-1 text-xs font-semibold rounded-full ${
+                                customer.customerType === 'NATURAL'
+                                  ? 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300'
+                                  : 'bg-purple-100 dark:bg-purple-900/30 text-purple-700 dark:text-purple-300'
+                              }`}
+                            >
                               {customer.customerType === 'NATURAL'
                                 ? 'NATURAL'
                                 : 'JURÍDICA'}
@@ -355,9 +361,21 @@ export default function ClientesPage() {
                     className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden"
                   >
                     {/* Header con tipo de documento */}
-                    <div className="px-4 pt-4 pb-2 bg-gradient-to-r from-primary-50 to-primary-100 dark:from-primary-900/20 dark:to-primary-800/20">
+                    <div
+                      className={`px-4 pt-4 pb-2 bg-gradient-to-r ${
+                        customer.customerType === 'NATURAL'
+                          ? 'from-blue-50 to-blue-100 dark:from-blue-900/20 dark:to-blue-800/20'
+                          : 'from-purple-50 to-purple-100 dark:from-purple-900/20 dark:to-purple-800/20'
+                      }`}
+                    >
                       <div className="flex items-center justify-between">
-                        <span className="inline-block px-3 py-1 text-xs font-semibold rounded-full bg-primary-500 text-white">
+                        <span
+                          className={`inline-block px-3 py-1 text-xs font-semibold rounded-full ${
+                            customer.customerType === 'NATURAL'
+                              ? 'bg-blue-500 text-white'
+                              : 'bg-purple-500 text-white'
+                          }`}
+                        >
                           {customer.customerType === 'NATURAL'
                             ? 'PERSONA NATURAL'
                             : 'PERSONA JURÍDICA'}

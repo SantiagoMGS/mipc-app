@@ -13,7 +13,7 @@ const API_BASE_URL =
     : API_URLS.production;
 
 const api = axios.create({
-  baseURL: API_BASE_URL,
+  baseURL: 'http://localhost:3050',
   headers: {
     'Content-Type': 'application/json',
   },

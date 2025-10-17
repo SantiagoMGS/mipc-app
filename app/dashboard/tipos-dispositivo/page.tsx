@@ -6,12 +6,12 @@ import DeviceTypeFormModal from '@/components/DeviceTypeFormModal';
 import { useToast } from '@/hooks/use-toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
-import { 
-  useDeviceTypes, 
-  useCreateDeviceType, 
-  useUpdateDeviceType, 
-  useDeleteDeviceType, 
-  useReactivateDeviceType 
+import {
+  useDeviceTypes,
+  useCreateDeviceType,
+  useUpdateDeviceType,
+  useDeleteDeviceType,
+  useReactivateDeviceType,
 } from '@/hooks/useDeviceTypes';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,7 +27,7 @@ import {
 
 export default function TiposDispositivoPage() {
   const { toast } = useToast();
-  
+
   const [searchTerm, setSearchTerm] = useState('');
   const [showDeleted, setShowDeleted] = useState(false);
 
@@ -36,10 +36,10 @@ export default function TiposDispositivoPage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // TanStack Query
-  const { data, isLoading, error } = useDeviceTypes({ 
-    page: currentPage, 
-    limit: itemsPerPage, 
-    withDeleted: showDeleted 
+  const { data, isLoading, error } = useDeviceTypes({
+    page: currentPage,
+    limit: itemsPerPage,
+    withDeleted: showDeleted,
   });
   const createDeviceTypeMutation = useCreateDeviceType();
   const updateDeviceTypeMutation = useUpdateDeviceType();
@@ -50,11 +50,15 @@ export default function TiposDispositivoPage() {
   const totalItems = data?.total || 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-  const [filteredDeviceTypes, setFilteredDeviceTypes] = useState<DeviceType[]>([]);
+  const [filteredDeviceTypes, setFilteredDeviceTypes] = useState<DeviceType[]>(
+    []
+  );
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [editingDeviceType, setEditingDeviceType] = useState<DeviceType | null>(null);
+  const [editingDeviceType, setEditingDeviceType] = useState<DeviceType | null>(
+    null
+  );
 
   // Confirm dialog state
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -95,7 +99,10 @@ export default function TiposDispositivoPage() {
 
   const handleUpdate = async (data: CreateDeviceTypeDto) => {
     if (editingDeviceType) {
-      await updateDeviceTypeMutation.mutateAsync({ id: editingDeviceType.id, data });
+      await updateDeviceTypeMutation.mutateAsync({
+        id: editingDeviceType.id,
+        data,
+      });
       setIsModalOpen(false);
       setEditingDeviceType(null);
     }

@@ -2,7 +2,16 @@
 
 import { useState } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
-import { Menu, X, LogOut, Package, Users, Cpu, Home } from 'lucide-react';
+import {
+  Menu,
+  X,
+  LogOut,
+  Package,
+  Users,
+  Cpu,
+  Home,
+  ClipboardList,
+} from 'lucide-react';
 import { authService } from '@/lib/api';
 import ThemeToggle from '@/components/ThemeToggle';
 import ProtectedRoute from '@/components/ProtectedRoute';
@@ -22,6 +31,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       name: 'Inicio',
       icon: Home,
       path: '/dashboard',
+    },
+    {
+      name: 'Órdenes de Servicio',
+      icon: ClipboardList,
+      path: '/dashboard/ordenes-servicio',
     },
     {
       name: 'Productos',

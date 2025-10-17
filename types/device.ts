@@ -15,6 +15,11 @@ export interface Device {
   customerId: string;
   createdAt?: string;
   updatedAt?: string;
+  // Relación con deviceType
+  deviceType?: {
+    id: string;
+    name: string;
+  };
 }
 
 export interface CreateDeviceDto {

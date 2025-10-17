@@ -14,12 +14,13 @@ import { Button } from '@/components/ui/button';
 interface ConfirmDialogProps {
   isOpen: boolean;
   title: string;
-  message: string;
+  message: string | React.ReactNode;
   confirmText?: string;
   cancelText?: string;
   onConfirm: () => void;
   onCancel: () => void;
   type?: 'danger' | 'warning' | 'info';
+  isConfirmDisabled?: boolean;
 }
 
 export default function ConfirmDialog({
@@ -31,6 +32,7 @@ export default function ConfirmDialog({
   onConfirm,
   onCancel,
   type = 'danger',
+  isConfirmDisabled = false,
 }: ConfirmDialogProps) {
   const colors = {
     danger: {
@@ -68,7 +70,11 @@ export default function ConfirmDialog({
           <Button variant="outline" onClick={onCancel}>
             {cancelText}
           </Button>
-          <Button className={colors[type].button} onClick={onConfirm}>
+          <Button
+            className={colors[type].button}
+            onClick={onConfirm}
+            disabled={isConfirmDisabled}
+          >
             {confirmText}
           </Button>
         </DialogFooter>

@@ -6,12 +6,12 @@ import ItemFormModal from '@/components/ItemFormModal';
 import { useToast } from '@/hooks/use-toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
-import { 
-  useItems, 
-  useCreateItem, 
-  useUpdateItem, 
-  useDeleteItem, 
-  useReactivateItem 
+import {
+  useItems,
+  useCreateItem,
+  useUpdateItem,
+  useDeleteItem,
+  useReactivateItem,
 } from '@/hooks/useItems';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,9 +27,11 @@ import {
 
 export default function ProductosPage() {
   const { toast } = useToast();
-  
+
   const [searchTerm, setSearchTerm] = useState('');
-  const [filterType, setFilterType] = useState<'ALL' | 'PRODUCTO' | 'SERVICIO'>('ALL');
+  const [filterType, setFilterType] = useState<'ALL' | 'PRODUCTO' | 'SERVICIO'>(
+    'ALL'
+  );
   const [showDeleted, setShowDeleted] = useState(false);
 
   // Pagination states
@@ -37,10 +39,10 @@ export default function ProductosPage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // TanStack Query
-  const { data, isLoading, error } = useItems({ 
-    page: currentPage, 
-    limit: itemsPerPage, 
-    withDeleted: showDeleted 
+  const { data, isLoading, error } = useItems({
+    page: currentPage,
+    limit: itemsPerPage,
+    withDeleted: showDeleted,
   });
   const createItemMutation = useCreateItem();
   const updateItemMutation = useUpdateItem();

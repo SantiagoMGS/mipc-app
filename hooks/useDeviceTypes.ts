@@ -65,7 +65,8 @@ export function useCreateDeviceType() {
       toast({
         title: 'Error',
         description:
-          error.response?.data?.message || 'Error al crear el tipo de dispositivo',
+          error.response?.data?.message ||
+          'Error al crear el tipo de dispositivo',
         variant: 'destructive',
       });
     },

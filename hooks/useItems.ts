@@ -119,7 +119,8 @@ export function useDeleteItem() {
       console.error('Error al eliminar item:', error);
       toast({
         title: 'Error',
-        description: error.response?.data?.message || 'Error al eliminar el item',
+        description:
+          error.response?.data?.message || 'Error al eliminar el item',
         variant: 'destructive',
       });
     },

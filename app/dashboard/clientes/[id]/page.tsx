@@ -3,14 +3,23 @@
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import { deviceTypesService } from '@/lib/api';
-import { CreateCustomerDto, DocumentType, CustomerType } from '@/types/customer';
+import {
+  CreateCustomerDto,
+  DocumentType,
+  CustomerType,
+} from '@/types/customer';
 import { Device, CreateDeviceForCustomerDto } from '@/types/device';
 import { DeviceType } from '@/types/device-type';
 import DeviceFormModal from '@/components/DeviceFormModal';
 import { useToast } from '@/hooks/use-toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { useCustomer, useUpdateCustomer } from '@/hooks/useCustomers';
-import { useCustomerDevices, useCreateDeviceForCustomer, useDeleteDevice, useActivateDevice } from '@/hooks/useDevices';
+import {
+  useCustomerDevices,
+  useCreateDeviceForCustomer,
+  useDeleteDevice,
+  useActivateDevice,
+} from '@/hooks/useDevices';
 import {
   ArrowLeft,
   Edit,
@@ -60,8 +69,13 @@ export default function ClienteDetallesPage() {
   const { toast } = useToast();
 
   // TanStack Query hooks
-  const { data: customer, isLoading: isLoadingCustomer, error: customerError } = useCustomer(customerId);
-  const { data: devices = [], isLoading: isLoadingDevices } = useCustomerDevices(customerId);
+  const {
+    data: customer,
+    isLoading: isLoadingCustomer,
+    error: customerError,
+  } = useCustomer(customerId);
+  const { data: devices = [], isLoading: isLoadingDevices } =
+    useCustomerDevices(customerId);
   const updateCustomerMutation = useUpdateCustomer();
   const createDeviceMutation = useCreateDeviceForCustomer();
   const deleteDeviceMutation = useDeleteDevice();
@@ -332,7 +346,9 @@ export default function ClienteDetallesPage() {
               className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save className="w-5 h-5" />
-              {updateCustomerMutation.isPending ? 'Guardando...' : 'Guardar Cambios'}
+              {updateCustomerMutation.isPending
+                ? 'Guardando...'
+                : 'Guardar Cambios'}
             </button>
           </div>
         )}

@@ -183,6 +183,18 @@ export const customersService = {
     const response = await api.delete(`/customers/${id}`);
     return response.data;
   },
+
+  // Buscar clientes (para autocompletado)
+  search: async (params: { q: string; limit?: number }) => {
+    const queryParams = new URLSearchParams();
+    queryParams.append('q', params.q);
+    if (params.limit) queryParams.append('limit', params.limit.toString());
+
+    const response = await api.get(
+      `/customers/search?${queryParams.toString()}`
+    );
+    return response.data;
+  },
 };
 
 // Servicios para Device Types/Tipos de Dispositivo
@@ -292,6 +304,79 @@ export const devicesService = {
   // Activar un dispositivo
   activate: async (id: string) => {
     const response = await api.patch(`/devices/${id}/activate`);
+    return response.data;
+  },
+};
+
+// ==================== SERVICE ORDERS ====================
+export const serviceOrdersService = {
+  // Obtener todas las órdenes con filtros y paginación
+  getAll: async (params?: {
+    status?: string;
+    customerId?: string;
+    technicianId?: string;
+    paymentStatus?: string;
+    limit?: number;
+    page?: number;
+  }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.status) queryParams.append('status', params.status);
+    if (params?.customerId) queryParams.append('customerId', params.customerId);
+    if (params?.technicianId)
+      queryParams.append('technicianId', params.technicianId);
+    if (params?.paymentStatus)
+      queryParams.append('paymentStatus', params.paymentStatus);
+    if (params?.limit) queryParams.append('limit', params.limit.toString());
+    if (params?.page) queryParams.append('page', params.page.toString());
+
+    const url = `/service-orders${
+      queryParams.toString() ? `?${queryParams.toString()}` : ''
+    }`;
+    const response = await api.get(url);
+    return response.data;
+  },
+
+  // Obtener una orden por ID
+  getById: async (id: string) => {
+    const response = await api.get(`/service-orders/${id}`);
+    return response.data;
+  },
+
+  // Obtener una orden por número
+  getByOrderNumber: async (orderNumber: string) => {
+    const response = await api.get(
+      `/service-orders/order-number/${orderNumber}`
+    );
+    return response.data;
+  },
+
+  // Crear nueva orden
+  create: async (data: any) => {
+    const response = await api.post('/service-orders', data);
+    return response.data;
+  },
+
+  // Actualizar orden
+  update: async (id: string, data: any) => {
+    const response = await api.patch(`/service-orders/${id}`, data);
+    return response.data;
+  },
+
+  // Cambiar estado de orden
+  changeStatus: async (id: string, newStatus: string, notes?: string) => {
+    const url = `/service-orders/${id}/status/${newStatus}${
+      notes ? `?notes=${encodeURIComponent(notes)}` : ''
+    }`;
+    const response = await api.patch(url);
+    return response.data;
+  },
+};
+
+// ==================== USERS ====================
+export const usersService = {
+  // Obtener técnicos activos
+  getTechnicians: async () => {
+    const response = await api.get('/users/technicians');
     return response.data;
   },
 };

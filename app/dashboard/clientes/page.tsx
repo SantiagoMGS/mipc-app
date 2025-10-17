@@ -24,7 +24,7 @@ import {
 export default function ClientesPage() {
   const router = useRouter();
   const { toast } = useToast();
-  
+
   const [searchTerm, setSearchTerm] = useState('');
 
   // Pagination states
@@ -32,7 +32,10 @@ export default function ClientesPage() {
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
   // TanStack Query
-  const { data, isLoading, error } = useCustomers({ page: currentPage, limit: itemsPerPage });
+  const { data, isLoading, error } = useCustomers({
+    page: currentPage,
+    limit: itemsPerPage,
+  });
   const deleteCustomerMutation = useDeleteCustomer();
 
   const customers = data?.customers || [];

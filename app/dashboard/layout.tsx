@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import {
   Menu,
@@ -17,6 +17,7 @@ import { authService } from '@/lib/api';
 import ThemeToggle from '@/components/ThemeToggle';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { ViewModeProvider } from '@/contexts/ViewModeContext';
+import { USER_ROLE_LABELS, UserRole } from '@/types/user';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -27,6 +28,36 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const pathname = usePathname();
   const [isSidebarOpen, setIsSidebarOpen] = useState(false); // Cerrado por defecto en móvil
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [userName, setUserName] = useState('Usuario');
+  const [userRole, setUserRole] = useState('');
+  const [userInitial, setUserInitial] = useState('U');
+
+  useEffect(() => {
+    // Decodificar el JWT token para obtener el nombre y rol
+    const token = localStorage.getItem('authToken');
+    if (token) {
+      try {
+        const payloadBase64 = token.split('.')[1];
+        const payloadJson = atob(payloadBase64);
+        const payload = JSON.parse(payloadJson);
+
+        // Extraer nombre y tomar la primera palabra
+        if (payload.name) {
+          const firstName = payload.name.split(' ')[0];
+          setUserName(firstName);
+          setUserInitial(firstName.charAt(0).toUpperCase());
+        }
+
+        // Extraer rol y usar el label en español
+        if (payload.role) {
+          const roleLabel = USER_ROLE_LABELS[payload.role as UserRole];
+          setUserRole(roleLabel || payload.role);
+        }
+      } catch (error) {
+        console.error('Error decoding JWT token:', error);
+      }
+    }
+  }, []);
 
   const menuItems = [
     {
@@ -225,14 +256,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
                 <div className="text-right hidden sm:block">
                   <p className="text-sm font-medium text-gray-700 dark:text-gray-300">
-                    Usuario
+                    {userName}
                   </p>
                   <p className="text-xs text-gray-500 dark:text-gray-400">
-                    Administrador
+                    {userRole}
                   </p>
                 </div>
                 <div className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-primary-500 flex items-center justify-center text-white font-semibold text-sm md:text-base">
-                  U
+                  {userInitial}
                 </div>
               </div>
             </header>

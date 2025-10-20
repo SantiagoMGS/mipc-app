@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { authService, API_URLS } from '@/lib/api';
+import Image from 'next/image';
+import { authService, API_BASE_URL } from '@/lib/api';
 import { Lock, User, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 
@@ -18,7 +19,8 @@ export default function LoginPage() {
   const [showPassword, setShowPassword] = useState(false);
 
   useEffect(() => {
-    setCurrentAPI(API_URLS.production);
+    // Mostrar la URL actual que se está usando
+    setCurrentAPI(API_BASE_URL);
 
     // Si ya está autenticado, redirigir al dashboard
     const token = localStorage.getItem('authToken');
@@ -101,8 +103,15 @@ export default function LoginPage() {
       <div className="max-w-md w-full bg-white dark:bg-gray-800 rounded-2xl shadow-2xl p-8">
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="inline-block p-3 bg-primary-500 rounded-full mb-4">
-            <Lock className="w-8 h-8 text-white" />
+          <div className="flex justify-center mb-4">
+            <Image
+              src="/logo_mipc_tec.png"
+              alt="MIPC Logo"
+              width={180}
+              height={180}
+              priority
+              className="object-contain"
+            />
           </div>
           <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
             Bienvenido

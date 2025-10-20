@@ -4,6 +4,8 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
+    "dev:local": "NEXT_PUBLIC_API_URL=http://localhost:3050 next dev",
+    "dev:prod": "NEXT_PUBLIC_API_URL=https://mipc-api-production.up.railway.app next dev",
     "build": "next build",
     "start": "next start",
     "lint": "next lint"

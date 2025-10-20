@@ -36,11 +36,14 @@ import {
   AlertCircle,
   CheckCircle,
   RefreshCw,
+  Eye,
+  Download,
 } from 'lucide-react';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { ServiceOrderItems } from '@/components/ServiceOrderItems';
 import { ServiceOrderCosts } from '@/components/ServiceOrderCosts';
 import { PaymentsSection } from '@/components/PaymentsSection';
+import { pdfService } from '@/lib/api';
 
 export default function DetalleOrdenServicioPage() {
   const router = useRouter();
@@ -74,6 +77,10 @@ export default function DetalleOrdenServicioPage() {
     ServiceOrderStatus | ''
   >('');
   const [statusNotes, setStatusNotes] = useState('');
+
+  // Estados para PDF
+  const [isGeneratingPDF, setIsGeneratingPDF] = useState(false);
+  const [pdfError, setPdfError] = useState<string | null>(null);
 
   // Sincronizar con datos de la orden
   useEffect(() => {
@@ -138,6 +145,39 @@ export default function DetalleOrdenServicioPage() {
   const getAvailableStatuses = (): ServiceOrderStatus[] => {
     if (!order) return [];
     return STATUS_TRANSITIONS[order.status as ServiceOrderStatus] || [];
+  };
+
+  // Manejadores de PDF
+  const handlePreviewPDF = async () => {
+    if (!order) return;
+
+    setIsGeneratingPDF(true);
+    setPdfError(null);
+
+    try {
+      await pdfService.previewPDF(order.id);
+    } catch (error) {
+      console.error('Error al previsualizar PDF:', error);
+      setPdfError('Error al generar la vista previa del PDF');
+    } finally {
+      setIsGeneratingPDF(false);
+    }
+  };
+
+  const handleDownloadPDF = async () => {
+    if (!order) return;
+
+    setIsGeneratingPDF(true);
+    setPdfError(null);
+
+    try {
+      await pdfService.downloadPDF(order.id, order.orderNumber);
+    } catch (error) {
+      console.error('Error al descargar PDF:', error);
+      setPdfError('Error al descargar el PDF');
+    } finally {
+      setIsGeneratingPDF(false);
+    }
   };
 
   // Determinar si se pueden agregar/eliminar items
@@ -211,6 +251,32 @@ export default function DetalleOrdenServicioPage() {
         </div>
 
         <div className="flex gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
+          {/* Botones de PDF */}
+          <Button
+            onClick={handlePreviewPDF}
+            disabled={isGeneratingPDF}
+            variant="outline"
+            className="gap-2"
+            title="Ver PDF"
+          >
+            <Eye className="w-5 h-5" />
+            <span className="hidden md:inline">
+              {isGeneratingPDF ? 'Generando...' : 'Ver PDF'}
+            </span>
+          </Button>
+          <Button
+            onClick={handleDownloadPDF}
+            disabled={isGeneratingPDF}
+            variant="outline"
+            className="gap-2"
+            title="Descargar PDF"
+          >
+            <Download className="w-5 h-5" />
+            <span className="hidden md:inline">
+              {isGeneratingPDF ? 'Generando...' : 'Descargar PDF'}
+            </span>
+          </Button>
+
           {availableStatuses.length > 0 && (
             <Button
               onClick={handleOpenStatusModal}
@@ -250,6 +316,22 @@ export default function DetalleOrdenServicioPage() {
           )}
         </div>
       </div>
+
+      {/* Mensaje de Error de PDF */}
+      {pdfError && (
+        <div className="bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg p-4 flex items-start gap-3">
+          <AlertCircle className="w-5 h-5 text-red-500 dark:text-red-400 flex-shrink-0 mt-0.5" />
+          <div>
+            <p className="text-sm text-red-700 dark:text-red-300">{pdfError}</p>
+            <button
+              onClick={() => setPdfError(null)}
+              className="mt-2 text-sm text-red-600 dark:text-red-400 underline"
+            >
+              Cerrar
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Estado y Prioridad */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 md:p-6">

@@ -1,17 +1,51 @@
 import axios from 'axios';
 
-// URL de la API
+// ============================================
+// Configuración de URL de la API
+// ============================================
+
+/**
+ * Determina la URL base de la API según el entorno
+ *
+ * Prioridad:
+ * 1. Variable de entorno NEXT_PUBLIC_API_URL (si está definida)
+ * 2. Auto-detección basada en hostname:
+ *    - localhost → http://localhost:3050
+ *    - vercel/producción → https://mipc-api-production.up.railway.app
+ */
+const getApiBaseUrl = (): string => {
+  // 1. Si hay variable de entorno definida, usarla
+  if (process.env.NEXT_PUBLIC_API_URL) {
+    return process.env.NEXT_PUBLIC_API_URL;
+  }
+
+  // 2. Auto-detección basada en el entorno
+  // En el servidor (SSR), usar producción por defecto
+  if (typeof window === 'undefined') {
+    return 'https://mipc-api-production.up.railway.app';
+  }
+
+  // 3. En el cliente, detectar según el hostname
+  const hostname = window.location.hostname;
+
+  // Desarrollo local
+  if (hostname === 'localhost' || hostname === '127.0.0.1') {
+    return 'http://localhost:3050';
+  }
+
+  // Producción (Vercel u otro hosting)
+  return 'https://mipc-api-production.up.railway.app';
+};
+
+// URLs disponibles (para referencia y compatibilidad)
 export const API_URLS = {
   production: 'https://mipc-api-production.up.railway.app',
   local: 'http://localhost:3050',
 };
 
-// URL base de la API - Siempre usar production en Vercel
-const API_BASE_URL =
-  typeof window !== 'undefined'
-    ? process.env.NEXT_PUBLIC_API_URL || API_URLS.production
-    : API_URLS.production;
+export const API_BASE_URL = getApiBaseUrl();
 
+// Instancia de axios configurada
 const api = axios.create({
   baseURL: API_BASE_URL,
   headers: {
@@ -485,6 +519,73 @@ export const paymentsService = {
       `/service-orders/${serviceOrderId}/payments/${paymentId}`
     );
     return response.data;
+  },
+};
+
+// ============================================
+// PDF Service
+// ============================================
+
+/**
+ * Obtiene el token de autenticación desde localStorage
+ */
+const getAuthToken = (): string | null => {
+  if (typeof window === 'undefined') return null;
+  return localStorage.getItem('authToken');
+};
+
+export const pdfService = {
+  /**
+   * Previsualiza el PDF de una orden de servicio en una nueva pestaña
+   */
+  previewPDF: async (orderId: string): Promise<void> => {
+    const token = getAuthToken();
+    if (!token) {
+      throw new Error('No se encontró token de autenticación');
+    }
+
+    const url = `${API_BASE_URL}/service-orders/${orderId}/pdf/preview`;
+
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al generar la vista previa del PDF');
+    }
+
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank');
+  },
+
+  /**
+   * Descarga el PDF de una orden de servicio
+   */
+  downloadPDF: async (orderId: string, orderNumber: string): Promise<void> => {
+    const token = getAuthToken();
+    if (!token) {
+      throw new Error('No se encontró token de autenticación');
+    }
+
+    const url = `${API_BASE_URL}/service-orders/${orderId}/pdf`;
+
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al descargar el PDF');
+    }
+
+    const blob = await response.blob();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `orden-servicio-${orderNumber}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
   },
 };
 

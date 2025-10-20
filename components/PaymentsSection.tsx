@@ -1,13 +1,14 @@
 'use client';
 
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { usePayments } from '@/hooks/usePayments';
-import { AddPaymentForm } from './AddPaymentForm';
+import { AddPaymentDialog } from './AddPaymentDialog';
 import { PaymentsList } from './PaymentsList';
+import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PaymentStatus, PAYMENT_STATUS_LABELS } from '@/types/payment';
-import { DollarSign, TrendingUp, Wallet, AlertCircle, Ban } from 'lucide-react';
+import { DollarSign, TrendingUp, Wallet, AlertCircle, Ban, Plus } from 'lucide-react';
 
 interface PaymentsSectionProps {
   serviceOrderId: string;
@@ -24,6 +25,8 @@ export function PaymentsSection({
   initialTotalPaid,
   initialPaymentStatus,
 }: PaymentsSectionProps) {
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+
   const {
     payments,
     isLoading,
@@ -163,45 +166,62 @@ export function PaymentsSection({
         </Alert>
       )}
 
-      {/* Formulario para Agregar Pago */}
-      {!isBlocked && balance > 0 && (
-        <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-          <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-            Registrar Nuevo Pago
-          </h3>
-          <AddPaymentForm
-            balance={balance}
-            isBlocked={isBlocked}
-            onSubmit={async (data) => {
-              await addPayment(data);
-            }}
-            isLoading={isAddingPayment}
-          />
-        </div>
-      )}
-
       {/* Lista de Pagos */}
-      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-        <h3 className="text-lg font-semibold text-gray-800 dark:text-white mb-4">
-          Historial de Pagos
-        </h3>
-        {isLoading ? (
-          <div className="text-center py-12">
-            <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
-            <p className="mt-4 text-gray-600 dark:text-gray-400">
-              Cargando pagos...
-            </p>
+      <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md">
+        <div className="p-6">
+          <div className="flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <div>
+                <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                  Historial de Pagos
+                </h3>
+                <p className="text-sm text-gray-600 dark:text-gray-400 mt-1">
+                  Registro de pagos recibidos en esta orden
+                </p>
+              </div>
+              {!isBlocked && balance > 0 && (
+                <Button
+                  onClick={() => setIsDialogOpen(true)}
+                  size="sm"
+                  className="gap-2"
+                >
+                  <Plus className="h-4 w-4" />
+                  <span className="hidden sm:inline">Registrar Pago</span>
+                </Button>
+              )}
+            </div>
           </div>
-        ) : (
-          <PaymentsList
-            payments={payments}
-            onDelete={async (paymentId) => {
-              await removePayment(paymentId);
-            }}
-            isDeleting={isRemovingPayment}
-          />
-        )}
+        </div>
+        <div className="px-6 pb-6">
+          {isLoading ? (
+            <div className="text-center py-12">
+              <div className="inline-block animate-spin rounded-full h-12 w-12 border-b-2 border-primary-500"></div>
+              <p className="mt-4 text-gray-600 dark:text-gray-400">
+                Cargando pagos...
+              </p>
+            </div>
+          ) : (
+            <PaymentsList
+              payments={payments}
+              onDelete={async (paymentId) => {
+                await removePayment(paymentId);
+              }}
+              isDeleting={isRemovingPayment}
+            />
+          )}
+        </div>
       </div>
+
+      {/* Modal de Agregar Pago */}
+      <AddPaymentDialog
+        open={isDialogOpen}
+        onClose={() => setIsDialogOpen(false)}
+        onSubmit={async (data) => {
+          await addPayment(data);
+        }}
+        balance={balance}
+        isLoading={isAddingPayment}
+      />
     </div>
   );
 }

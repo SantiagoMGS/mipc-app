@@ -10,10 +10,21 @@ export const PAYMENT_STATUS_LABELS: Record<PaymentStatus, string> = {
   [PaymentStatus.PAGADO]: 'Pagado',
 };
 
+export enum PaymentMethod {
+  EFECTIVO = 'EFECTIVO',
+  TRANSFERENCIA = 'TRANSFERENCIA',
+}
+
+export const PAYMENT_METHOD_LABELS: Record<PaymentMethod, string> = {
+  [PaymentMethod.EFECTIVO]: 'Efectivo',
+  [PaymentMethod.TRANSFERENCIA]: 'Transferencia',
+};
+
 export interface Payment {
   id: string;
   serviceOrderId: string;
   amount: number;
+  paymentMethod: PaymentMethod;
   notes?: string;
   paymentDate: string;
   createdAt: string;
@@ -21,6 +32,7 @@ export interface Payment {
 
 export interface CreatePaymentDto {
   amount: number;
+  paymentMethod?: PaymentMethod;
   notes?: string;
   paymentDate?: string;
 }

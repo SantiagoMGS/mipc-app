@@ -1,8 +1,9 @@
 'use client';
 
 import { useState } from 'react';
-import { Payment } from '@/types/payment';
+import { Payment, PaymentMethod, PAYMENT_METHOD_LABELS } from '@/types/payment';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import {
   Table,
   TableBody,
@@ -19,7 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Trash2, Calendar, DollarSign, FileText } from 'lucide-react';
+import { Trash2, Calendar, DollarSign, FileText, CreditCard } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -62,6 +63,17 @@ export function PaymentsList({
     }
   };
 
+  const getPaymentMethodBadgeClass = (method: PaymentMethod) => {
+    switch (method) {
+      case PaymentMethod.EFECTIVO:
+        return 'bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400';
+      case PaymentMethod.TRANSFERENCIA:
+        return 'bg-blue-100 text-blue-800 dark:bg-blue-900/30 dark:text-blue-400';
+      default:
+        return 'bg-gray-100 text-gray-800 dark:bg-gray-900/30 dark:text-gray-400';
+    }
+  };
+
   if (payments.length === 0) {
     return (
       <div className="text-center py-12">
@@ -90,6 +102,12 @@ export function PaymentsList({
               </TableHead>
               <TableHead className="text-gray-700 dark:text-gray-300">
                 <div className="flex items-center gap-2">
+                  <CreditCard className="w-4 h-4" />
+                  Método
+                </div>
+              </TableHead>
+              <TableHead className="text-gray-700 dark:text-gray-300">
+                <div className="flex items-center gap-2">
                   <DollarSign className="w-4 h-4" />
                   Monto
                 </div>
@@ -110,6 +128,11 @@ export function PaymentsList({
               <TableRow key={payment.id}>
                 <TableCell className="font-medium text-gray-900 dark:text-white">
                   {formatDate(payment.paymentDate)}
+                </TableCell>
+                <TableCell>
+                  <Badge className={getPaymentMethodBadgeClass(payment.paymentMethod)}>
+                    {PAYMENT_METHOD_LABELS[payment.paymentMethod]}
+                  </Badge>
                 </TableCell>
                 <TableCell className="text-gray-900 dark:text-white">
                   <span className="font-semibold text-green-600 dark:text-green-400">
@@ -157,6 +180,14 @@ export function PaymentsList({
                     </span>{' '}
                     <span className="font-semibold text-gray-900 dark:text-white">
                       ${selectedPayment.amount.toLocaleString('es-CO')}
+                    </span>
+                  </p>
+                  <p className="text-sm">
+                    <span className="font-medium text-gray-700 dark:text-gray-300">
+                      Método:
+                    </span>{' '}
+                    <span className="text-gray-900 dark:text-white">
+                      {PAYMENT_METHOD_LABELS[selectedPayment.paymentMethod]}
                     </span>
                   </p>
                   <p className="text-sm">

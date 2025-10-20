@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
+import Image from 'next/image';
 import {
   Menu,
   X,
@@ -115,10 +116,26 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
           >
             {/* Logo Section */}
             <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
-              {isSidebarOpen && (
-                <h1 className="text-xl font-bold text-primary-600 dark:text-primary-500">
-                  MIPC
-                </h1>
+              {isSidebarOpen ? (
+                <div className="flex items-center">
+                  <Image
+                    src="/logo_mipc_tec.png"
+                    alt="MIPC Logo"
+                    width={40}
+                    height={40}
+                    className="object-contain"
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center w-full">
+                  <Image
+                    src="/logo_mipc_tec.png"
+                    alt="MIPC Logo"
+                    width={32}
+                    height={32}
+                    className="object-contain"
+                  />
+                </div>
               )}
               <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
@@ -183,9 +200,15 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               >
                 {/* Mobile Menu Header */}
                 <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
-                  <h1 className="text-xl font-bold text-primary-600 dark:text-primary-500">
-                    MIPC
-                  </h1>
+                  <div className="flex items-center">
+                    <Image
+                      src="/logo_mipc_tec.png"
+                      alt="MIPC Logo"
+                      width={40}
+                      height={40}
+                      className="object-contain"
+                    />
+                  </div>
                   <button
                     onClick={() => setIsMobileMenuOpen(false)}
                     className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"

@@ -20,7 +20,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
-import { Trash2, Calendar, DollarSign, FileText, CreditCard } from 'lucide-react';
+import {
+  Trash2,
+  Calendar,
+  DollarSign,
+  FileText,
+  CreditCard,
+} from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -130,7 +136,11 @@ export function PaymentsList({
                   {formatDate(payment.paymentDate)}
                 </TableCell>
                 <TableCell>
-                  <Badge className={getPaymentMethodBadgeClass(payment.paymentMethod)}>
+                  <Badge
+                    className={getPaymentMethodBadgeClass(
+                      payment.paymentMethod
+                    )}
+                  >
                     {PAYMENT_METHOD_LABELS[payment.paymentMethod]}
                   </Badge>
                 </TableCell>

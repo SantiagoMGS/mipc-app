@@ -8,7 +8,14 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PaymentStatus, PAYMENT_STATUS_LABELS } from '@/types/payment';
-import { DollarSign, TrendingUp, Wallet, AlertCircle, Ban, Plus } from 'lucide-react';
+import {
+  DollarSign,
+  TrendingUp,
+  Wallet,
+  AlertCircle,
+  Ban,
+  Plus,
+} from 'lucide-react';
 
 interface PaymentsSectionProps {
   serviceOrderId: string;

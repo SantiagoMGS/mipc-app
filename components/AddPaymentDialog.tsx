@@ -12,8 +12,18 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { DollarSign, Calendar, FileText, CreditCard, Loader2 } from 'lucide-react';
-import { CreatePaymentDto, PaymentMethod, PAYMENT_METHOD_LABELS } from '@/types/payment';
+import {
+  DollarSign,
+  Calendar,
+  FileText,
+  CreditCard,
+  Loader2,
+} from 'lucide-react';
+import {
+  CreatePaymentDto,
+  PaymentMethod,
+  PAYMENT_METHOD_LABELS,
+} from '@/types/payment';
 import { formatCurrency } from '@/lib/utils';
 
 interface AddPaymentDialogProps {
@@ -32,7 +42,9 @@ export function AddPaymentDialog({
   isLoading,
 }: AddPaymentDialogProps) {
   const [amount, setAmount] = useState<string>('');
-  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(PaymentMethod.EFECTIVO);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>(
+    PaymentMethod.EFECTIVO
+  );
   const [notes, setNotes] = useState('');
   const [paymentDate, setPaymentDate] = useState(
     new Date().toISOString().split('T')[0]
@@ -59,7 +71,9 @@ export function AddPaymentDialog({
     } else if (amountNum <= 0) {
       newErrors.amount = 'El monto debe ser mayor a 0';
     } else if (amountNum > balance) {
-      newErrors.amount = `El monto no puede exceder el saldo de ${formatCurrency(balance)}`;
+      newErrors.amount = `El monto no puede exceder el saldo de ${formatCurrency(
+        balance
+      )}`;
     }
 
     setErrors(newErrors);
@@ -150,7 +164,9 @@ export function AddPaymentDialog({
               <select
                 id="paymentMethod"
                 value={paymentMethod}
-                onChange={(e) => setPaymentMethod(e.target.value as PaymentMethod)}
+                onChange={(e) =>
+                  setPaymentMethod(e.target.value as PaymentMethod)
+                }
                 className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
               >
                 {Object.entries(PAYMENT_METHOD_LABELS).map(([value, label]) => (

@@ -41,11 +41,11 @@ jobs:
 
             # Instalar dependencias
             echo "📦 Installing dependencies..."
-            npm ci --omit=dev
+            npm i
 
             # Build
             echo "🔨 Building application..."
-            NODE_ENV=production npm run build
+            npm run build
 
             # Verificar que el build se haya completado
             if [ ! -d ".next" ]; then

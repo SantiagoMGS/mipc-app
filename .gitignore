@@ -30,3 +30,22 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# PM2 logs
+logs/
+*.log
+
+# Next.js
+.next/
+.next.backup/
+out/
+
+# Dependencies
+node_modules/
+
+# Environment
+.env
+.env*.local
+
+# OS
+.DS_Store

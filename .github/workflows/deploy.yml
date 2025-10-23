@@ -1,0 +1,74 @@
+name: Deploy to Production Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    name: Deploy MIPC App
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '22'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build application
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      - name: Deploy to Server
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            cd ${{ secrets.DEPLOY_PATH }}
+
+            # Backup del build anterior
+            if [ -d ".next" ]; then
+              rm -rf .next.backup 2>/dev/null || true
+              mv .next .next.backup
+            fi
+
+            # Pull del código
+            git pull origin main
+
+            # Instalar dependencias
+            npm ci --omit=dev
+
+            # Build
+            npm run build
+
+            # Reiniciar PM2
+            pm2 reload mipc-app --update-env || pm2 restart mipc-app
+
+            # Guardar estado
+            pm2 save
+
+            echo "✅ Deployment completed!"
+
+      - name: Verify Deployment
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: ${{ secrets.SSH_PORT }}
+          script: |
+            sleep 10
+            pm2 status mipc-app
+            pm2 logs mipc-app --lines 20 --nostream

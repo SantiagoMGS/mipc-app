@@ -117,7 +117,7 @@ export default function DashboardPage() {
       <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4">
         <div>
           <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
-            Dashboard de Analytics *
+            Dashboard de Analytics
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
             Métricas y estadísticas del negocio

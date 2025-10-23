@@ -19,6 +19,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { ViewModeProvider } from '@/contexts/ViewModeContext';
 import { USER_ROLE_LABELS, UserRole } from '@/types/user';
+import { getCurrentUserRole } from '@/lib/auth-utils';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
@@ -32,6 +33,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   const [userName, setUserName] = useState('Usuario');
   const [userRole, setUserRole] = useState('');
   const [userInitial, setUserInitial] = useState('U');
+  const [currentUserRole, setCurrentUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     // Decodificar el JWT token para obtener el nombre y rol
@@ -51,6 +53,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
 
         // Extraer rol y usar el label en español
         if (payload.role) {
+          setCurrentUserRole(payload.role);
           const roleLabel = USER_ROLE_LABELS[payload.role as UserRole];
           setUserRole(roleLabel || payload.role);
         }
@@ -60,38 +63,49 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     }
   }, []);
 
-  const menuItems = [
+  const allMenuItems = [
     {
       name: 'Inicio',
       icon: Home,
       path: '/dashboard',
+      allowedRoles: ['ADMIN', 'TECNICO', 'AUXILIAR'],
     },
     {
       name: 'Órdenes de Servicio',
       icon: ClipboardList,
       path: '/dashboard/ordenes-servicio',
+      allowedRoles: ['ADMIN', 'TECNICO', 'AUXILIAR'],
     },
     {
       name: 'Productos',
       icon: Package,
       path: '/dashboard/productos',
+      allowedRoles: ['ADMIN', 'TECNICO', 'AUXILIAR'],
     },
     {
       name: 'Clientes',
       icon: Users,
       path: '/dashboard/clientes',
+      allowedRoles: ['ADMIN', 'TECNICO', 'AUXILIAR'],
     },
     {
       name: 'Tipos de Dispositivo',
       icon: Cpu,
       path: '/dashboard/tipos-dispositivo',
+      allowedRoles: ['ADMIN', 'TECNICO', 'AUXILIAR'],
     },
     {
       name: 'Usuarios',
       icon: UserCog,
       path: '/dashboard/usuarios',
+      allowedRoles: ['ADMIN'], // Solo admins
     },
   ];
+
+  // Filtrar items del menú según el rol del usuario
+  const menuItems = allMenuItems.filter((item) =>
+    currentUserRole ? item.allowedRoles.includes(currentUserRole) : true
+  );
 
   const handleLogout = () => {
     if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {

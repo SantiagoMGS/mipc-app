@@ -20,8 +20,9 @@ import { useViewMode } from '@/contexts/ViewModeContext';
 import { ViewModeToggle } from '@/components/ViewModeToggle';
 import { useDeleteUser } from '@/hooks/useUsers';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import { RoleProtectedRoute } from '@/components/RoleProtectedRoute';
 
-export default function UsersPage() {
+function UsersPageContent() {
   const { viewMode } = useViewMode();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
@@ -314,5 +315,13 @@ export default function UsersPage() {
         isConfirmDisabled={deleteMutation.isPending}
       />
     </div>
+  );
+}
+
+export default function UsersPage() {
+  return (
+    <RoleProtectedRoute allowedRoles={['ADMIN']}>
+      <UsersPageContent />
+    </RoleProtectedRoute>
   );
 }

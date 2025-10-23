@@ -75,3 +75,35 @@ export function isTokenExpired(token: string): boolean {
   const currentTime = Date.now();
   return currentTime > expirationTime;
 }
+
+/**
+ * Obtiene el rol del usuario actual desde el token
+ */
+export function getCurrentUserRole(): string | null {
+  if (typeof window === 'undefined') {
+    return null;
+  }
+
+  const token = localStorage.getItem('authToken');
+  if (!token) {
+    return null;
+  }
+
+  const payload = decodeJWT(token);
+  return payload?.role || null;
+}
+
+/**
+ * Verifica si el usuario actual tiene un rol específico
+ */
+export function hasRole(role: string): boolean {
+  const currentRole = getCurrentUserRole();
+  return currentRole === role;
+}
+
+/**
+ * Verifica si el usuario actual es administrador
+ */
+export function isAdmin(): boolean {
+  return hasRole('ADMIN');
+}

@@ -19,6 +19,14 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            # Cargar NVM y Node.js
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
+            # Verificar que Node y npm estén disponibles
+            echo "Node version: $(node -v)"
+            echo "NPM version: $(npm -v)"
+
             cd ${{ secrets.DEPLOY_PATH }}
 
             # Backup del build anterior
@@ -52,6 +60,10 @@ jobs:
           key: ${{ secrets.SSH_PRIVATE_KEY }}
           port: ${{ secrets.SSH_PORT }}
           script: |
+            # Cargar NVM y Node.js
+            export NVM_DIR="$HOME/.nvm"
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
+
             sleep 10
             pm2 status mipc-app
             pm2 logs mipc-app --lines 20 --nostream

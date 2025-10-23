@@ -36,19 +36,39 @@ jobs:
             fi
 
             # Pull del código
+            echo "📥 Pulling latest code..."
             git pull origin main
 
             # Instalar dependencias
+            echo "📦 Installing dependencies..."
             npm ci --omit=dev
 
             # Build
+            echo "🔨 Building application..."
             NODE_ENV=production npm run build
 
+            # Verificar que el build se haya completado
+            if [ ! -d ".next" ]; then
+              echo "❌ Build failed: .next directory not found"
+              # Restaurar backup si existe
+              if [ -d ".next.backup" ]; then
+                echo "🔄 Restoring previous build..."
+                mv .next.backup .next
+              fi
+              exit 1
+            fi
+
+            echo "✅ Build completed successfully"
+
             # Reiniciar PM2
+            echo "🔄 Restarting application..."
             pm2 reload mipc-app --update-env || pm2 restart mipc-app
 
             # Guardar estado
             pm2 save
+
+            # Limpiar backup antiguo solo si todo salió bien
+            rm -rf .next.backup 2>/dev/null || true
 
             echo "✅ Deployment completed!"
 
@@ -64,6 +84,16 @@ jobs:
             export NVM_DIR="$HOME/.nvm"
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh"
 
-            sleep 10
+            echo "⏳ Waiting for application to start..."
+            sleep 15
+
+            echo "📊 PM2 Status:"
             pm2 status mipc-app
-            pm2 logs mipc-app --lines 20 --nostream
+
+            echo ""
+            echo "📝 Recent logs:"
+            pm2 logs mipc-app --lines 30 --nostream
+
+            echo ""
+            echo "🔍 Checking if app is responding..."
+            pm2 jlist | grep -A 10 "mipc-app" | grep "status" | grep "online" && echo "✅ App is online" || echo "❌ App is not online"

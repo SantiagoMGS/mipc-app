@@ -71,10 +71,13 @@ export function RoleProtectedRoute({
             </h2>
             <div className="flex items-center gap-2 text-red-600 dark:text-red-400 mb-4">
               <AlertCircle className="w-5 h-5" />
-              <p className="font-medium">No tienes permiso para acceder a esta página</p>
+              <p className="font-medium">
+                No tienes permiso para acceder a esta página
+              </p>
             </div>
             <p className="text-gray-600 dark:text-gray-400 mb-6">
-              Tu rol actual ({currentRole}) no tiene los permisos necesarios para ver este contenido.
+              Tu rol actual ({currentRole}) no tiene los permisos necesarios
+              para ver este contenido.
             </p>
             <button
               onClick={() => router.push(fallbackPath)}

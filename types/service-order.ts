@@ -25,6 +25,8 @@ export interface ServiceOrder {
   problemDescription: string;
   observations?: string;
   diagnosticNotes?: string;
+  internalNotes?: string; // Notas internas del técnico
+  deliveryNotes?: string; // Notas de entrega
   laborCost: number; // Suma de items tipo SERVICIO
   partsCost: number; // Suma de items tipo PRODUCTO
   totalCost: number; // laborCost + partsCost (calculado por backend)
@@ -33,6 +35,7 @@ export interface ServiceOrder {
   paymentStatus: PaymentStatus;
   isDelivered: boolean;
   invoice?: string;
+  invoiceNumber?: string; // Número de factura (alias de invoice)
   estimatedDeliveryDate?: string;
   actualDeliveryDate?: string;
   createdAt: string;
@@ -52,8 +55,11 @@ export interface CreateServiceOrderDto {
 export interface UpdateServiceOrderDto {
   diagnosticNotes?: string;
   observations?: string;
+  internalNotes?: string;
+  deliveryNotes?: string;
   isDelivered?: boolean;
   invoice?: string;
+  invoiceNumber?: string;
   totalCost?: number;
   totalPaid?: number;
   estimatedDeliveryDate?: string;

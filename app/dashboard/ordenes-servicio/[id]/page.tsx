@@ -68,6 +68,8 @@ export default function DetalleOrdenServicioPage() {
   const [isEditMode, setIsEditMode] = useState(false);
   const [diagnosticNotes, setDiagnosticNotes] = useState('');
   const [observations, setObservations] = useState('');
+  const [internalNotes, setInternalNotes] = useState('');
+  const [deliveryNotes, setDeliveryNotes] = useState('');
   const [isDelivered, setIsDelivered] = useState(false);
   const [invoice, setInvoice] = useState('');
 
@@ -87,8 +89,10 @@ export default function DetalleOrdenServicioPage() {
     if (order) {
       setDiagnosticNotes(order.diagnosticNotes || '');
       setObservations(order.observations || '');
+      setInternalNotes(order.internalNotes || '');
+      setDeliveryNotes(order.deliveryNotes || '');
       setIsDelivered(order.isDelivered || false);
-      setInvoice(order.invoice || '');
+      setInvoice(order.invoice || order.invoiceNumber || '');
     }
   }, [order]);
 
@@ -101,6 +105,8 @@ export default function DetalleOrdenServicioPage() {
         data: {
           diagnosticNotes: diagnosticNotes.trim() || undefined,
           observations: observations.trim() || undefined,
+          internalNotes: internalNotes.trim() || undefined,
+          deliveryNotes: deliveryNotes.trim() || undefined,
           isDelivered,
           invoice: invoice.trim() || undefined,
         },
@@ -115,8 +121,10 @@ export default function DetalleOrdenServicioPage() {
     if (order) {
       setDiagnosticNotes(order.diagnosticNotes || '');
       setObservations(order.observations || '');
+      setInternalNotes(order.internalNotes || '');
+      setDeliveryNotes(order.deliveryNotes || '');
       setIsDelivered(order.isDelivered || false);
-      setInvoice(order.invoice || '');
+      setInvoice(order.invoice || order.invoiceNumber || '');
     }
     setIsEditMode(false);
   };
@@ -499,6 +507,42 @@ export default function DetalleOrdenServicioPage() {
             ) : (
               <p className="mt-2 text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
                 {diagnosticNotes || 'Sin notas de diagnóstico'}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="internalNotes">Notas Internas</Label>
+            {isEditMode ? (
+              <textarea
+                id="internalNotes"
+                value={internalNotes}
+                onChange={(e) => setInternalNotes(e.target.value)}
+                rows={3}
+                className="mt-2 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500"
+                placeholder="Notas internas para el equipo técnico..."
+              />
+            ) : (
+              <p className="mt-2 text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                {internalNotes || 'Sin notas internas'}
+              </p>
+            )}
+          </div>
+
+          <div>
+            <Label htmlFor="deliveryNotes">Notas de Entrega</Label>
+            {isEditMode ? (
+              <textarea
+                id="deliveryNotes"
+                value={deliveryNotes}
+                onChange={(e) => setDeliveryNotes(e.target.value)}
+                rows={3}
+                className="mt-2 block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500"
+                placeholder="Notas para la entrega del equipo..."
+              />
+            ) : (
+              <p className="mt-2 text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+                {deliveryNotes || 'Sin notas de entrega'}
               </p>
             )}
           </div>

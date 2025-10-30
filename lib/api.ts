@@ -51,11 +51,13 @@ const api = axios.create({
   headers: {
     'Content-Type': 'application/json',
   },
+  withCredentials: true, // Importante: enviar cookies en cada petición
 });
 
-// Interceptor para agregar el token a las peticiones
+// Interceptor para agregar el token a las peticiones (fallback para compatibilidad)
 api.interceptors.request.use(
   (config) => {
+    // Solo agregar header si existe token en localStorage (para retrocompatibilidad)
     const token = localStorage.getItem('authToken');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -72,13 +74,12 @@ api.interceptors.response.use(
   (response) => response,
   (error) => {
     if (error.response?.status === 401) {
+      // Limpiar storage local
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
 
-      // Eliminar cookie del middleware
-      document.cookie =
-        'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-
+      // El servidor se encargará de limpiar la cookie httpOnly
+      // Redirigir al login
       window.location.href = '/login';
     }
     return Promise.reject(error);
@@ -88,18 +89,38 @@ api.interceptors.response.use(
 export const authService = {
   login: async (email: string, password: string) => {
     const response = await api.post('/auth/login', { email, password });
+    // El servidor ahora establece la cookie httpOnly automáticamente
+    // Ya no necesitamos guardar el token en localStorage (más seguro)
+    // Pero lo mantenemos temporalmente para compatibilidad
+    if (response.data.accessToken) {
+      localStorage.setItem('authToken', response.data.accessToken);
+    }
     return response.data;
   },
 
-  logout: () => {
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('user');
+  logout: async () => {
+    try {
+      // Llamar al endpoint de logout para limpiar la cookie httpOnly
+      await api.post('/auth/logout');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    } finally {
+      // Limpiar localStorage
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
 
-    // Eliminar cookie del middleware
-    document.cookie =
-      'authToken=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
+      window.location.href = '/login';
+    }
+  },
 
-    window.location.href = '/login';
+  // Validar token actual
+  validateToken: async () => {
+    try {
+      const response = await api.get('/auth/validate');
+      return response.data;
+    } catch (error) {
+      return null;
+    }
   },
 
   // Obtener la URL actual de la API

@@ -40,15 +40,20 @@ export default function LoginPage() {
         formData.password
       );
 
-      // Guardar el token y datos del usuario
+      // El servidor ahora establece la cookie httpOnly automáticamente
+      // Solo guardamos el token en localStorage para compatibilidad y middleware
       const token =
         response.accessToken || response.access_token || response.token;
-      localStorage.setItem('authToken', token);
-
-      // Guardar en cookie para el middleware
-      document.cookie = `authToken=${token}; path=/; max-age=${
-        60 * 60 * 24 * 7
-      }`; // 7 días
+      
+      if (token) {
+        // Guardar en localStorage (para compatibilidad con código existente)
+        localStorage.setItem('authToken', token);
+        
+        // Guardar en cookie regular para el middleware de Next.js
+        document.cookie = `authToken=${token}; path=/; max-age=${
+          60 * 60 * 24 * 7
+        }; SameSite=Strict`; // 7 días
+      }
 
       if (response.user) {
         localStorage.setItem('user', JSON.stringify(response.user));

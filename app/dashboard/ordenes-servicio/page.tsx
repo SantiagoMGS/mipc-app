@@ -68,12 +68,13 @@ export default function OrdenesServicioPage() {
     let filtered = orders;
 
     if (searchTerm) {
+      const search = searchTerm.toLowerCase();
       filtered = filtered.filter(
         (order) =>
-          order.orderNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          order.problemDescription
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase())
+          order.orderNumber.toLowerCase().includes(search) ||
+          order.problemDescription.toLowerCase().includes(search) ||
+          (order.customerName && order.customerName.toLowerCase().includes(search)) ||
+          (order.deviceInfo && order.deviceInfo.toLowerCase().includes(search))
       );
     }
 
@@ -117,7 +118,7 @@ export default function OrdenesServicioPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <Input
               type="text"
-              placeholder="Buscar por número de orden o descripción..."
+              placeholder="Buscar por número, cliente, dispositivo o descripción..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-10"
@@ -214,19 +215,22 @@ export default function OrdenesServicioPage() {
                         Número de Orden
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Fecha Creación
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Cliente
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Dispositivo
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Estado
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Prioridad
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Descripción
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Estado de Pago
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
-                        Fecha Creación
+                        Descripción del Problema
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Acciones
@@ -245,24 +249,31 @@ export default function OrdenesServicioPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <StatusBadge status={order.status} />
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <PriorityBadge priority={order.priority} />
-                        </td>
-                        <td className="px-6 py-4">
-                          <div className="text-sm text-gray-900 dark:text-white max-w-xs truncate">
-                            {order.problemDescription}
-                          </div>
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <PaymentStatusBadge status={order.paymentStatus} />
-                        </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-500 dark:text-gray-400">
                             {new Date(order.createdAt).toLocaleDateString(
                               'es-CO'
                             )}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 dark:text-white">
+                            {order.customerName || 'N/A'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900 dark:text-white">
+                            {order.deviceInfo || 'N/A'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <StatusBadge status={order.status} />
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <PaymentStatusBadge status={order.paymentStatus} />
+                        </td>
+                        <td className="px-6 py-4">
+                          <div className="text-sm text-gray-900 dark:text-white max-w-xs truncate">
+                            {order.problemDescription}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -313,15 +324,36 @@ export default function OrdenesServicioPage() {
                   </div>
 
                   <div className="space-y-3">
+                    {/* Cliente y Dispositivo */}
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                          Cliente:
+                        </span>
+                        <span className="text-sm text-gray-900 dark:text-white">
+                          {order.customerName || 'N/A'}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-xs font-medium text-gray-500 dark:text-gray-400">
+                          Dispositivo:
+                        </span>
+                        <span className="text-sm text-gray-900 dark:text-white">
+                          {order.deviceInfo || 'N/A'}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Descripción del problema */}
                     <div>
                       <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
                         {order.problemDescription}
                       </p>
                     </div>
 
+                    {/* Badges */}
                     <div className="flex flex-wrap gap-2">
                       <StatusBadge status={order.status} />
-                      <PriorityBadge priority={order.priority} />
                       <PaymentStatusBadge status={order.paymentStatus} />
                     </div>
                   </div>

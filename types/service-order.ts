@@ -40,6 +40,9 @@ export interface ServiceOrder {
   actualDeliveryDate?: string;
   createdAt: string;
   updatedAt: string;
+  // Campos adicionales del backend
+  customerName?: string; // Nombre del cliente
+  deviceInfo?: string; // Información del dispositivo (marca-modelo)
 }
 
 export interface CreateServiceOrderDto {

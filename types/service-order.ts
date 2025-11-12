@@ -43,6 +43,7 @@ export interface ServiceOrder {
   // Campos adicionales del backend
   customerName?: string; // Nombre del cliente
   deviceInfo?: string; // Información del dispositivo (marca-modelo)
+  hasInvoice?: boolean; // Indica si tiene factura
 }
 
 export interface CreateServiceOrderDto {

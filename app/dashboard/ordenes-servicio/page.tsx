@@ -73,7 +73,8 @@ export default function OrdenesServicioPage() {
         (order) =>
           order.orderNumber.toLowerCase().includes(search) ||
           order.problemDescription.toLowerCase().includes(search) ||
-          (order.customerName && order.customerName.toLowerCase().includes(search)) ||
+          (order.customerName &&
+            order.customerName.toLowerCase().includes(search)) ||
           (order.deviceInfo && order.deviceInfo.toLowerCase().includes(search))
       );
     }
@@ -230,6 +231,9 @@ export default function OrdenesServicioPage() {
                         Estado de Pago
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                        Factura
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                         Descripción del Problema
                       </th>
                       <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -270,6 +274,17 @@ export default function OrdenesServicioPage() {
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <PaymentStatusBadge status={order.paymentStatus} />
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {order.hasInvoice ? (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
+                              Con Factura
+                            </span>
+                          ) : (
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300">
+                              Sin Factura
+                            </span>
+                          )}
                         </td>
                         <td className="px-6 py-4">
                           <div className="text-sm text-gray-900 dark:text-white max-w-xs truncate">
@@ -355,6 +370,15 @@ export default function OrdenesServicioPage() {
                     <div className="flex flex-wrap gap-2">
                       <StatusBadge status={order.status} />
                       <PaymentStatusBadge status={order.paymentStatus} />
+                      {order.hasInvoice ? (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
+                          Con Factura
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 dark:bg-red-900/30 text-red-800 dark:text-red-300">
+                          Sin Factura
+                        </span>
+                      )}
                     </div>
                   </div>
                 </div>

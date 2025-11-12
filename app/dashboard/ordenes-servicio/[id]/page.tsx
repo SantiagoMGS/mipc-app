@@ -87,7 +87,7 @@ export default function DetalleOrdenServicioPage() {
   // Sincronizar con datos de la orden
   useEffect(() => {
     if (order) {
-      setDiagnosticNotes(order.diagnosticNotes || '');
+      setDiagnosticNotes(order.diagnosis || order.diagnosticNotes || '');
       setObservations(order.observations || '');
       setInternalNotes(order.internalNotes || '');
       setDeliveryNotes(order.deliveryNotes || '');
@@ -119,7 +119,7 @@ export default function DetalleOrdenServicioPage() {
 
   const handleCancelEdit = () => {
     if (order) {
-      setDiagnosticNotes(order.diagnosticNotes || '');
+      setDiagnosticNotes(order.diagnosis || order.diagnosticNotes || '');
       setObservations(order.observations || '');
       setInternalNotes(order.internalNotes || '');
       setDeliveryNotes(order.deliveryNotes || '');
@@ -482,7 +482,7 @@ export default function DetalleOrdenServicioPage() {
           </h2>
         </div>
         <p className="text-sm md:text-base text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-          {order.problemDescription}
+          {order.reportedIssue || order.problemDescription || 'Sin descripción'}
         </p>
       </div>
 

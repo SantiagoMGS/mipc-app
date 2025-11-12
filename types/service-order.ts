@@ -23,6 +23,9 @@ export interface ServiceOrder {
   status: ServiceOrderStatus;
   priority: ServiceOrderPriority;
   problemDescription: string;
+  reportedIssue?: string; // Campo del backend (alias de problemDescription)
+  diagnosis?: string; // Diagnóstico del técnico
+  solution?: string; // Solución aplicada
   observations?: string;
   diagnosticNotes?: string;
   internalNotes?: string; // Notas internas del técnico

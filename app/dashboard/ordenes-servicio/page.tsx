@@ -72,7 +72,8 @@ export default function OrdenesServicioPage() {
       filtered = filtered.filter(
         (order) =>
           order.orderNumber.toLowerCase().includes(search) ||
-          order.problemDescription.toLowerCase().includes(search) ||
+          (order.problemDescription && order.problemDescription.toLowerCase().includes(search)) ||
+          (order.reportedIssue && order.reportedIssue.toLowerCase().includes(search)) ||
           (order.customerName &&
             order.customerName.toLowerCase().includes(search)) ||
           (order.deviceInfo && order.deviceInfo.toLowerCase().includes(search))
@@ -245,7 +246,8 @@ export default function OrdenesServicioPage() {
                     {filteredOrders.map((order) => (
                       <tr
                         key={order.id}
-                        className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                        onClick={() => handleViewDetails(order.id)}
+                        className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors cursor-pointer"
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900 dark:text-white">
@@ -288,7 +290,7 @@ export default function OrdenesServicioPage() {
                         </td>
                         <td className="px-6 py-4">
                           <div className="text-sm text-gray-900 dark:text-white max-w-xs truncate">
-                            {order.problemDescription}
+                            {order.reportedIssue || order.problemDescription || 'Sin descripción'}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
@@ -362,7 +364,7 @@ export default function OrdenesServicioPage() {
                     {/* Descripción del problema */}
                     <div>
                       <p className="text-sm text-gray-600 dark:text-gray-400 line-clamp-2">
-                        {order.problemDescription}
+                        {order.reportedIssue || order.problemDescription || 'Sin descripción'}
                       </p>
                     </div>
 

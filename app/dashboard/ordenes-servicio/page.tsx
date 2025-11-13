@@ -122,7 +122,7 @@ export default function OrdenesServicioPage() {
             }}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
           >
-            <option value="">Todos los estados</option>
+            <option value="">Estado</option>
             {Object.entries(STATUS_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
@@ -139,7 +139,7 @@ export default function OrdenesServicioPage() {
             }}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
           >
-            <option value="">Todos los pagos</option>
+            <option value="">Pagado</option>
             {Object.entries(PAYMENT_STATUS_LABELS).map(([value, label]) => (
               <option key={value} value={value}>
                 {label}
@@ -159,7 +159,7 @@ export default function OrdenesServicioPage() {
             }}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
           >
-            <option value="">Todas las entregas</option>
+            <option value="">Entrega</option>
             <option value="false">No Entregadas</option>
             <option value="true">Entregadas</option>
           </select>

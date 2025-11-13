@@ -569,7 +569,11 @@ export const tasksService = {
     if (filters?.hasInvoice !== undefined)
       params.append('hasInvoice', filters.hasInvoice.toString());
 
-    const response = await api.get(`/tasks?${params.toString()}`);
+    const url = `/tasks?${params.toString()}`;
+    console.log('🔍 URL de búsqueda de tareas:', url);
+    console.log('📊 Filtros enviados:', filters);
+
+    const response = await api.get(url);
     return response.data;
   },
 

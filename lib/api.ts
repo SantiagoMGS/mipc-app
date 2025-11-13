@@ -544,6 +544,69 @@ export const paymentsService = {
 };
 
 // ============================================
+// Tasks Service
+// ============================================
+import {
+  Task,
+  CreateTaskDto,
+  UpdateTaskDto,
+  TaskFilters,
+  PaginatedTasks,
+} from '@/types/task';
+
+export const tasksService = {
+  /**
+   * Obtiene todas las tareas con filtros y paginación
+   */
+  getAll: async (filters?: TaskFilters): Promise<PaginatedTasks> => {
+    const params = new URLSearchParams();
+    if (filters?.page) params.append('page', filters.page.toString());
+    if (filters?.limit) params.append('limit', filters.limit.toString());
+    if (filters?.customer) params.append('customer', filters.customer);
+    if (filters?.description)
+      params.append('description', filters.description);
+    if (filters?.isDone !== undefined)
+      params.append('isDone', filters.isDone.toString());
+    if (filters?.hasInvoice !== undefined)
+      params.append('hasInvoice', filters.hasInvoice.toString());
+
+    const response = await api.get(`/tasks?${params.toString()}`);
+    return response.data;
+  },
+
+  /**
+   * Obtiene una tarea por ID
+   */
+  getById: async (id: string): Promise<Task> => {
+    const response = await api.get(`/tasks/${id}`);
+    return response.data;
+  },
+
+  /**
+   * Crea una nueva tarea
+   */
+  create: async (data: CreateTaskDto): Promise<Task> => {
+    const response = await api.post('/tasks', data);
+    return response.data;
+  },
+
+  /**
+   * Actualiza una tarea existente
+   */
+  update: async (id: string, data: UpdateTaskDto): Promise<Task> => {
+    const response = await api.patch(`/tasks/${id}`, data);
+    return response.data;
+  },
+
+  /**
+   * Elimina una tarea
+   */
+  delete: async (id: string): Promise<void> => {
+    await api.delete(`/tasks/${id}`);
+  },
+};
+
+// ============================================
 // PDF Service
 // ============================================
 

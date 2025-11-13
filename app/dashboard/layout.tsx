@@ -13,6 +13,7 @@ import {
   Home,
   ClipboardList,
   UserCog,
+  CheckSquare,
 } from 'lucide-react';
 import { authService } from '@/lib/api';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -74,6 +75,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       name: 'Órdenes de Servicio',
       icon: ClipboardList,
       path: '/dashboard/ordenes-servicio',
+      allowedRoles: ['ADMIN', 'TECNICO', 'AUXILIAR'],
+    },
+    {
+      name: 'Tareas',
+      icon: CheckSquare,
+      path: '/dashboard/tareas',
       allowedRoles: ['ADMIN', 'TECNICO', 'AUXILIAR'],
     },
     {

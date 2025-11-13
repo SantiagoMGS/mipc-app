@@ -603,6 +603,13 @@ export const tasksService = {
   delete: async (id: string): Promise<void> => {
     await api.delete(`/tasks/${id}`);
   },
+
+  /**
+   * Elimina un item de una tarea
+   */
+  deleteItem: async (taskId: string, itemId: string): Promise<void> => {
+    await api.delete(`/tasks/${taskId}/items/${itemId}`);
+  },
 };
 
 // ============================================

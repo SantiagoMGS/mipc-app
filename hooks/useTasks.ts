@@ -136,3 +136,39 @@ export function useDeleteTask() {
     },
   });
 }
+
+/**
+ * Hook para eliminar un item de una tarea
+ */
+export function useDeleteTaskItem() {
+  const queryClient = useQueryClient();
+  const { toast } = useToast();
+
+  return useMutation({
+    mutationFn: ({ taskId, itemId }: { taskId: string; itemId: string }) =>
+      tasksService.deleteItem(taskId, itemId),
+    onSuccess: (_, variables) => {
+      // Invalidar la tarea específica para refrescar los items
+      queryClient.invalidateQueries({
+        queryKey: taskKeys.detail(variables.taskId),
+      });
+      toast({
+        title: 'Éxito',
+        description: '¡Item eliminado exitosamente!',
+      });
+    },
+    onError: (error: any) => {
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        'Error al eliminar el item';
+      toast({
+        title: 'Error',
+        description: Array.isArray(errorMessage)
+          ? errorMessage.join(', ')
+          : errorMessage,
+        variant: 'destructive',
+      });
+    },
+  });
+}

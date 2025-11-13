@@ -2,7 +2,8 @@
 
 import { useState, useEffect } from 'react';
 import { Item, AddItemToOrderDto } from '@/types/item';
-import { itemsService } from '@/lib/api';
+import { useItems } from '@/hooks/useItems';
+import { useDebounce } from '@/hooks/useDebounce';
 import { formatCurrency, cn } from '@/lib/utils';
 import {
   Dialog,
@@ -26,21 +27,27 @@ interface AddItemDialogProps {
 }
 
 export function AddItemDialog({ open, onClose, onSubmit }: AddItemDialogProps) {
-  const [items, setItems] = useState<Item[]>([]);
-  const [loading, setLoading] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const [selected, setSelected] = useState<Item | null>(null);
   const [quantity, setQuantity] = useState(1);
   const [unitPrice, setUnitPrice] = useState(0);
   const [discount, setDiscount] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
+  const debouncedSearch = useDebounce(searchQuery, 500);
 
-  // Cargar items cuando se abre el diálogo
+  // Cargar items con búsqueda en el backend
+  const { data, isLoading } = useItems({
+    withDeleted: false,
+    search: debouncedSearch || undefined,
+    limit: 50, // Traer más items para el modal
+  });
+
+  const items = data?.items || [];
+  const totalItems = data?.total || 0;
+
+  // Reset cuando se cierra el modal
   useEffect(() => {
-    if (open) {
-      loadItems();
-    } else {
-      // Reset cuando se cierra
+    if (!open) {
       setSelected(null);
       setQuantity(1);
       setUnitPrice(0);
@@ -48,20 +55,6 @@ export function AddItemDialog({ open, onClose, onSubmit }: AddItemDialogProps) {
       setSearchQuery('');
     }
   }, [open]);
-
-  const loadItems = async () => {
-    setLoading(true);
-    try {
-      const response = await itemsService.getAll({ withDeleted: false });
-      // Filtrar solo items activos
-      const activeItems = response.data.filter((item: Item) => item.isActive);
-      setItems(activeItems);
-    } catch (error) {
-      console.error('Error loading items:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSelectItem = (item: Item) => {
     setSelected(item);
@@ -87,19 +80,6 @@ export function AddItemDialog({ open, onClose, onSubmit }: AddItemDialogProps) {
       setSubmitting(false);
     }
   };
-
-  // Filtrar items basado en la búsqueda
-  const filteredItems = items.filter((item) => {
-    const query = searchQuery.toLowerCase().trim();
-    if (!query) return true;
-
-    return (
-      item.name.toLowerCase().includes(query) ||
-      item.code.toLowerCase().includes(query) ||
-      item.description?.toLowerCase().includes(query) ||
-      item.itemType.toLowerCase().includes(query)
-    );
-  });
 
   const subtotal = quantity * unitPrice - discount;
 
@@ -139,19 +119,19 @@ export function AddItemDialog({ open, onClose, onSubmit }: AddItemDialogProps) {
                 Seleccionar Item del Catálogo
                 {searchQuery && (
                   <span className="text-muted-foreground text-sm ml-2">
-                    ({filteredItems.length} resultado
-                    {filteredItems.length !== 1 ? 's' : ''})
+                    ({totalItems} resultado
+                    {totalItems !== 1 ? 's' : ''})
                   </span>
                 )}
               </Label>
-              {loading ? (
+              {isLoading ? (
                 <div className="flex items-center justify-center py-8">
                   <Loader2 className="h-6 w-6 animate-spin" />
                 </div>
               ) : (
                 <div className="h-[180px] border border-gray-200 dark:border-gray-700 rounded-md p-2 overflow-y-auto">
                   <div className="space-y-2">
-                    {filteredItems.map((item) => (
+                    {items.map((item: Item) => (
                       <div
                         key={item.id}
                         onClick={() => handleSelectItem(item)}
@@ -193,7 +173,7 @@ export function AddItemDialog({ open, onClose, onSubmit }: AddItemDialogProps) {
                         </div>
                       </div>
                     ))}
-                    {filteredItems.length === 0 && !loading && (
+                    {items.length === 0 && !isLoading && (
                       <div className="text-center py-8 text-muted-foreground">
                         {searchQuery
                           ? 'No se encontraron items'
@@ -210,7 +190,9 @@ export function AddItemDialog({ open, onClose, onSubmit }: AddItemDialogProps) {
               <div className="space-y-3 border-t pt-3">
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <Label htmlFor="quantity" className="text-sm">Cantidad</Label>
+                    <Label htmlFor="quantity" className="text-sm">
+                      Cantidad
+                    </Label>
                     <Input
                       id="quantity"
                       type="number"
@@ -223,7 +205,9 @@ export function AddItemDialog({ open, onClose, onSubmit }: AddItemDialogProps) {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="unitPrice" className="text-sm">Precio Unit.</Label>
+                    <Label htmlFor="unitPrice" className="text-sm">
+                      Precio Unit.
+                    </Label>
                     <Input
                       id="unitPrice"
                       type="number"
@@ -235,7 +219,9 @@ export function AddItemDialog({ open, onClose, onSubmit }: AddItemDialogProps) {
                     />
                   </div>
                   <div>
-                    <Label htmlFor="discount" className="text-sm">Descuento</Label>
+                    <Label htmlFor="discount" className="text-sm">
+                      Descuento
+                    </Label>
                     <Input
                       id="discount"
                       type="number"
@@ -264,7 +250,12 @@ export function AddItemDialog({ open, onClose, onSubmit }: AddItemDialogProps) {
         </ScrollArea>
 
         <DialogFooter className="flex-shrink-0 mt-4 gap-2 sm:gap-0">
-          <Button variant="outline" onClick={onClose} disabled={submitting} className="flex-1 sm:flex-initial">
+          <Button
+            variant="outline"
+            onClick={onClose}
+            disabled={submitting}
+            className="flex-1 sm:flex-initial"
+          >
             Cancelar
           </Button>
           <Button

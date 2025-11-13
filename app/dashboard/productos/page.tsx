@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Item, CreateItemDto } from '@/types/item';
 import ItemFormModal from '@/components/ItemFormModal';
 import { useToast } from '@/hooks/use-toast';
@@ -13,6 +13,7 @@ import {
   useDeleteItem,
   useReactivateItem,
 } from '@/hooks/useItems';
+import { useDebounce } from '@/hooks/useDebounce';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import {
@@ -32,6 +33,7 @@ export default function ProductosPage() {
   const { viewMode } = useViewMode();
 
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 500);
   const [filterType, setFilterType] = useState<'ALL' | 'PRODUCTO' | 'SERVICIO'>(
     'ALL'
   );
@@ -41,11 +43,12 @@ export default function ProductosPage() {
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  // TanStack Query
+  // TanStack Query - ahora con búsqueda en el backend
   const { data, isLoading, error } = useItems({
     page: currentPage,
     limit: itemsPerPage,
     withDeleted: showDeleted,
+    search: debouncedSearch || undefined,
   });
   const createItemMutation = useCreateItem();
   const updateItemMutation = useUpdateItem();
@@ -56,7 +59,11 @@ export default function ProductosPage() {
   const totalItems = data?.total || 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-  const [filteredItems, setFilteredItems] = useState<Item[]>([]);
+  // Filtrar solo por tipo (la búsqueda ya la hace el backend)
+  const filteredItems =
+    filterType === 'ALL'
+      ? items
+      : items.filter((item: Item) => item.itemType === filterType);
 
   // Modal states
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -73,37 +80,11 @@ export default function ProductosPage() {
     itemName: '',
   });
 
-  // Cargar items al montar el componente - ya no es necesario, TanStack Query lo hace automáticamente
-
-  // Filtrar items cuando cambia el término de búsqueda o el filtro
-  useEffect(() => {
-    // Asegurarse de que items es un array
-    if (!Array.isArray(items)) {
-      console.warn('⚠️ items no es un array:', items);
-      setFilteredItems([]);
-      return;
-    }
-
-    let filtered = items;
-
-    // Filtrar por tipo
-    if (filterType !== 'ALL') {
-      filtered = filtered.filter((item) => item.itemType === filterType);
-    }
-
-    // Filtrar por término de búsqueda
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (item) =>
-          item.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          item.code.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          (item.description &&
-            item.description.toLowerCase().includes(searchTerm.toLowerCase()))
-      );
-    }
-
-    setFilteredItems(filtered);
-  }, [items, searchTerm, filterType]);
+  // Resetear a página 1 cuando cambia la búsqueda
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
 
   const handleCreate = async (data: CreateItemDto) => {
     await createItemMutation.mutateAsync(data);
@@ -197,7 +178,7 @@ export default function ProductosPage() {
               type="text"
               placeholder="Buscar por nombre, código o descripción..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             />
           </div>

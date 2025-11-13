@@ -136,11 +136,13 @@ export const itemsService = {
     limit?: number;
     page?: number;
     withDeleted?: boolean;
+    search?: string;
   }) => {
     const queryParams = new URLSearchParams();
 
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.search) queryParams.append('search', params.search);
     // Solo enviar withDeleted si es true
     if (params?.withDeleted === true) {
       queryParams.append('withDeleted', 'true');

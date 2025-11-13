@@ -171,9 +171,7 @@ export default function TareasPage() {
             }
             onChange={(e) => {
               const value = e.target.value;
-              setIsDoneFilter(
-                value === '' ? undefined : value === 'true'
-              );
+              setIsDoneFilter(value === '' ? undefined : value === 'true');
               setCurrentPage(1);
             }}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -194,9 +192,7 @@ export default function TareasPage() {
             }
             onChange={(e) => {
               const value = e.target.value;
-              setHasInvoiceFilter(
-                value === '' ? undefined : value === 'true'
-              );
+              setHasInvoiceFilter(value === '' ? undefined : value === 'true');
               setCurrentPage(1);
             }}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -234,19 +230,23 @@ export default function TareasPage() {
             No hay tareas para mostrar
           </h3>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            {searchTerm || isDoneFilter !== undefined || hasInvoiceFilter !== undefined
+            {searchTerm ||
+            isDoneFilter !== undefined ||
+            hasInvoiceFilter !== undefined
               ? 'No se encontraron tareas con los filtros aplicados'
               : 'Comienza creando tu primera tarea'}
           </p>
-          {!searchTerm && isDoneFilter === undefined && hasInvoiceFilter === undefined && (
-            <Button
-              onClick={handleCreateNew}
-              className="inline-flex items-center gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              Crear Primera Tarea
-            </Button>
-          )}
+          {!searchTerm &&
+            isDoneFilter === undefined &&
+            hasInvoiceFilter === undefined && (
+              <Button
+                onClick={handleCreateNew}
+                className="inline-flex items-center gap-2"
+              >
+                <Plus className="w-5 h-5" />
+                Crear Primera Tarea
+              </Button>
+            )}
         </div>
       ) : (
         /* Tasks Table/Cards */

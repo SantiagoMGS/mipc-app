@@ -1,11 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { tasksService } from '@/lib/api';
-import {
-  Task,
-  CreateTaskDto,
-  UpdateTaskDto,
-  TaskFilters,
-} from '@/types/task';
+import { Task, CreateTaskDto, UpdateTaskDto, TaskFilters } from '@/types/task';
 import { useToast } from './use-toast';
 
 // ==================== QUERY KEYS ====================

@@ -563,8 +563,7 @@ export const tasksService = {
     if (filters?.page) params.append('page', filters.page.toString());
     if (filters?.limit) params.append('limit', filters.limit.toString());
     if (filters?.customer) params.append('customer', filters.customer);
-    if (filters?.description)
-      params.append('description', filters.description);
+    if (filters?.description) params.append('description', filters.description);
     if (filters?.isDone !== undefined)
       params.append('isDone', filters.isDone.toString());
     if (filters?.hasInvoice !== undefined)

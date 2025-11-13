@@ -29,6 +29,11 @@ export default function TaskFormModal({
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Items existentes (solo visualización en modo edición)
+  const [existingItems, setExistingItems] = useState<CreateTaskItemDto[]>([]);
+  // Items nuevos a agregar (solo estos se envían al backend en modo edición)
+  const [newItemsToAdd, setNewItemsToAdd] = useState<CreateTaskItemDto[]>([]);
+
   // Item temporal para agregar nuevos items
   const [newItem, setNewItem] = useState<CreateTaskItemDto>({
     name: '',
@@ -38,18 +43,25 @@ export default function TaskFormModal({
 
   useEffect(() => {
     if (task) {
+      // Modo edición
       setFormData({
         customer: task.customer,
         description: task.description,
         isDone: task.isDone,
         hasInvoice: task.hasInvoice,
-        items: task.taskItems?.map((item) => ({
+        items: [], // No enviamos items existentes
+      });
+      // Guardamos los items existentes solo para mostrarlos
+      setExistingItems(
+        task.taskItems?.map((item) => ({
           name: item.name,
           quantity: item.quantity,
           price: item.price,
-        })) || [],
-      });
+        })) || []
+      );
+      setNewItemsToAdd([]); // Limpiamos items nuevos
     } else {
+      // Modo creación
       setFormData({
         customer: '',
         description: '',
@@ -57,6 +69,8 @@ export default function TaskFormModal({
         hasInvoice: false,
         items: [],
       });
+      setExistingItems([]);
+      setNewItemsToAdd([]);
     }
     setError('');
     setNewItem({ name: '', quantity: 1, price: 0 });
@@ -66,7 +80,7 @@ export default function TaskFormModal({
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type } = e.target;
-    
+
     if (type === 'checkbox') {
       const checked = (e.target as HTMLInputElement).checked;
       setFormData({
@@ -95,19 +109,36 @@ export default function TaskFormModal({
       return;
     }
 
-    setFormData({
-      ...formData,
-      items: [...(formData.items || []), newItem],
-    });
+    if (task) {
+      // Modo edición: agregamos a la lista de nuevos items
+      setNewItemsToAdd([...newItemsToAdd, newItem]);
+    } else {
+      // Modo creación: agregamos a formData.items
+      setFormData({
+        ...formData,
+        items: [...(formData.items || []), newItem],
+      });
+    }
     setNewItem({ name: '', quantity: 1, price: 0 });
     setError('');
   };
 
-  const handleRemoveItem = (index: number) => {
-    setFormData({
-      ...formData,
-      items: formData.items?.filter((_, i) => i !== index),
-    });
+  const handleRemoveItem = (index: number, isExisting: boolean) => {
+    if (isExisting) {
+      // Remover de items existentes (solo visual, no afecta el backend)
+      setExistingItems(existingItems.filter((_, i) => i !== index));
+    } else {
+      if (task) {
+        // Modo edición: remover de nuevos items a agregar
+        setNewItemsToAdd(newItemsToAdd.filter((_, i) => i !== index));
+      } else {
+        // Modo creación: remover de formData.items
+        setFormData({
+          ...formData,
+          items: formData.items?.filter((_, i) => i !== index),
+        });
+      }
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -118,10 +149,14 @@ export default function TaskFormModal({
     try {
       // Validaciones
       if (!formData.customer.trim() || formData.customer.length > 255) {
-        throw new Error('El cliente es requerido y debe tener máximo 255 caracteres');
+        throw new Error(
+          'El cliente es requerido y debe tener máximo 255 caracteres'
+        );
       }
       if (!formData.description.trim() || formData.description.length > 1000) {
-        throw new Error('La descripción es requerida y debe tener máximo 1000 caracteres');
+        throw new Error(
+          'La descripción es requerida y debe tener máximo 1000 caracteres'
+        );
       }
 
       const dataToSubmit: CreateTaskDto = {
@@ -131,9 +166,18 @@ export default function TaskFormModal({
         hasInvoice: formData.hasInvoice,
       };
 
-      // Solo enviar items si hay al menos uno
-      if (formData.items && formData.items.length > 0) {
-        dataToSubmit.items = formData.items;
+      // En modo edición, solo enviar nuevos items si hay
+      // En modo creación, enviar todos los items de formData
+      if (task) {
+        // Modo edición: solo enviar items nuevos agregados en esta sesión
+        if (newItemsToAdd.length > 0) {
+          dataToSubmit.items = newItemsToAdd;
+        }
+      } else {
+        // Modo creación: enviar todos los items
+        if (formData.items && formData.items.length > 0) {
+          dataToSubmit.items = formData.items;
+        }
       }
 
       await onSubmit(dataToSubmit);
@@ -154,10 +198,11 @@ export default function TaskFormModal({
 
   if (!isOpen) return null;
 
-  const totalItems = formData.items?.reduce(
-    (sum, item) => sum + item.quantity * item.price,
-    0
-  ) || 0;
+  const totalItems =
+    formData.items?.reduce(
+      (sum, item) => sum + item.quantity * item.price,
+      0
+    ) || 0;
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -327,7 +372,7 @@ export default function TaskFormModal({
             </div>
 
             {/* Lista de items */}
-            {formData.items && formData.items.length > 0 ? (
+            {(task ? existingItems.length + newItemsToAdd.length : formData.items?.length || 0) > 0 ? (
               <div className="space-y-2">
                 <div className="overflow-x-auto">
                   <table className="w-full">
@@ -351,7 +396,65 @@ export default function TaskFormModal({
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                      {formData.items.map((item, index) => (
+                      {/* Items existentes (solo en modo edición) */}
+                      {task && existingItems.map((item, index) => (
+                        <tr key={`existing-${index}`} className="bg-white dark:bg-gray-800">
+                          <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200">
+                            {item.name}
+                            <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">(Existente)</span>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right">
+                            {item.quantity}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right">
+                            ${item.price.toLocaleString()}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right font-medium">
+                            ${(item.quantity * item.price).toLocaleString()}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveItem(index, true)}
+                              className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                              title="Eliminar de la vista (no afecta el backend)"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      
+                      {/* Items nuevos a agregar (en modo edición) */}
+                      {task && newItemsToAdd.map((item, index) => (
+                        <tr key={`new-${index}`} className="bg-green-50 dark:bg-green-900/10">
+                          <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200">
+                            {item.name}
+                            <span className="ml-2 text-xs text-green-600 dark:text-green-400 font-medium">(Nuevo)</span>
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right">
+                            {item.quantity}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right">
+                            ${item.price.toLocaleString()}
+                          </td>
+                          <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right font-medium">
+                            ${(item.quantity * item.price).toLocaleString()}
+                          </td>
+                          <td className="px-4 py-3 text-center">
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveItem(index, false)}
+                              className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          </td>
+                        </tr>
+                      ))}
+                      
+                      {/* Items en modo creación */}
+                      {!task && formData.items?.map((item, index) => (
                         <tr key={index} className="bg-white dark:bg-gray-800">
                           <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200">
                             {item.name}
@@ -368,7 +471,7 @@ export default function TaskFormModal({
                           <td className="px-4 py-3 text-center">
                             <button
                               type="button"
-                              onClick={() => handleRemoveItem(index)}
+                              onClick={() => handleRemoveItem(index, false)}
                               className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
                             >
                               <Trash2 className="w-4 h-4" />
@@ -386,7 +489,10 @@ export default function TaskFormModal({
                           Total:
                         </td>
                         <td className="px-4 py-3 text-sm font-bold text-gray-800 dark:text-gray-200 text-right">
-                          ${totalItems.toLocaleString()}
+                          ${(task 
+                            ? [...existingItems, ...newItemsToAdd].reduce((sum, item) => sum + item.quantity * item.price, 0)
+                            : (formData.items?.reduce((sum, item) => sum + item.quantity * item.price, 0) || 0)
+                          ).toLocaleString()}
                         </td>
                         <td></td>
                       </tr>

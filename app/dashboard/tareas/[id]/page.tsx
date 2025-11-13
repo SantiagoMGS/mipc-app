@@ -95,10 +95,11 @@ export default function DetalleTaskPage() {
     );
   }
 
-  const totalItems = task.taskItems?.reduce(
-    (sum, item) => sum + item.quantity * item.price,
-    0
-  ) || 0;
+  const totalItems =
+    task.taskItems?.reduce(
+      (sum, item) => sum + item.quantity * item.price,
+      0
+    ) || 0;
 
   return (
     <div className="space-y-6">

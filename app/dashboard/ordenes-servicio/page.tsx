@@ -41,9 +41,9 @@ export default function OrdenesServicioPage() {
   const [paymentStatusFilter, setPaymentStatusFilter] = useState<
     PaymentStatus | ''
   >('');
-  const [deliveryFilter, setDeliveryFilter] = useState<
-    boolean | undefined
-  >(undefined);
+  const [deliveryFilter, setDeliveryFilter] = useState<boolean | undefined>(
+    undefined
+  );
 
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
@@ -149,12 +149,12 @@ export default function OrdenesServicioPage() {
 
           {/* Filtro de Estado de Entrega */}
           <select
-            value={deliveryFilter === undefined ? '' : deliveryFilter.toString()}
+            value={
+              deliveryFilter === undefined ? '' : deliveryFilter.toString()
+            }
             onChange={(e) => {
               const value = e.target.value;
-              setDeliveryFilter(
-                value === '' ? undefined : value === 'true'
-              );
+              setDeliveryFilter(value === '' ? undefined : value === 'true');
               setCurrentPage(1);
             }}
             className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
@@ -192,19 +192,25 @@ export default function OrdenesServicioPage() {
             No hay órdenes para mostrar
           </h3>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            {searchTerm || statusFilter || paymentStatusFilter || deliveryFilter !== undefined
+            {searchTerm ||
+            statusFilter ||
+            paymentStatusFilter ||
+            deliveryFilter !== undefined
               ? 'No se encontraron órdenes con los filtros aplicados'
               : 'Comienza creando tu primera orden de servicio'}
           </p>
-          {!searchTerm && !statusFilter && !paymentStatusFilter && deliveryFilter === undefined && (
-            <Button
-              onClick={handleCreateNew}
-              className="inline-flex items-center gap-2"
-            >
-              <Plus className="w-5 h-5" />
-              Crear Primera Orden
-            </Button>
-          )}
+          {!searchTerm &&
+            !statusFilter &&
+            !paymentStatusFilter &&
+            deliveryFilter === undefined && (
+              <Button
+                onClick={handleCreateNew}
+                className="inline-flex items-center gap-2"
+              >
+                <Plus className="w-5 h-5" />
+                Crear Primera Orden
+              </Button>
+            )}
         </div>
       ) : (
         /* Orders Table/Cards */

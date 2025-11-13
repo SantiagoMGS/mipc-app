@@ -356,6 +356,8 @@ export const serviceOrdersService = {
     customerId?: string;
     technicianId?: string;
     paymentStatus?: string;
+    isDelivered?: boolean;
+    search?: string;
     limit?: number;
     page?: number;
   }) => {
@@ -366,6 +368,9 @@ export const serviceOrdersService = {
       queryParams.append('technicianId', params.technicianId);
     if (params?.paymentStatus)
       queryParams.append('paymentStatus', params.paymentStatus);
+    if (params?.isDelivered !== undefined)
+      queryParams.append('isDelivered', params.isDelivered.toString());
+    if (params?.search) queryParams.append('search', params.search);
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.page) queryParams.append('page', params.page.toString());
 

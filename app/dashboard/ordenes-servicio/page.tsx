@@ -1,8 +1,9 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useServiceOrders } from '@/hooks/useServiceOrders';
+import { useDebounce } from '@/hooks/useDebounce';
 import {
   ServiceOrder,
   ServiceOrderStatus,
@@ -33,21 +34,27 @@ export default function OrdenesServicioPage() {
   const router = useRouter();
   const { viewMode } = useViewMode();
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 500);
 
   // Filtros
   const [statusFilter, setStatusFilter] = useState<ServiceOrderStatus | ''>('');
   const [paymentStatusFilter, setPaymentStatusFilter] = useState<
     PaymentStatus | ''
   >('');
+  const [deliveryFilter, setDeliveryFilter] = useState<
+    boolean | undefined
+  >(undefined);
 
   // Paginación
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(10);
 
-  // TanStack Query
+  // TanStack Query - ahora con búsqueda en el backend
   const { data, isLoading, error } = useServiceOrders({
     status: statusFilter || undefined,
     paymentStatus: paymentStatusFilter || undefined,
+    isDelivered: deliveryFilter,
+    search: debouncedSearch || undefined,
     page: currentPage,
     limit: itemsPerPage,
   });
@@ -56,34 +63,11 @@ export default function OrdenesServicioPage() {
   const totalItems = data?.total || 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
 
-  const [filteredOrders, setFilteredOrders] = useState<ServiceOrder[]>([]);
-
-  // Filtrar órdenes por término de búsqueda local
-  useEffect(() => {
-    if (!Array.isArray(orders)) {
-      setFilteredOrders([]);
-      return;
-    }
-
-    let filtered = orders;
-
-    if (searchTerm) {
-      const search = searchTerm.toLowerCase();
-      filtered = filtered.filter(
-        (order) =>
-          order.orderNumber.toLowerCase().includes(search) ||
-          (order.problemDescription &&
-            order.problemDescription.toLowerCase().includes(search)) ||
-          (order.reportedIssue &&
-            order.reportedIssue.toLowerCase().includes(search)) ||
-          (order.customerName &&
-            order.customerName.toLowerCase().includes(search)) ||
-          (order.deviceInfo && order.deviceInfo.toLowerCase().includes(search))
-      );
-    }
-
-    setFilteredOrders(filtered);
-  }, [orders, searchTerm]);
+  // Resetear a página 1 cuando cambia la búsqueda
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+    setCurrentPage(1);
+  };
 
   const handleViewDetails = (orderId: string) => {
     router.push(`/dashboard/ordenes-servicio/${orderId}`);
@@ -122,9 +106,9 @@ export default function OrdenesServicioPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <Input
               type="text"
-              placeholder="Buscar por número, cliente, dispositivo o descripción..."
+              placeholder="Buscar por número, cliente, dispositivo, documento, marca, modelo o serial..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
               className="pl-10"
             />
           </div>
@@ -162,6 +146,23 @@ export default function OrdenesServicioPage() {
               </option>
             ))}
           </select>
+
+          {/* Filtro de Estado de Entrega */}
+          <select
+            value={deliveryFilter === undefined ? '' : deliveryFilter.toString()}
+            onChange={(e) => {
+              const value = e.target.value;
+              setDeliveryFilter(
+                value === '' ? undefined : value === 'true'
+              );
+              setCurrentPage(1);
+            }}
+            className="px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+          >
+            <option value="">Todas las entregas</option>
+            <option value="false">No Entregadas</option>
+            <option value="true">Entregadas</option>
+          </select>
         </div>
       </div>
 
@@ -183,7 +184,7 @@ export default function OrdenesServicioPage() {
             Cargando órdenes...
           </p>
         </div>
-      ) : filteredOrders.length === 0 ? (
+      ) : orders.length === 0 ? (
         /* Empty State */
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
           <ClipboardList className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -191,11 +192,11 @@ export default function OrdenesServicioPage() {
             No hay órdenes para mostrar
           </h3>
           <p className="text-gray-600 dark:text-gray-400 mb-6">
-            {searchTerm || statusFilter || paymentStatusFilter
+            {searchTerm || statusFilter || paymentStatusFilter || deliveryFilter !== undefined
               ? 'No se encontraron órdenes con los filtros aplicados'
               : 'Comienza creando tu primera orden de servicio'}
           </p>
-          {!searchTerm && !statusFilter && !paymentStatusFilter && (
+          {!searchTerm && !statusFilter && !paymentStatusFilter && deliveryFilter === undefined && (
             <Button
               onClick={handleCreateNew}
               className="inline-flex items-center gap-2"
@@ -245,7 +246,7 @@ export default function OrdenesServicioPage() {
                     </tr>
                   </thead>
                   <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    {filteredOrders.map((order) => (
+                    {orders.map((order: ServiceOrder) => (
                       <tr
                         key={order.id}
                         onClick={() => handleViewDetails(order.id)}
@@ -317,7 +318,7 @@ export default function OrdenesServicioPage() {
           ) : (
             /* Cards View */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {filteredOrders.map((order) => (
+              {orders.map((order: ServiceOrder) => (
                 <div
                   key={order.id}
                   className="bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700 p-5 hover:shadow-lg transition-shadow cursor-pointer"

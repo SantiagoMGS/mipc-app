@@ -9,8 +9,12 @@ import { useToast } from './use-toast';
 export const itemKeys = {
   all: ['items'] as const,
   lists: () => [...itemKeys.all, 'list'] as const,
-  list: (filters: { page?: number; limit?: number; withDeleted?: boolean; search?: string }) =>
-    [...itemKeys.lists(), filters] as const,
+  list: (filters: {
+    page?: number;
+    limit?: number;
+    withDeleted?: boolean;
+    search?: string;
+  }) => [...itemKeys.lists(), filters] as const,
   details: () => [...itemKeys.all, 'detail'] as const,
   detail: (id: string) => [...itemKeys.details(), id] as const,
 };

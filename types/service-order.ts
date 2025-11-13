@@ -83,6 +83,8 @@ export interface ServiceOrderFilters {
   customerId?: string;
   technicianId?: string;
   paymentStatus?: PaymentStatus;
+  isDelivered?: boolean;
+  search?: string;
   limit?: number;
   page?: number;
 }

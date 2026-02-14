@@ -814,9 +814,15 @@ portalApi.interceptors.request.use(
 portalApi.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
+    const url = error.config?.url || '';
+    const isAuthEndpoint =
+      url.includes('/customer-auth/login') ||
+      url.includes('/customer-auth/change-password');
+
+    if (error.response?.status === 401 && !isAuthEndpoint) {
       localStorage.removeItem('customerToken');
       localStorage.removeItem('customerName');
+      localStorage.removeItem('mustChangePassword');
       window.location.href = '/portal/login';
     }
     return Promise.reject(error);

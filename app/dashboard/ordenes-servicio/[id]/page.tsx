@@ -38,10 +38,12 @@ import {
   RefreshCw,
   Eye,
   Download,
+  Camera,
 } from 'lucide-react';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import { ServiceOrderItems } from '@/components/ServiceOrderItems';
 import { ServiceOrderCosts } from '@/components/ServiceOrderCosts';
+import { ServiceOrderPhotos } from '@/components/ServiceOrderPhotos';
 import { PaymentsSection } from '@/components/PaymentsSection';
 import { pdfService } from '@/lib/api';
 
@@ -608,6 +610,15 @@ export default function DetalleOrdenServicioPage() {
         readOnly={!canEditItems()}
         orderStatus={order.status}
       />
+
+      {/* Fotos de la Orden (Antes y Después) */}
+      <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
+        <h3 className="text-lg font-semibold text-gray-900 dark:text-white mb-4 flex items-center gap-2">
+          <Camera className="h-5 w-5" />
+          Evidencia Fotográfica
+        </h3>
+        <ServiceOrderPhotos orderId={order.id} />
+      </div>
 
       {/* Gestión de Pagos */}
       <PaymentsSection

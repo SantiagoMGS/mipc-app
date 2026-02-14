@@ -417,6 +417,90 @@ export const serviceOrdersService = {
   },
 };
 
+// ==================== SERVICE ORDER PHOTOS ====================
+import {
+  ServiceOrderPhoto,
+  ServiceOrderPhotosResponse,
+  PhotoCategory,
+} from '@/types/service-order-photo';
+
+export const serviceOrderPhotosService = {
+  // Obtener todas las fotos de una orden (agrupadas antes/después)
+  getPhotos: async (
+    serviceOrderId: string
+  ): Promise<ServiceOrderPhotosResponse> => {
+    const response = await api.get(`/service-orders/${serviceOrderId}/photos`);
+    return response.data;
+  },
+
+  // Subir una foto
+  uploadPhoto: async (
+    serviceOrderId: string,
+    file: File,
+    category: PhotoCategory,
+    caption?: string
+  ): Promise<ServiceOrderPhoto> => {
+    const formData = new FormData();
+    formData.append('file', file);
+    formData.append('category', category);
+    if (caption) {
+      formData.append('caption', caption);
+    }
+
+    const response = await api.post(
+      `/service-orders/${serviceOrderId}/photos`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data;
+  },
+
+  // Subir múltiples fotos
+  uploadMultiplePhotos: async (
+    serviceOrderId: string,
+    files: File[],
+    category: PhotoCategory,
+    caption?: string
+  ): Promise<ServiceOrderPhoto[]> => {
+    const formData = new FormData();
+    files.forEach((file) => {
+      formData.append('files', file);
+    });
+    formData.append('category', category);
+    if (caption) {
+      formData.append('caption', caption);
+    }
+
+    const response = await api.post(
+      `/service-orders/${serviceOrderId}/photos/batch`,
+      formData,
+      {
+        headers: {
+          'Content-Type': 'multipart/form-data',
+        },
+      }
+    );
+    return response.data;
+  },
+
+  // Eliminar una foto
+  deletePhoto: async (
+    serviceOrderId: string,
+    photoId: string
+  ): Promise<void> => {
+    await api.delete(`/service-orders/${serviceOrderId}/photos/${photoId}`);
+  },
+
+  // Construir URL completa de la foto
+  getPhotoUrl: (url: string): string => {
+    return `${API_BASE_URL}${url}`;
+  },
+};
+
 // ==================== USERS ====================
 import {
   User,

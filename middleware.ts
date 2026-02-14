@@ -5,11 +5,33 @@ export function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
   // Rutas públicas que no requieren autenticación
-  const publicRoutes = ['/', '/login'];
+  const publicRoutes = ['/', '/login', '/portal/login'];
   const isPublicRoute = publicRoutes.some((route) => pathname === route);
 
   // Si es una ruta pública, permitir acceso
   if (isPublicRoute) {
+    return NextResponse.next();
+  }
+
+  // Para rutas del portal de clientes, verificar customerToken
+  if (pathname.startsWith('/portal')) {
+    const token = request.cookies.get('customerToken')?.value;
+
+    if (!token) {
+      const loginUrl = new URL('/portal/login', request.url);
+      return NextResponse.redirect(loginUrl);
+    }
+
+    // Validar formato básico del token (JWT)
+    const tokenRegex = /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/;
+    if (!tokenRegex.test(token)) {
+      const response = NextResponse.redirect(
+        new URL('/portal/login', request.url)
+      );
+      response.cookies.delete('customerToken');
+      return response;
+    }
+
     return NextResponse.next();
   }
 

@@ -237,6 +237,15 @@ export const customersService = {
     );
     return response.data;
   },
+
+  // Asignar contraseña a un cliente para el portal
+  setPassword: async (customerId: string, password: string) => {
+    const response = await api.post('/customer-auth/set-password', {
+      customerId,
+      password,
+    });
+    return response.data;
+  },
 };
 
 // Servicios para Device Types/Tipos de Dispositivo
@@ -757,6 +766,143 @@ export const pdfService = {
 
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al descargar el PDF');
+    }
+
+    const blob = await response.blob();
+    const link = document.createElement('a');
+    link.href = URL.createObjectURL(blob);
+    link.download = `orden-servicio-${orderNumber}.pdf`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(link.href);
+  },
+};
+
+// ============================================
+// Customer Portal Service
+// ============================================
+
+/**
+ * Instancia de axios para el portal de clientes (usa customerToken)
+ */
+const portalApi = axios.create({
+  baseURL: API_BASE_URL,
+  headers: {
+    'Content-Type': 'application/json',
+  },
+  withCredentials: true,
+});
+
+// Interceptor para agregar el token del cliente
+portalApi.interceptors.request.use(
+  (config) => {
+    const token = localStorage.getItem('customerToken');
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
+    return config;
+  },
+  (error) => Promise.reject(error)
+);
+
+// Interceptor para manejar errores de autenticación del portal
+portalApi.interceptors.response.use(
+  (response) => response,
+  (error) => {
+    if (error.response?.status === 401) {
+      localStorage.removeItem('customerToken');
+      localStorage.removeItem('customerName');
+      window.location.href = '/portal/login';
+    }
+    return Promise.reject(error);
+  }
+);
+
+export const customerAuthService = {
+  login: async (documentNumber: string, password: string) => {
+    const response = await portalApi.post('/customer-auth/login', {
+      documentNumber,
+      password,
+    });
+    if (response.data.accessToken) {
+      localStorage.setItem('customerToken', response.data.accessToken);
+      localStorage.setItem('customerName', response.data.name);
+    }
+    return response.data;
+  },
+
+  logout: async () => {
+    try {
+      await portalApi.post('/customer-auth/logout');
+    } catch (error) {
+      console.error('Error al cerrar sesión:', error);
+    } finally {
+      localStorage.removeItem('customerToken');
+      localStorage.removeItem('customerName');
+      window.location.href = '/portal/login';
+    }
+  },
+
+  validate: async () => {
+    try {
+      const response = await portalApi.get('/customer-auth/validate');
+      return response.data;
+    } catch {
+      return { valid: false };
+    }
+  },
+};
+
+export const customerPortalService = {
+  getProfile: async () => {
+    const response = await portalApi.get('/customer-portal/profile');
+    return response.data;
+  },
+
+  getDevicesWithOrders: async () => {
+    const response = await portalApi.get('/customer-portal/devices');
+    return response.data;
+  },
+
+  previewOrderPdf: async (orderId: string): Promise<void> => {
+    const token = localStorage.getItem('customerToken');
+    if (!token) {
+      throw new Error('No se encontró token de autenticación');
+    }
+
+    const url = `${API_BASE_URL}/customer-portal/orders/${orderId}/pdf/preview`;
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
+    });
+
+    if (!response.ok) {
+      throw new Error('Error al generar la vista previa del PDF');
+    }
+
+    const blob = await response.blob();
+    const blobUrl = URL.createObjectURL(blob);
+    window.open(blobUrl, '_blank');
+  },
+
+  downloadOrderPdf: async (
+    orderId: string,
+    orderNumber: string
+  ): Promise<void> => {
+    const token = localStorage.getItem('customerToken');
+    if (!token) {
+      throw new Error('No se encontró token de autenticación');
+    }
+
+    const url = `${API_BASE_URL}/customer-portal/orders/${orderId}/pdf`;
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${token}` },
+      credentials: 'include',
     });
 
     if (!response.ok) {

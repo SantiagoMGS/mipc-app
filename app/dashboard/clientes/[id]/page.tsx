@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
-import { deviceTypesService } from '@/lib/api';
+import { deviceTypesService, customersService } from '@/lib/api';
 import {
   CreateCustomerDto,
   DocumentType,
@@ -36,6 +36,7 @@ import {
   Phone,
   FileText,
   CreditCard,
+  KeyRound,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -109,6 +110,11 @@ export default function ClienteDetallesPage() {
     deviceId: null,
     deviceName: '',
   });
+
+  // Password modal state
+  const [isPasswordModalOpen, setIsPasswordModalOpen] = useState(false);
+  const [newPassword, setNewPassword] = useState('');
+  const [isSettingPassword, setIsSettingPassword] = useState(false);
 
   // Sincronizar editableData cuando customer cambia
   useEffect(() => {
@@ -256,6 +262,37 @@ export default function ClienteDetallesPage() {
     await activateDeviceMutation.mutateAsync(device.id);
   };
 
+  const handleSetPassword = async () => {
+    if (!newPassword || newPassword.length < 6) {
+      toast({
+        title: 'Error',
+        description: 'La contraseña debe tener al menos 6 caracteres',
+        variant: 'destructive',
+      });
+      return;
+    }
+
+    setIsSettingPassword(true);
+    try {
+      await customersService.setPassword(customerId, newPassword);
+      toast({
+        title: 'Contraseña asignada',
+        description: 'El cliente ya puede iniciar sesión en el portal',
+      });
+      setIsPasswordModalOpen(false);
+      setNewPassword('');
+    } catch (err: any) {
+      toast({
+        title: 'Error',
+        description:
+          err.response?.data?.message || 'Error al asignar contraseña',
+        variant: 'destructive',
+      });
+    } finally {
+      setIsSettingPassword(false);
+    }
+  };
+
   const getDeviceTypeName = (deviceTypeId?: string) => {
     if (!deviceTypeId) return 'Sin tipo';
     const deviceType = deviceTypes.find((type) => type.id === deviceTypeId);
@@ -324,13 +361,23 @@ export default function ClienteDetallesPage() {
         </div>
 
         {!isEditMode ? (
-          <button
-            onClick={handleEditClick}
-            className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
-          >
-            <Edit className="w-5 h-5" />
-            Editar Cliente
-          </button>
+          <div className="flex gap-3">
+            <button
+              onClick={() => setIsPasswordModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 border border-blue-300 dark:border-blue-600 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+              title="Asignar contraseña para el portal de clientes"
+            >
+              <KeyRound className="w-5 h-5" />
+              <span className="hidden sm:inline">Portal</span>
+            </button>
+            <button
+              onClick={handleEditClick}
+              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+            >
+              <Edit className="w-5 h-5" />
+              Editar Cliente
+            </button>
+          </div>
         ) : (
           <div className="flex gap-3">
             <button
@@ -755,6 +802,55 @@ export default function ClienteDetallesPage() {
         onCancel={handleDeleteDeviceCancel}
         type="danger"
       />
+
+      {/* Modal de contraseña para portal */}
+      {isPasswordModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50">
+          <div className="bg-white dark:bg-gray-800 rounded-xl shadow-2xl p-6 w-full max-w-md mx-4">
+            <div className="flex items-center gap-3 mb-4">
+              <KeyRound className="w-6 h-6 text-blue-500" />
+              <h3 className="text-lg font-semibold text-gray-800 dark:text-white">
+                Asignar Contraseña del Portal
+              </h3>
+            </div>
+            <p className="text-sm text-gray-600 dark:text-gray-400 mb-4">
+              Esta contraseña permitirá al cliente iniciar sesión en el portal
+              de clientes usando su número de documento{' '}
+              <strong>{customer.documentNumber}</strong>.
+            </p>
+            <div className="mb-4">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+                Nueva Contraseña
+              </label>
+              <input
+                type="text"
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Mínimo 6 caracteres"
+                className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+            <div className="flex gap-3 justify-end">
+              <button
+                onClick={() => {
+                  setIsPasswordModalOpen(false);
+                  setNewPassword('');
+                }}
+                className="px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              >
+                Cancelar
+              </button>
+              <button
+                onClick={handleSetPassword}
+                disabled={isSettingPassword || newPassword.length < 6}
+                className="px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+              >
+                {isSettingPassword ? 'Guardando...' : 'Asignar Contraseña'}
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

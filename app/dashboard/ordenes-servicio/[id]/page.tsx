@@ -15,7 +15,7 @@ import {
   PaymentStatusBadge,
 } from '@/components/ServiceOrderBadges';
 import {
-  STATUS_TRANSITIONS,
+  ALL_STATUSES,
   STATUS_LABELS,
   ServiceOrderStatus,
 } from '@/types/service-order';
@@ -152,7 +152,7 @@ export default function DetalleOrdenServicioPage() {
 
   const getAvailableStatuses = (): ServiceOrderStatus[] => {
     if (!order) return [];
-    return STATUS_TRANSITIONS[order.status as ServiceOrderStatus] || [];
+    return ALL_STATUSES.filter((s) => s !== order.status);
   };
 
   // Manejadores de PDF

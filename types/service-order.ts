@@ -89,26 +89,18 @@ export interface ServiceOrderFilters {
   page?: number;
 }
 
-// Estados permitidos como transiciones
-export const STATUS_TRANSITIONS: Record<
-  ServiceOrderStatus,
-  ServiceOrderStatus[]
-> = {
-  RECIBIDO: ['EN_DIAGNOSTICO', 'CANCELADO'],
-  EN_DIAGNOSTICO: [
-    'ESPERANDO_REPUESTOS',
-    'EN_REPARACION',
-    'NO_REPARABLE',
-    'CANCELADO',
-  ],
-  ESPERANDO_REPUESTOS: ['EN_REPARACION', 'CANCELADO'],
-  EN_REPARACION: ['REPARADO', 'ESPERANDO_REPUESTOS', 'CANCELADO'],
-  REPARADO: ['COMPLETO', 'CANCELADO'],
-  COMPLETO: ['FACTURADO'],
-  FACTURADO: [],
-  CANCELADO: [],
-  NO_REPARABLE: [],
-};
+// Todos los estados disponibles (transición libre)
+export const ALL_STATUSES: ServiceOrderStatus[] = [
+  'RECIBIDO',
+  'EN_DIAGNOSTICO',
+  'ESPERANDO_REPUESTOS',
+  'EN_REPARACION',
+  'REPARADO',
+  'COMPLETO',
+  'FACTURADO',
+  'CANCELADO',
+  'NO_REPARABLE',
+];
 
 // Labels en español para los estados
 export const STATUS_LABELS: Record<ServiceOrderStatus, string> = {

@@ -137,6 +137,7 @@ export function ServiceOrderItems({
                       <TableHead className="text-right">Cant.</TableHead>
                       <TableHead className="text-right">Precio Unit.</TableHead>
                       <TableHead className="text-right">Descuento</TableHead>
+                      <TableHead className="text-center">IVA</TableHead>
                       <TableHead className="text-right">Subtotal</TableHead>
                       {!readOnly && (
                         <TableHead className="w-[50px]"></TableHead>
@@ -146,8 +147,15 @@ export function ServiceOrderItems({
                   <TableBody>
                     {items.map((orderItem) => (
                       <TableRow key={orderItem.id}>
-                        <TableCell className="font-medium">
-                          {orderItem.item.name}
+                        <TableCell>
+                          <div>
+                            <span className="font-medium">{orderItem.item.name}</span>
+                            {orderItem.observation && (
+                              <p className="text-xs text-muted-foreground mt-0.5">
+                                {orderItem.observation}
+                              </p>
+                            )}
+                          </div>
                         </TableCell>
                         <TableCell className="text-muted-foreground">
                           {orderItem.item.code}
@@ -173,6 +181,11 @@ export function ServiceOrderItems({
                           {orderItem.discount !== '0'
                             ? formatCurrency(Number(orderItem.discount))
                             : '-'}
+                        </TableCell>
+                        <TableCell className="text-center">
+                          <Badge variant={orderItem.hasIva ? 'default' : 'outline'}>
+                            {orderItem.hasIva ? 'Sí' : 'No'}
+                          </Badge>
                         </TableCell>
                         <TableCell className="text-right font-semibold">
                           {formatCurrency(Number(orderItem.subtotal))}
@@ -210,16 +223,28 @@ export function ServiceOrderItems({
                         <p className="text-xs text-muted-foreground mt-1">
                           Código: {orderItem.item.code}
                         </p>
+                        {orderItem.observation && (
+                          <p className="text-xs text-muted-foreground mt-1 italic">
+                            {orderItem.observation}
+                          </p>
+                        )}
                       </div>
-                      <Badge
-                        variant={
-                          orderItem.item.itemType === 'SERVICIO'
-                            ? 'default'
-                            : 'secondary'
-                        }
-                      >
-                        {orderItem.item.itemType}
-                      </Badge>
+                      <div className="flex items-center gap-1.5 flex-shrink-0">
+                        {orderItem.hasIva && (
+                          <Badge variant="default" className="text-[10px] px-1.5 py-0">
+                            IVA
+                          </Badge>
+                        )}
+                        <Badge
+                          variant={
+                            orderItem.item.itemType === 'SERVICIO'
+                              ? 'default'
+                              : 'secondary'
+                          }
+                        >
+                          {orderItem.item.itemType}
+                        </Badge>
+                      </div>
                     </div>
 
                     <div className="grid grid-cols-2 gap-2 text-sm">

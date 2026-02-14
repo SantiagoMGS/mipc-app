@@ -18,6 +18,8 @@ export interface ServiceOrderItem {
   unitPrice: string; // Decimal como string
   discount: string;
   subtotal: string;
+  observation: string | null;
+  hasIva: boolean;
   item: Item;
 }
 
@@ -26,6 +28,8 @@ export interface AddItemToOrderDto {
   quantity?: number;
   unitPrice?: number;
   discount?: number;
+  observation?: string;
+  hasIva?: boolean;
 }
 
 export interface CreateItemDto {

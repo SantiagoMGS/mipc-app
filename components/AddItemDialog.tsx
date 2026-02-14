@@ -32,6 +32,8 @@ export function AddItemDialog({ open, onClose, onSubmit }: AddItemDialogProps) {
   const [quantity, setQuantity] = useState(1);
   const [unitPrice, setUnitPrice] = useState(0);
   const [discount, setDiscount] = useState(0);
+  const [observation, setObservation] = useState('');
+  const [hasIva, setHasIva] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const debouncedSearch = useDebounce(searchQuery, 500);
 
@@ -52,6 +54,8 @@ export function AddItemDialog({ open, onClose, onSubmit }: AddItemDialogProps) {
       setQuantity(1);
       setUnitPrice(0);
       setDiscount(0);
+      setObservation('');
+      setHasIva(false);
       setSearchQuery('');
     }
   }, [open]);
@@ -72,6 +76,8 @@ export function AddItemDialog({ open, onClose, onSubmit }: AddItemDialogProps) {
         quantity,
         unitPrice,
         discount,
+        observation: observation.trim() || undefined,
+        hasIva,
       });
       onClose();
     } catch (error) {
@@ -231,6 +237,37 @@ export function AddItemDialog({ open, onClose, onSubmit }: AddItemDialogProps) {
                       onChange={(e) => setDiscount(Number(e.target.value))}
                       className="h-9"
                     />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                  <div>
+                    <Label htmlFor="observation" className="text-sm">
+                      Observación
+                    </Label>
+                    <Input
+                      id="observation"
+                      type="text"
+                      placeholder="Observación del item (opcional)"
+                      value={observation}
+                      onChange={(e) => setObservation(e.target.value)}
+                      className="h-9"
+                    />
+                  </div>
+                  <div className="flex items-end">
+                    <label
+                      htmlFor="hasIva"
+                      className="flex items-center gap-2 cursor-pointer h-9 px-3 border border-gray-200 dark:border-gray-700 rounded-md w-full"
+                    >
+                      <input
+                        id="hasIva"
+                        type="checkbox"
+                        checked={hasIva}
+                        onChange={(e) => setHasIva(e.target.checked)}
+                        className="h-4 w-4 rounded border-gray-300"
+                      />
+                      <span className="text-sm font-medium">Incluye IVA</span>
+                    </label>
                   </div>
                 </div>
 

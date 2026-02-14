@@ -23,7 +23,8 @@ export function middleware(request: NextRequest) {
     }
 
     // Validar formato básico del token (JWT)
-    const tokenRegex = /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/;
+    const tokenRegex =
+      /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/;
     if (!tokenRegex.test(token)) {
       const response = NextResponse.redirect(
         new URL('/portal/login', request.url)
@@ -48,7 +49,8 @@ export function middleware(request: NextRequest) {
     }
 
     // Validar formato básico del token (JWT)
-    const tokenRegex = /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/;
+    const tokenRegex =
+      /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/;
     if (!tokenRegex.test(token)) {
       // Token inválido o malformado
       const response = NextResponse.redirect(new URL('/login', request.url));

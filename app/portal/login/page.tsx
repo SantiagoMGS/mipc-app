@@ -63,8 +63,7 @@ export default function PortalLoginPage() {
     } catch (err: any) {
       console.error('Error en login:', err);
 
-      let errorMessage =
-        'Error al iniciar sesión. Verifica tus credenciales.';
+      let errorMessage = 'Error al iniciar sesión. Verifica tus credenciales.';
 
       if (err.code === 'ERR_NETWORK' || err.message === 'Network Error') {
         errorMessage =

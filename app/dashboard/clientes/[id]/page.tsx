@@ -140,8 +140,8 @@ export default function ClienteDetallesPage() {
         const typesArray = Array.isArray(response?.data)
           ? response.data
           : Array.isArray(response)
-          ? response
-          : [];
+            ? response
+            : [];
 
         const activeTypes = typesArray.filter(
           (type: DeviceType) => type.isActive !== false

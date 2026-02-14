@@ -3,7 +3,11 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import { customerAuthService, customerPortalService, API_BASE_URL } from '@/lib/api';
+import {
+  customerAuthService,
+  customerPortalService,
+  API_BASE_URL,
+} from '@/lib/api';
 import ThemeToggle from '@/components/ThemeToggle';
 import {
   User,
@@ -87,8 +91,7 @@ const STATUS_CONFIG: Record<
 > = {
   RECIBIDO: {
     label: 'Recibido',
-    color:
-      'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
+    color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-700 dark:text-blue-300',
     icon: <Package className="w-3.5 h-3.5" />,
   },
   EN_DIAGNOSTICO: {
@@ -123,8 +126,7 @@ const STATUS_CONFIG: Record<
   },
   FACTURADO: {
     label: 'Facturado',
-    color:
-      'bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300',
+    color: 'bg-teal-100 dark:bg-teal-900/30 text-teal-700 dark:text-teal-300',
     icon: <FileText className="w-3.5 h-3.5" />,
   },
   CANCELADO: {
@@ -134,8 +136,7 @@ const STATUS_CONFIG: Record<
   },
   NO_REPARABLE: {
     label: 'No Reparable',
-    color:
-      'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300',
+    color: 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300',
     icon: <AlertTriangle className="w-3.5 h-3.5" />,
   },
 };
@@ -245,8 +246,7 @@ export default function PortalPage() {
   };
 
   const handleLogout = () => {
-    document.cookie =
-      'customerToken=; path=/; max-age=0; SameSite=Strict';
+    document.cookie = 'customerToken=; path=/; max-age=0; SameSite=Strict';
     customerAuthService.logout();
   };
 
@@ -389,7 +389,9 @@ export default function PortalPage() {
                 <strong className="text-gray-800 dark:text-white">
                   {totalOrders}
                 </strong>{' '}
-                {totalOrders === 1 ? 'orden de servicio' : 'órdenes de servicio'}
+                {totalOrders === 1
+                  ? 'orden de servicio'
+                  : 'órdenes de servicio'}
               </span>
             </div>
           </div>
@@ -459,9 +461,7 @@ export default function PortalPage() {
                   <div className="flex items-center gap-3">
                     <span className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
                       {device.serviceOrders.length}{' '}
-                      {device.serviceOrders.length === 1
-                        ? 'orden'
-                        : 'órdenes'}
+                      {device.serviceOrders.length === 1 ? 'orden' : 'órdenes'}
                     </span>
                     {expandedDevices.has(device.id) ? (
                       <ChevronDown className="w-5 h-5 text-gray-400" />
@@ -483,7 +483,8 @@ export default function PortalPage() {
                       <div className="divide-y divide-gray-100 dark:divide-gray-700">
                         {device.serviceOrders.map((order) => {
                           const statusConfig =
-                            STATUS_CONFIG[order.status] || STATUS_CONFIG.RECIBIDO;
+                            STATUS_CONFIG[order.status] ||
+                            STATUS_CONFIG.RECIBIDO;
                           const paymentConfig =
                             PAYMENT_STATUS_CONFIG[order.paymentStatus] ||
                             PAYMENT_STATUS_CONFIG.PENDIENTE;

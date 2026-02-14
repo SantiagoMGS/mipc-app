@@ -1,12 +1,13 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { Customer } from '@/types/customer';
 import { useToast } from '@/hooks/use-toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
 import Pagination from '@/components/Pagination';
 import { useCustomers, useDeleteCustomer } from '@/hooks/useCustomers';
+import { useDebounce } from '@/hooks/useDebounce';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Card } from '@/components/ui/card';
@@ -29,6 +30,7 @@ export default function ClientesPage() {
   const { viewMode } = useViewMode();
 
   const [searchTerm, setSearchTerm] = useState('');
+  const debouncedSearch = useDebounce(searchTerm, 400);
 
   // Pagination states
   const [currentPage, setCurrentPage] = useState(1);
@@ -38,14 +40,13 @@ export default function ClientesPage() {
   const { data, isLoading, error } = useCustomers({
     page: currentPage,
     limit: itemsPerPage,
+    search: debouncedSearch || undefined,
   });
   const deleteCustomerMutation = useDeleteCustomer();
 
   const customers = data?.customers || [];
   const totalItems = data?.total || 0;
   const totalPages = Math.ceil(totalItems / itemsPerPage);
-
-  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
 
   // Confirm dialog state
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -57,47 +58,6 @@ export default function ClientesPage() {
     customerId: null,
     customerName: '',
   });
-
-  // Filtrar clientes cuando cambia el término de búsqueda
-  useEffect(() => {
-    if (!Array.isArray(customers)) {
-      console.warn('⚠️ customers no es un array:', customers);
-      setFilteredCustomers([]);
-      return;
-    }
-
-    let filtered = customers;
-
-    // Filtrar por término de búsqueda
-    if (searchTerm) {
-      filtered = filtered.filter(
-        (customer) =>
-          (customer.firstName &&
-            customer.firstName
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase())) ||
-          (customer.lastName &&
-            customer.lastName
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase())) ||
-          (customer.businessName &&
-            customer.businessName
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase())) ||
-          customer.documentNumber
-            .toLowerCase()
-            .includes(searchTerm.toLowerCase()) ||
-          (customer.email &&
-            customer.email.toLowerCase().includes(searchTerm.toLowerCase())) ||
-          (customer.phoneNumber &&
-            customer.phoneNumber
-              .toLowerCase()
-              .includes(searchTerm.toLowerCase()))
-      );
-    }
-
-    setFilteredCustomers(filtered);
-  }, [customers, searchTerm]);
 
   const handleDeleteClick = (customer: Customer) => {
     setConfirmDialog({
@@ -169,9 +129,12 @@ export default function ClientesPage() {
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
               type="text"
-              placeholder="Buscar por nombre, documento, email o teléfono..."
+              placeholder="Buscar por nombre o documento..."
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={(e) => {
+                setSearchTerm(e.target.value);
+                setCurrentPage(1);
+              }}
               className="w-full pl-10 pr-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
             />
           </div>
@@ -196,7 +159,7 @@ export default function ClientesPage() {
             Cargando clientes...
           </p>
         </div>
-      ) : filteredCustomers.length === 0 ? (
+      ) : customers.length === 0 ? (
         /* Empty State */
         <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-12 text-center">
           <Users className="w-16 h-16 text-gray-400 mx-auto mb-4" />
@@ -249,8 +212,8 @@ export default function ClientesPage() {
                     </tr>
                   </thead>
                   <tbody className="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                    {Array.isArray(filteredCustomers) &&
-                      filteredCustomers.map((customer) => (
+                    {Array.isArray(customers) &&
+                      customers.map((customer) => (
                         <tr
                           key={customer.id}
                           className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
@@ -352,8 +315,8 @@ export default function ClientesPage() {
           ) : (
             /* Cards View */
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {Array.isArray(filteredCustomers) &&
-                filteredCustomers.map((customer) => (
+              {Array.isArray(customers) &&
+                customers.map((customer) => (
                   <div
                     key={customer.id}
                     className="bg-white dark:bg-gray-800 rounded-lg shadow-md hover:shadow-lg transition-shadow overflow-hidden"

@@ -188,12 +188,13 @@ export const itemsService = {
 
 // Servicios para Customers/Clientes
 export const customersService = {
-  // Obtener todos los clientes con paginación
-  getAll: async (params?: { limit?: number; page?: number }) => {
+  // Obtener todos los clientes con paginación y búsqueda
+  getAll: async (params?: { limit?: number; page?: number; search?: string }) => {
     const queryParams = new URLSearchParams();
 
     if (params?.limit) queryParams.append('limit', params.limit.toString());
     if (params?.page) queryParams.append('page', params.page.toString());
+    if (params?.search) queryParams.append('search', params.search);
 
     const url = `/customers${
       queryParams.toString() ? `?${queryParams.toString()}` : ''

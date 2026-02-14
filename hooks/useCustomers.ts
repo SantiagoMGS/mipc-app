@@ -9,14 +9,14 @@ import { useToast } from './use-toast';
 export const customerKeys = {
   all: ['customers'] as const,
   lists: () => [...customerKeys.all, 'list'] as const,
-  list: (filters: { page?: number; limit?: number }) =>
+  list: (filters: { page?: number; limit?: number; search?: string }) =>
     [...customerKeys.lists(), filters] as const,
   details: () => [...customerKeys.all, 'detail'] as const,
   detail: (id: string) => [...customerKeys.details(), id] as const,
 };
 
-// Hook para obtener todos los clientes (con paginación)
-export function useCustomers(params?: { limit?: number; page?: number }) {
+// Hook para obtener todos los clientes (con paginación y búsqueda)
+export function useCustomers(params?: { limit?: number; page?: number; search?: string }) {
   return useQuery({
     queryKey: customerKeys.list(params || {}),
     queryFn: () => customersService.getAll(params),

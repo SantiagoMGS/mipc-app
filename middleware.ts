@@ -25,9 +25,14 @@ export function middleware(request: NextRequest) {
       return NextResponse.redirect(loginUrl);
     }
 
-    // TODO: Aquí podrías verificar si el token es válido/no ha expirado
-    // llamando a un endpoint del backend, pero eso agregaría latencia
-    // Por ahora, el interceptor de axios maneja la expiración
+    // Validar formato básico del token (JWT)
+    const tokenRegex = /^[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/;
+    if (!tokenRegex.test(token)) {
+      // Token inválido o malformado
+      const response = NextResponse.redirect(new URL('/login', request.url));
+      response.cookies.delete('authToken');
+      return response;
+    }
 
     return NextResponse.next();
   }

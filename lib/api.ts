@@ -832,6 +832,11 @@ export const customerAuthService = {
     if (response.data.accessToken) {
       localStorage.setItem('customerToken', response.data.accessToken);
       localStorage.setItem('customerName', response.data.name);
+      if (response.data.mustChangePassword) {
+        localStorage.setItem('mustChangePassword', 'true');
+      } else {
+        localStorage.removeItem('mustChangePassword');
+      }
     }
     return response.data;
   },
@@ -844,6 +849,7 @@ export const customerAuthService = {
     } finally {
       localStorage.removeItem('customerToken');
       localStorage.removeItem('customerName');
+      localStorage.removeItem('mustChangePassword');
       window.location.href = '/portal/login';
     }
   },
@@ -855,6 +861,21 @@ export const customerAuthService = {
     } catch {
       return { valid: false };
     }
+  },
+
+  changePassword: async (currentPassword: string, newPassword: string) => {
+    const response = await portalApi.post('/customer-auth/change-password', {
+      currentPassword,
+      newPassword,
+    });
+    if (response.data.accessToken) {
+      localStorage.setItem('customerToken', response.data.accessToken);
+      localStorage.setItem('customerName', response.data.name);
+      localStorage.removeItem('mustChangePassword');
+      // Actualizar cookie
+      document.cookie = `customerToken=${response.data.accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`;
+    }
+    return response.data;
   },
 };
 

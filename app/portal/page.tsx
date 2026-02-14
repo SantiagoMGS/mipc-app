@@ -196,6 +196,12 @@ export default function PortalPage() {
           return;
         }
 
+        // Si debe cambiar contraseña, redirigir
+        if (validation.customer?.mustChangePassword) {
+          router.replace('/portal/cambiar-clave');
+          return;
+        }
+
         // Cargar perfil y dispositivos en paralelo
         const [profileData, devicesData] = await Promise.all([
           customerPortalService.getProfile(),

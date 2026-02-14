@@ -59,7 +59,12 @@ export default function PortalLoginPage() {
         }; SameSite=Strict`;
       }
 
-      router.replace('/portal');
+      // Si debe cambiar contraseña, redirigir a cambiar-clave
+      if (response.mustChangePassword) {
+        router.replace('/portal/cambiar-clave');
+      } else {
+        router.replace('/portal');
+      }
     } catch (err: any) {
       console.error('Error en login:', err);
 

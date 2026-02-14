@@ -16,7 +16,11 @@ export const customerKeys = {
 };
 
 // Hook para obtener todos los clientes (con paginación y búsqueda)
-export function useCustomers(params?: { limit?: number; page?: number; search?: string }) {
+export function useCustomers(params?: {
+  limit?: number;
+  page?: number;
+  search?: string;
+}) {
   return useQuery({
     queryKey: customerKeys.list(params || {}),
     queryFn: () => customersService.getAll(params),
@@ -24,8 +28,8 @@ export function useCustomers(params?: { limit?: number; page?: number; search?: 
       customers: Array.isArray(data?.data)
         ? data.data
         : Array.isArray(data)
-        ? data
-        : [],
+          ? data
+          : [],
       total: data?.total || 0,
       page: data?.page || 1,
       limit: data?.limit || 10,

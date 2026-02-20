@@ -602,6 +602,15 @@ export const serviceOrderItemsService = {
     );
     return response.data;
   },
+
+  // Actualizar item de una orden
+  updateItem: async (orderId: string, itemId: string, data: any) => {
+    const response = await api.put(
+      `/service-orders/${orderId}/items/${itemId}`,
+      data
+    );
+    return response.data;
+  },
 };
 
 // ============================================

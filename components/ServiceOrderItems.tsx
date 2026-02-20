@@ -3,7 +3,8 @@
 import { useState } from 'react';
 import { useOrderItems } from '@/hooks/useOrderItems';
 import { AddItemDialog } from './AddItemDialog';
-import { AddItemToOrderDto } from '@/types/item';
+import { EditItemDialog } from './EditItemDialog';
+import { AddItemToOrderDto, UpdateOrderItemDto, ServiceOrderItem } from '@/types/item';
 import { formatCurrency } from '@/lib/utils';
 import { Button } from '@/components/ui/button';
 import {
@@ -15,7 +16,7 @@ import {
   TableRow,
 } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Loader2, Lock } from 'lucide-react';
+import { Plus, Trash2, Loader2, Lock, Pencil } from 'lucide-react';
 import ConfirmDialog from './ConfirmDialog';
 import { ServiceOrderStatus } from '@/types/service-order';
 
@@ -32,8 +33,10 @@ export function ServiceOrderItems({
   readOnly = false,
   orderStatus,
 }: ServiceOrderItemsProps) {
-  const { items, loading, addItem, removeItem } = useOrderItems(orderId);
+  const { items, loading, addItem, removeItem, updateItem } = useOrderItems(orderId);
   const [dialogOpen, setDialogOpen] = useState(false);
+  const [editDialogOpen, setEditDialogOpen] = useState(false);
+  const [itemToEdit, setItemToEdit] = useState<ServiceOrderItem | null>(null);
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [itemToDelete, setItemToDelete] = useState<string | null>(null);
 
@@ -64,6 +67,20 @@ export function ServiceOrderItems({
   const handleRemoveClick = (itemId: string) => {
     setItemToDelete(itemId);
     setDeleteDialogOpen(true);
+  };
+
+  const handleEditClick = (orderItem: ServiceOrderItem) => {
+    setItemToEdit(orderItem);
+    setEditDialogOpen(true);
+  };
+
+  const handleUpdateItem = async (itemId: string, data: UpdateOrderItemDto) => {
+    const result = await updateItem(itemId, data);
+    if (result) {
+      setEditDialogOpen(false);
+      setItemToEdit(null);
+      onOrderUpdate?.();
+    }
   };
 
   const handleConfirmRemove = async () => {
@@ -192,14 +209,24 @@ export function ServiceOrderItems({
                         </TableCell>
                         {!readOnly && (
                           <TableCell>
-                            <Button
-                              variant="ghost"
-                              size="icon"
-                              onClick={() => handleRemoveClick(orderItem.id)}
-                              title="Eliminar item"
-                            >
-                              <Trash2 className="h-4 w-4 text-destructive" />
-                            </Button>
+                            <div className="flex items-center gap-1">
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleEditClick(orderItem)}
+                                title="Editar item"
+                              >
+                                <Pencil className="h-4 w-4 text-muted-foreground" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => handleRemoveClick(orderItem.id)}
+                                title="Eliminar item"
+                              >
+                                <Trash2 className="h-4 w-4 text-destructive" />
+                              </Button>
+                            </div>
                           </TableCell>
                         )}
                       </TableRow>
@@ -283,15 +310,26 @@ export function ServiceOrderItems({
                           {formatCurrency(Number(orderItem.subtotal))}
                         </span>
                         {!readOnly && (
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            className="h-8 w-8"
-                            onClick={() => handleRemoveClick(orderItem.id)}
-                            title="Eliminar item"
-                          >
-                            <Trash2 className="h-4 w-4 text-destructive" />
-                          </Button>
+                          <div className="flex items-center gap-1">
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => handleEditClick(orderItem)}
+                              title="Editar item"
+                            >
+                              <Pencil className="h-4 w-4 text-muted-foreground" />
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              className="h-8 w-8"
+                              onClick={() => handleRemoveClick(orderItem.id)}
+                              title="Eliminar item"
+                            >
+                              <Trash2 className="h-4 w-4 text-destructive" />
+                            </Button>
+                          </div>
                         )}
                       </div>
                     </div>
@@ -307,6 +345,16 @@ export function ServiceOrderItems({
         open={dialogOpen}
         onClose={() => setDialogOpen(false)}
         onSubmit={handleAddItem}
+      />
+
+      <EditItemDialog
+        open={editDialogOpen}
+        onClose={() => {
+          setEditDialogOpen(false);
+          setItemToEdit(null);
+        }}
+        onSubmit={handleUpdateItem}
+        orderItem={itemToEdit}
       />
 
       <ConfirmDialog

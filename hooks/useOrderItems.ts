@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { serviceOrderItemsService } from '@/lib/api';
-import { ServiceOrderItem, AddItemToOrderDto } from '@/types/item';
+import { ServiceOrderItem, AddItemToOrderDto, UpdateOrderItemDto } from '@/types/item';
 import { ServiceOrder } from '@/types/service-order';
 import { useToast } from '@/hooks/use-toast';
 
@@ -106,6 +106,43 @@ export function useOrderItems(orderId: string) {
     }
   };
 
+  const updateItem = async (
+    itemId: string,
+    data: UpdateOrderItemDto
+  ): Promise<ServiceOrder | null> => {
+    setLoading(true);
+    setError(null);
+
+    try {
+      const updatedOrder = await serviceOrderItemsService.updateItem(
+        orderId,
+        itemId,
+        data
+      );
+      toast({
+        title: 'Éxito',
+        description: 'Item actualizado correctamente',
+      });
+
+      await fetchItems();
+
+      return updatedOrder;
+    } catch (err: any) {
+      const errorMessage =
+        err.response?.data?.message || 'Error al actualizar el item';
+      setError(errorMessage);
+      toast({
+        title: 'Error',
+        description: errorMessage,
+        variant: 'destructive',
+      });
+      console.error('Error updating item:', err);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  };
+
   useEffect(() => {
     fetchItems();
   }, [orderId]);
@@ -116,6 +153,7 @@ export function useOrderItems(orderId: string) {
     error,
     addItem,
     removeItem,
+    updateItem,
     refetch: fetchItems,
   };
 }

@@ -180,8 +180,56 @@ function PhotoSection({
   isUploading,
   readOnly,
 }: PhotoSectionProps) {
+  const [isDragging, setIsDragging] = useState(false);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setIsDragging(false);
+
+      if (readOnly) return;
+
+      const files = e.dataTransfer.files;
+      if (files && files.length > 0) {
+        // Filtrar solo imágenes
+        const dt = new DataTransfer();
+        Array.from(files).forEach((file) => {
+          if (file.type.startsWith('image/')) {
+            dt.items.add(file);
+          }
+        });
+        if (dt.files.length > 0) {
+          onFileSelect(dt.files, category);
+        }
+      }
+    },
+    [readOnly, onFileSelect, category]
+  );
+
   return (
-    <div className="rounded-lg border border-gray-200 dark:border-gray-700 p-4">
+    <div
+      className={`rounded-lg border-2 transition-colors p-4 ${
+        isDragging && !readOnly
+          ? 'border-blue-400 bg-blue-50 dark:border-blue-500 dark:bg-blue-900/20'
+          : 'border-gray-200 dark:border-gray-700'
+      }`}
+      onDragOver={!readOnly ? handleDragOver : undefined}
+      onDragLeave={!readOnly ? handleDragLeave : undefined}
+      onDrop={!readOnly ? handleDrop : undefined}
+    >
       <div className="flex items-center justify-between mb-3">
         <div>
           <h4 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
@@ -228,13 +276,33 @@ function PhotoSection({
       </div>
 
       {photos.length === 0 ? (
-        <div className="flex flex-col items-center justify-center py-8 text-gray-400 dark:text-gray-500">
-          <ImageIcon className="h-10 w-10 mb-2 opacity-50" />
-          <p className="text-sm">No hay fotos en esta sección</p>
-          {!readOnly && (
-            <p className="text-xs mt-1">
-              Haz clic en &quot;Subir foto&quot; para agregar
-            </p>
+        <div
+          className={`flex flex-col items-center justify-center py-10 rounded-lg border-2 border-dashed transition-colors cursor-pointer ${
+            isDragging && !readOnly
+              ? 'border-blue-400 bg-blue-50/50 dark:border-blue-500 dark:bg-blue-900/10'
+              : 'border-gray-300 dark:border-gray-600 hover:border-gray-400 dark:hover:border-gray-500'
+          } ${readOnly ? 'cursor-default' : ''}`}
+          onClick={() => !readOnly && inputRef.current?.click()}
+        >
+          {isDragging && !readOnly ? (
+            <>
+              <Upload className="h-10 w-10 mb-2 text-blue-400 dark:text-blue-500" />
+              <p className="text-sm font-medium text-blue-500 dark:text-blue-400">
+                Suelta las fotos aquí
+              </p>
+            </>
+          ) : (
+            <>
+              <ImageIcon className="h-10 w-10 mb-2 text-gray-400 dark:text-gray-500 opacity-50" />
+              <p className="text-sm text-gray-400 dark:text-gray-500">
+                No hay fotos en esta sección
+              </p>
+              {!readOnly && (
+                <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
+                  Arrastra fotos aquí o haz clic para seleccionar
+                </p>
+              )}
+            </>
           )}
         </div>
       ) : (

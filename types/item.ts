@@ -32,6 +32,14 @@ export interface AddItemToOrderDto {
   hasIva?: boolean;
 }
 
+export interface UpdateOrderItemDto {
+  quantity?: number;
+  unitPrice?: number;
+  discount?: number;
+  observation?: string;
+  hasIva?: boolean;
+}
+
 export interface CreateItemDto {
   name: string;
   code: string;

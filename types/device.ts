@@ -3,6 +3,7 @@ export type StorageType = 'SSD' | 'HDD';
 export interface Device {
   id: string;
   serial?: string;
+  deviceUser?: string;
   description?: string;
   brand?: string;
   model?: string;
@@ -24,6 +25,7 @@ export interface Device {
 
 export interface CreateDeviceDto {
   serial?: string;
+  deviceUser?: string;
   description?: string;
   brand?: string;
   model?: string;
@@ -38,6 +40,7 @@ export interface CreateDeviceDto {
 export interface CreateDeviceForCustomerDto {
   customerId: string;
   serial?: string;
+  deviceUser?: string;
   description?: string;
   brand?: string;
   model?: string;
@@ -50,6 +53,7 @@ export interface CreateDeviceForCustomerDto {
 
 export interface UpdateDeviceDto {
   serial?: string;
+  deviceUser?: string;
   description?: string;
   brand?: string;
   model?: string;

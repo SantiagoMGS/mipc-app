@@ -17,6 +17,7 @@ import { useCustomer, useUpdateCustomer } from '@/hooks/useCustomers';
 import {
   useCustomerDevices,
   useCreateDeviceForCustomer,
+  useUpdateDevice,
   useDeleteDevice,
   useActivateDevice,
 } from '@/hooks/useDevices';
@@ -79,6 +80,7 @@ export default function ClienteDetallesPage() {
     useCustomerDevices(customerId);
   const updateCustomerMutation = useUpdateCustomer();
   const createDeviceMutation = useCreateDeviceForCustomer();
+  const updateDeviceMutation = useUpdateDevice();
   const deleteDeviceMutation = useDeleteDevice();
   const activateDeviceMutation = useActivateDevice();
 
@@ -99,6 +101,7 @@ export default function ClienteDetallesPage() {
 
   // Modal de dispositivo
   const [isDeviceModalOpen, setIsDeviceModalOpen] = useState(false);
+  const [editingDevice, setEditingDevice] = useState<Device | null>(null);
 
   // Confirm dialog state
   const [confirmDialog, setConfirmDialog] = useState<{
@@ -226,6 +229,19 @@ export default function ClienteDetallesPage() {
 
   const handleAddDevice = async (data: CreateDeviceForCustomerDto) => {
     await createDeviceMutation.mutateAsync(data);
+  };
+
+  const handleEditDevice = (device: Device) => {
+    setEditingDevice(device);
+    setIsDeviceModalOpen(true);
+  };
+
+  const handleDeviceSubmit = async (data: any) => {
+    if (editingDevice) {
+      await updateDeviceMutation.mutateAsync({ id: editingDevice.id, data });
+    } else {
+      await createDeviceMutation.mutateAsync(data);
+    }
   };
 
   const handleDeleteDeviceClick = (device: Device) => {
@@ -651,7 +667,10 @@ export default function ClienteDetallesPage() {
             </span>
           </div>
           <button
-            onClick={() => setIsDeviceModalOpen(true)}
+            onClick={() => {
+              setEditingDevice(null);
+              setIsDeviceModalOpen(true);
+            }}
             className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
           >
             <Plus className="w-5 h-5" />
@@ -740,14 +759,7 @@ export default function ClienteDetallesPage() {
                     <td className="px-4 py-3 text-right">
                       <div className="flex items-center justify-end gap-2">
                         <button
-                          onClick={() => {
-                            /* TODO: Implementar edición */
-                            toast({
-                              title: 'Función no disponible',
-                              description:
-                                'La edición de dispositivos aún no está disponible',
-                            });
-                          }}
+                          onClick={() => handleEditDevice(device)}
                           className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
                           title="Editar dispositivo"
                         >
@@ -785,10 +797,14 @@ export default function ClienteDetallesPage() {
       {/* Modal de dispositivo */}
       <DeviceFormModal
         isOpen={isDeviceModalOpen}
-        onClose={() => setIsDeviceModalOpen(false)}
-        onSubmit={handleAddDevice}
+        onClose={() => {
+          setIsDeviceModalOpen(false);
+          setEditingDevice(null);
+        }}
+        onSubmit={handleDeviceSubmit}
         customerId={customerId}
         deviceTypes={deviceTypes}
+        device={editingDevice}
       />
 
       {/* Confirm dialog */}

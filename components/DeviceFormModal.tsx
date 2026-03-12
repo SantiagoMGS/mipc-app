@@ -2,15 +2,16 @@
 
 import { useState, useEffect } from 'react';
 import { X } from 'lucide-react';
-import { CreateDeviceForCustomerDto, StorageType } from '@/types/device';
+import { Device, CreateDeviceForCustomerDto, UpdateDeviceDto, StorageType } from '@/types/device';
 import { DeviceType } from '@/types/device-type';
 
 interface DeviceFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: CreateDeviceForCustomerDto) => Promise<void>;
+  onSubmit: (data: CreateDeviceForCustomerDto | UpdateDeviceDto) => Promise<void>;
   customerId: string;
   deviceTypes: DeviceType[];
+  device?: Device | null;
 }
 
 const STORAGE_TYPES: { value: StorageType; label: string }[] = [
@@ -24,10 +25,13 @@ export default function DeviceFormModal({
   onSubmit,
   customerId,
   deviceTypes,
+  device,
 }: DeviceFormModalProps) {
+  const isEditMode = !!device;
   const [formData, setFormData] = useState<CreateDeviceForCustomerDto>({
     customerId: customerId,
     serial: '',
+    deviceUser: '',
     description: '',
     brand: '',
     model: '',
@@ -42,21 +46,38 @@ export default function DeviceFormModal({
 
   useEffect(() => {
     if (isOpen) {
-      setFormData({
-        customerId: customerId,
-        serial: '',
-        description: '',
-        brand: '',
-        model: '',
-        processor: '',
-        ram: undefined,
-        storage: undefined,
-        storageType: 'SSD',
-        deviceTypeId: '',
-      });
+      if (device) {
+        setFormData({
+          customerId: customerId,
+          serial: device.serial || '',
+          deviceUser: device.deviceUser || '',
+          description: device.description || '',
+          brand: device.brand || '',
+          model: device.model || '',
+          processor: device.processor || '',
+          ram: device.ram || undefined,
+          storage: device.storage || undefined,
+          storageType: device.storageType || 'SSD',
+          deviceTypeId: device.deviceTypeId || '',
+        });
+      } else {
+        setFormData({
+          customerId: customerId,
+          serial: '',
+          deviceUser: '',
+          description: '',
+          brand: '',
+          model: '',
+          processor: '',
+          ram: undefined,
+          storage: undefined,
+          storageType: 'SSD',
+          deviceTypeId: '',
+        });
+      }
       setError('');
     }
-  }, [isOpen, customerId]);
+  }, [isOpen, customerId, device]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -86,6 +107,9 @@ export default function DeviceFormModal({
 
       if (formData.serial && formData.serial.trim() !== '') {
         dataToSubmit.serial = formData.serial;
+      }
+      if (formData.deviceUser && formData.deviceUser.trim() !== '') {
+        dataToSubmit.deviceUser = formData.deviceUser;
       }
       if (formData.description && formData.description.trim() !== '') {
         dataToSubmit.description = formData.description;
@@ -135,7 +159,7 @@ export default function DeviceFormModal({
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-3xl w-full max-h-[90vh] overflow-y-auto">
         <div className="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700">
           <h2 className="text-2xl font-bold text-gray-800 dark:text-white">
-            Agregar Dispositivo
+            {isEditMode ? 'Editar Dispositivo' : 'Agregar Dispositivo'}
           </h2>
           <button
             onClick={onClose}
@@ -167,6 +191,24 @@ export default function DeviceFormModal({
                 onChange={handleChange}
                 className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
                 placeholder="ABC123XYZ"
+              />
+            </div>
+
+            <div>
+              <label
+                htmlFor="deviceUser"
+                className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
+              >
+                Usuario del Equipo
+              </label>
+              <input
+                type="text"
+                id="deviceUser"
+                name="deviceUser"
+                value={formData.deviceUser}
+                onChange={handleChange}
+                className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                placeholder="jperez (opcional)"
               />
             </div>
 
@@ -339,7 +381,7 @@ export default function DeviceFormModal({
               disabled={isLoading}
               className="flex-1 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              {isLoading ? 'Guardando...' : 'Guardar Dispositivo'}
+              {isLoading ? 'Guardando...' : isEditMode ? 'Actualizar Dispositivo' : 'Guardar Dispositivo'}
             </button>
           </div>
         </form>

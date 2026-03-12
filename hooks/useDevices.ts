@@ -93,7 +93,7 @@ export function useUpdateDevice() {
     mutationFn: ({ id, data }: { id: string; data: any }) =>
       devicesService.update(id, data),
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: deviceKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: deviceKeys.all });
       queryClient.invalidateQueries({
         queryKey: deviceKeys.detail(variables.id),
       });

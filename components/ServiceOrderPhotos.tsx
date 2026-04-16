@@ -48,6 +48,8 @@ export function ServiceOrderPhotos({
 
   const beforeInputRef = useRef<HTMLInputElement>(null!);
   const afterInputRef = useRef<HTMLInputElement>(null!);
+  const beforeCameraRef = useRef<HTMLInputElement>(null!);
+  const afterCameraRef = useRef<HTMLInputElement>(null!);
 
   const handleFileSelect = useCallback(
     async (files: FileList | null, category: PhotoCategory) => {
@@ -88,6 +90,7 @@ export function ServiceOrderPhotos({
         category="ANTES"
         photos={beforePhotos}
         inputRef={beforeInputRef}
+        cameraRef={beforeCameraRef}
         onFileSelect={handleFileSelect}
         onPreview={setPreviewPhoto}
         onDelete={setDeleteConfirm}
@@ -102,6 +105,7 @@ export function ServiceOrderPhotos({
         category="DESPUES"
         photos={afterPhotos}
         inputRef={afterInputRef}
+        cameraRef={afterCameraRef}
         onFileSelect={handleFileSelect}
         onPreview={setPreviewPhoto}
         onDelete={setDeleteConfirm}
@@ -161,6 +165,7 @@ interface PhotoSectionProps {
   category: PhotoCategory;
   photos: ServiceOrderPhoto[];
   inputRef: React.RefObject<HTMLInputElement>;
+  cameraRef: React.RefObject<HTMLInputElement>;
   onFileSelect: (files: FileList | null, category: PhotoCategory) => void;
   onPreview: (photo: ServiceOrderPhoto) => void;
   onDelete: (photo: ServiceOrderPhoto) => void;
@@ -174,6 +179,7 @@ function PhotoSection({
   category,
   photos,
   inputRef,
+  cameraRef,
   onFileSelect,
   onPreview,
   onDelete,
@@ -247,6 +253,7 @@ function PhotoSection({
         </div>
         {!readOnly && (
           <div className="flex gap-2">
+            {/* Input para seleccionar de galería */}
             <input
               ref={inputRef}
               type="file"
@@ -258,6 +265,35 @@ function PhotoSection({
                 e.target.value = '';
               }}
             />
+            {/* Input para cámara (móviles) */}
+            <input
+              ref={cameraRef}
+              type="file"
+              accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+              capture="environment"
+              className="hidden"
+              onChange={(e) => {
+                onFileSelect(e.target.files, category);
+                e.target.value = '';
+              }}
+            />
+            {/* Botón para tomar foto con cámara */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => cameraRef.current?.click()}
+              disabled={isUploading}
+              className="sm:hidden"
+              title="Tomar foto"
+            >
+              {isUploading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                <Camera className="h-4 w-4" />
+              )}
+              <span className="ml-1">Cámara</span>
+            </Button>
+            {/* Botón para subir desde galería */}
             <Button
               variant="outline"
               size="sm"

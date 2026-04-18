@@ -26,6 +26,72 @@ import {
 } from '@/components/ui/dialog';
 import ConfirmDialog from './ConfirmDialog';
 
+const MAX_DIMENSION = 2048;
+const JPEG_QUALITY = 0.8;
+const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+
+function compressImage(file: File): Promise<File> {
+  return new Promise((resolve, reject) => {
+    // Si ya es menor al límite y no es HEIC, no comprimir
+    if (file.size < MAX_FILE_SIZE && !file.type.includes('heic') && !file.type.includes('heif')) {
+      resolve(file);
+      return;
+    }
+
+    const img = new Image();
+    const url = URL.createObjectURL(file);
+
+    img.onload = () => {
+      URL.revokeObjectURL(url);
+
+      let { width, height } = img;
+
+      // Redimensionar si excede el máximo
+      if (width > MAX_DIMENSION || height > MAX_DIMENSION) {
+        if (width > height) {
+          height = Math.round((height * MAX_DIMENSION) / width);
+          width = MAX_DIMENSION;
+        } else {
+          width = Math.round((width * MAX_DIMENSION) / height);
+          height = MAX_DIMENSION;
+        }
+      }
+
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+
+      const ctx = canvas.getContext('2d');
+      if (!ctx) {
+        resolve(file);
+        return;
+      }
+
+      ctx.drawImage(img, 0, 0, width, height);
+
+      canvas.toBlob(
+        (blob) => {
+          if (!blob) {
+            resolve(file);
+            return;
+          }
+          const compressedName = file.name.replace(/\.[^.]+$/, '.jpg');
+          resolve(new File([blob], compressedName, { type: 'image/jpeg' }));
+        },
+        'image/jpeg',
+        JPEG_QUALITY,
+      );
+    };
+
+    img.onerror = () => {
+      URL.revokeObjectURL(url);
+      reject(new Error('No se pudo procesar la imagen'));
+    };
+
+    img.src = url;
+  });
+}
+
 interface ServiceOrderPhotosProps {
   orderId: string;
   readOnly?: boolean;
@@ -56,7 +122,7 @@ export function ServiceOrderPhotos({
       if (!files || files.length === 0) return;
 
       for (let i = 0; i < files.length; i++) {
-        const file = files[i];
+        const file = await compressImage(files[i]);
         await uploadPhotoMutation.mutateAsync({ file, category });
       }
     },

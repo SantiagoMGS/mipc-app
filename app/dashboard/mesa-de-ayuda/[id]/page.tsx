@@ -1,16 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { useParams } from 'next/navigation';
-import { useQuery } from '@tanstack/react-query';
-import {
-  ArrowLeft,
-  FileImage,
-  Loader2,
-  MessageCircle,
-  Paperclip,
-} from 'lucide-react';
+import { ArrowLeft, Loader2, MessageCircle, Paperclip } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import {
@@ -22,6 +15,7 @@ import {
   DialogTitle,
 } from '@/components/ui/dialog';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import AttachmentThumb from '@/components/helpdesk/AttachmentThumb';
 import PriorityBadge from '@/components/helpdesk/PriorityBadge';
 import TicketStatusBadge from '@/components/helpdesk/TicketStatusBadge';
 import ResponseIndicator from '@/components/helpdesk/ResponseIndicator';
@@ -47,7 +41,6 @@ import {
   PRIORITY_LABELS,
   PriorityLevel,
   StaffTicketDetail,
-  TicketAttachment,
   TicketEvent,
 } from '@/types/helpdesk';
 
@@ -107,58 +100,6 @@ function describeEvent(event: TicketEvent): { title: string; detail?: string } {
     default:
       return { title: 'Cambio de estado' };
   }
-}
-
-/** Captura del cliente; se descarga con la sesión del panel */
-function AttachmentItem({
-  ticketId,
-  attachment,
-}: {
-  ticketId: string;
-  attachment: TicketAttachment;
-}) {
-  const { data: blob } = useQuery({
-    queryKey: ['ticket-attachment', attachment.id],
-    queryFn: () => helpdeskService.getAttachmentBlob(ticketId, attachment.id),
-    staleTime: Infinity,
-  });
-  const [url, setUrl] = useState<string | null>(null);
-  useEffect(() => {
-    if (!blob) return;
-    const objectUrl = URL.createObjectURL(blob);
-    setUrl(objectUrl);
-    return () => URL.revokeObjectURL(objectUrl);
-  }, [blob]);
-
-  // Los navegadores no muestran HEIC: se ofrece para descargar
-  const previewable = !/hei[cf]/.test(attachment.mimeType);
-  return (
-    <li>
-      <a
-        href={url ?? undefined}
-        target="_blank"
-        rel="noreferrer"
-        download={previewable ? undefined : attachment.originalName}
-        className="block w-28 overflow-hidden rounded-md border border-gray-200 dark:border-gray-700 hover:border-primary-500"
-      >
-        {url && previewable ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img
-            src={url}
-            alt={attachment.originalName}
-            className="h-20 w-28 object-cover"
-          />
-        ) : (
-          <span className="flex h-20 w-28 items-center justify-center bg-gray-50 dark:bg-gray-900">
-            <FileImage className="w-6 h-6 text-gray-400" aria-hidden />
-          </span>
-        )}
-        <span className="block truncate px-2 py-1 text-xs text-gray-600 dark:text-gray-400">
-          {attachment.originalName}
-        </span>
-      </a>
-    </li>
-  );
 }
 
 function DataRow({
@@ -348,10 +289,15 @@ export default function TicketDetailPage() {
                 </p>
                 <ul className="flex flex-wrap gap-3">
                   {ticket.attachments.map((attachment) => (
-                    <AttachmentItem
+                    <AttachmentThumb
                       key={attachment.id}
-                      ticketId={ticket.id}
                       attachment={attachment}
+                      load={() =>
+                        helpdeskService.getAttachmentBlob(
+                          ticket.id,
+                          attachment.id
+                        )
+                      }
                     />
                   ))}
                 </ul>

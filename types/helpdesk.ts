@@ -271,3 +271,35 @@ export interface Holiday {
   source: 'API' | 'MANUAL';
   isActive: boolean;
 }
+
+// ============================================
+// Tickets en el portal
+// ============================================
+
+export interface PortalHelpdeskContext {
+  hasActiveContract: boolean;
+  priorities: {
+    level: PriorityLevel;
+    criterion: string;
+    targetAmount: number;
+    targetUnit: TargetUnit;
+  }[];
+  devices: { id: string; label: string }[];
+}
+
+export interface PortalTicketListItem extends TicketBase {
+  requester: { id: string; name: string };
+  assignedTechnician: { name: string } | null;
+}
+
+export interface PortalTicketDetail extends PortalTicketListItem {
+  device: TicketDevice | null;
+  attachments: TicketAttachment[];
+}
+
+export interface CreatePortalTicketDto {
+  subject: string;
+  description: string;
+  priority: PriorityLevel;
+  deviceId?: string;
+}

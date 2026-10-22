@@ -7,11 +7,15 @@ import type {
 import type {
   ContractWithCustomer,
   CreateHelpdeskContractDto,
+  CreatePortalTicketDto,
   CreatePortalUserDto,
   CreateStaffTicketDto,
   HelpdeskContract,
   Holiday,
   Paginated,
+  PortalHelpdeskContext,
+  PortalTicketDetail,
+  PortalTicketListItem,
   PortalUser,
   PortalUserWithPassword,
   ResolveTicketDto,
@@ -1216,6 +1220,56 @@ export const portalUsersService = {
 
   resetPassword: async (id: string): Promise<PortalUserWithPassword> => {
     const response = await portalApi.post(`/portal/users/${id}/reset-password`);
+    return response.data;
+  },
+};
+
+// ============================================
+// Mesa de ayuda (portal)
+// ============================================
+
+export const portalTicketsService = {
+  getContext: async (): Promise<PortalHelpdeskContext> => {
+    const response = await portalApi.get('/portal/helpdesk/context');
+    return response.data;
+  },
+
+  getAll: async (params: {
+    page?: number;
+    limit?: number;
+  }): Promise<Paginated<PortalTicketListItem>> => {
+    const response = await portalApi.get('/portal/tickets', { params });
+    return response.data;
+  },
+
+  getById: async (id: string): Promise<PortalTicketDetail> => {
+    const response = await portalApi.get(`/portal/tickets/${id}`);
+    return response.data;
+  },
+
+  create: async (
+    data: CreatePortalTicketDto
+  ): Promise<PortalTicketListItem> => {
+    const response = await portalApi.post('/portal/tickets', data);
+    return response.data;
+  },
+
+  uploadAttachments: async (ticketId: string, files: File[]): Promise<void> => {
+    const formData = new FormData();
+    files.forEach((file) => formData.append('files', file));
+    await portalApi.post(`/portal/tickets/${ticketId}/attachments`, formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
+  },
+
+  getAttachmentBlob: async (
+    ticketId: string,
+    attachmentId: string
+  ): Promise<Blob> => {
+    const response = await portalApi.get(
+      `/portal/tickets/${ticketId}/attachments/${attachmentId}`,
+      { responseType: 'blob' }
+    );
     return response.data;
   },
 };

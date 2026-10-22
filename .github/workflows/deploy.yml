@@ -27,48 +27,58 @@ jobs:
             echo "Node version: $(node -v)"
             echo "NPM version: $(npm -v)"
 
-            cd ${{ secrets.DEPLOY_PATH }}
+            cd ${{ secrets.DEPLOY_PATH }} || exit 1
+
+            # Cualquier paso que falle corta el deploy y vuelve al build
+            # anterior, para no dejar la app sin .next o con uno a medias.
+            fallar() {
+              echo "❌ $1"
+              if [ -d ".next.backup" ]; then
+                echo "🔄 Restoring previous build..."
+                rm -rf .next
+                mv .next.backup .next
+                pm2 reload mipc-app --update-env || pm2 restart mipc-app
+              fi
+              exit 1
+            }
+
+            # Esta carpeta solo la actualiza el deploy. Con cambios sin
+            # commitear, git pull falla y se desplegaría el código viejo.
+            if [ -n "$(git status --porcelain --untracked-files=no)" ]; then
+              echo "❌ La carpeta de producción tiene cambios sin commitear. Commitéalos o descártalos y vuelve a desplegar:"
+              git status --short --untracked-files=no
+              exit 1
+            fi
 
             # Backup del build anterior
             if [ -d ".next" ]; then
-              rm -rf .next.backup 2>/dev/null || true
+              rm -rf .next.backup
               mv .next .next.backup
             fi
 
-            # Pull del código
             echo "📥 Pulling latest code..."
-            git pull origin main
+            git pull --ff-only origin main || fallar "git pull failed"
 
-            # Instalar dependencias
             echo "📦 Installing dependencies..."
-            npm i
+            npm i || fallar "npm i failed"
 
-            # Build
+            # Next crea .next al empezar: se revisa el código de salida y el
+            # BUILD_ID, que solo existe si el build terminó
             echo "🔨 Building application..."
-            npm run build
-
-            # Verificar que el build se haya completado
-            if [ ! -d ".next" ]; then
-              echo "❌ Build failed: .next directory not found"
-              # Restaurar backup si existe
-              if [ -d ".next.backup" ]; then
-                echo "🔄 Restoring previous build..."
-                mv .next.backup .next
-              fi
-              exit 1
-            fi
+            npm run build || fallar "Build failed"
+            [ -f ".next/BUILD_ID" ] || fallar "Build failed: .next/BUILD_ID not found"
 
             echo "✅ Build completed successfully"
 
             # Reiniciar PM2
             echo "🔄 Restarting application..."
-            pm2 reload mipc-app --update-env || pm2 restart mipc-app
+            pm2 reload mipc-app --update-env || pm2 restart mipc-app || fallar "Could not restart the app"
 
             # Guardar estado
             pm2 save
 
             # Limpiar backup antiguo solo si todo salió bien
-            rm -rf .next.backup 2>/dev/null || true
+            rm -rf .next.backup
 
             echo "✅ Deployment completed!"
 

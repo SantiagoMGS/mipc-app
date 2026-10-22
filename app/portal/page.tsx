@@ -71,6 +71,7 @@ interface ServiceOrder {
 interface DeviceWithOrders {
   id: string;
   serial?: string;
+  deviceUser?: string;
   description?: string;
   brand?: string;
   model?: string;
@@ -441,6 +442,13 @@ export default function PortalPage() {
                       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-gray-500 dark:text-gray-400 mt-1">
                         <span className="bg-gray-100 dark:bg-gray-700 px-2 py-0.5 rounded">
                           {device.deviceTypeName}
+                        </span>
+                        <span className="flex items-center gap-1">
+                          <User className="w-3 h-3" />
+                          Usuario:{' '}
+                          <strong className="font-medium text-gray-700 dark:text-gray-300">
+                            {device.deviceUser?.trim() || 'No especifica'}
+                          </strong>
                         </span>
                         {device.serial && <span>S/N: {device.serial}</span>}
                         {device.processor && (

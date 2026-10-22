@@ -68,6 +68,7 @@ export default function DetalleOrdenServicioPage() {
 
   // Estados del formulario
   const [isEditMode, setIsEditMode] = useState(false);
+  const [problemDescription, setProblemDescription] = useState('');
   const [diagnosticNotes, setDiagnosticNotes] = useState('');
   const [observations, setObservations] = useState('');
   const [internalNotes, setInternalNotes] = useState('');
@@ -89,6 +90,9 @@ export default function DetalleOrdenServicioPage() {
   // Sincronizar con datos de la orden
   useEffect(() => {
     if (order) {
+      setProblemDescription(
+        order.reportedIssue || order.problemDescription || ''
+      );
       setDiagnosticNotes(order.diagnosis || order.diagnosticNotes || '');
       setObservations(order.observations || '');
       setInternalNotes(order.internalNotes || '');
@@ -105,6 +109,8 @@ export default function DetalleOrdenServicioPage() {
       await updateOrderMutation.mutateAsync({
         id: order.id,
         data: {
+          // Es obligatoria: si se deja vacía no se envía y se conserva la actual
+          problemDescription: problemDescription.trim() || undefined,
           diagnosticNotes: diagnosticNotes.trim() || undefined,
           observations: observations.trim() || undefined,
           internalNotes: internalNotes.trim() || undefined,
@@ -121,6 +127,9 @@ export default function DetalleOrdenServicioPage() {
 
   const handleCancelEdit = () => {
     if (order) {
+      setProblemDescription(
+        order.reportedIssue || order.problemDescription || ''
+      );
       setDiagnosticNotes(order.diagnosis || order.diagnosticNotes || '');
       setObservations(order.observations || '');
       setInternalNotes(order.internalNotes || '');
@@ -483,9 +492,22 @@ export default function DetalleOrdenServicioPage() {
             Descripción del Problema
           </h2>
         </div>
-        <p className="text-sm md:text-base text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
-          {order.reportedIssue || order.problemDescription || 'Sin descripción'}
-        </p>
+        {isEditMode ? (
+          <textarea
+            id="problemDescription"
+            aria-label="Descripción del Problema"
+            value={problemDescription}
+            onChange={(e) => setProblemDescription(e.target.value)}
+            rows={3}
+            maxLength={1000}
+            className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500"
+            placeholder="Describa el problema reportado por el cliente..."
+          />
+        ) : (
+          <p className="text-sm md:text-base text-gray-700 dark:text-gray-300 whitespace-pre-wrap">
+            {order.reportedIssue || order.problemDescription || 'Sin descripción'}
+          </p>
+        )}
       </div>
 
       {/* Diagnóstico y Observaciones */}

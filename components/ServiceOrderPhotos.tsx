@@ -27,13 +27,25 @@ import {
 import ConfirmDialog from './ConfirmDialog';
 
 const MAX_DIMENSION = 2048;
-const JPEG_QUALITY = 0.8;
-const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+// Se prueba en orden hasta que la foto quede por debajo de COMPRESS_THRESHOLD
+const JPEG_QUALITIES = [0.8, 0.7, 0.6, 0.5];
+// Fotos por debajo de este tamaño se suben tal cual. Debe quedar por debajo
+// del client_max_body_size de nginx y del límite de multer en la API.
+const COMPRESS_THRESHOLD = 1 * 1024 * 1024; // 1MB
+
+function canvasToJpeg(
+  canvas: HTMLCanvasElement,
+  quality: number,
+): Promise<Blob | null> {
+  return new Promise((resolve) => canvas.toBlob(resolve, 'image/jpeg', quality));
+}
 
 function compressImage(file: File): Promise<File> {
   return new Promise((resolve, reject) => {
-    // Si ya es menor al límite y no es HEIC, no comprimir
-    if (file.size < MAX_FILE_SIZE && !file.type.includes('heic') && !file.type.includes('heif')) {
+    const isHeic = file.type.includes('heic') || file.type.includes('heif');
+
+    // Si ya es liviana y no es HEIC, no comprimir
+    if (file.size <= COMPRESS_THRESHOLD && !isHeic) {
       resolve(file);
       return;
     }
@@ -41,7 +53,7 @@ function compressImage(file: File): Promise<File> {
     const img = new Image();
     const url = URL.createObjectURL(file);
 
-    img.onload = () => {
+    img.onload = async () => {
       URL.revokeObjectURL(url);
 
       let { width, height } = img;
@@ -69,18 +81,20 @@ function compressImage(file: File): Promise<File> {
 
       ctx.drawImage(img, 0, 0, width, height);
 
-      canvas.toBlob(
-        (blob) => {
-          if (!blob) {
-            resolve(file);
-            return;
-          }
-          const compressedName = file.name.replace(/\.[^.]+$/, '.jpg');
-          resolve(new File([blob], compressedName, { type: 'image/jpeg' }));
-        },
-        'image/jpeg',
-        JPEG_QUALITY,
-      );
+      let blob: Blob | null = null;
+      for (const quality of JPEG_QUALITIES) {
+        blob = await canvasToJpeg(canvas, quality);
+        if (!blob || blob.size <= COMPRESS_THRESHOLD) break;
+      }
+
+      // Si comprimir no la achica (y el navegador sí puede mostrar el
+      // original), conservar el original
+      if (!blob || (blob.size >= file.size && !isHeic)) {
+        resolve(file);
+        return;
+      }
+      const compressedName = file.name.replace(/\.[^.]+$/, '.jpg');
+      resolve(new File([blob], compressedName, { type: 'image/jpeg' }));
     };
 
     img.onerror = () => {

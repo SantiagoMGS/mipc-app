@@ -60,6 +60,7 @@ export interface CreateServiceOrderDto {
 }
 
 export interface UpdateServiceOrderDto {
+  problemDescription?: string;
   diagnosticNotes?: string;
   observations?: string;
   internalNotes?: string;

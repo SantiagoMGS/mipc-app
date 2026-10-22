@@ -8,7 +8,8 @@
     "dev:prod": "NEXT_PUBLIC_API_URL=https://mipc-api-production.up.railway.app next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "e2e": "playwright test"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
@@ -33,6 +34,7 @@
     "zod": "^4.1.12"
   },
   "devDependencies": {
+    "@playwright/test": "1.56.1",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",

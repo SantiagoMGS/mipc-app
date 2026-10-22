@@ -4,6 +4,15 @@ import type {
   AxiosInstance,
   InternalAxiosRequestConfig,
 } from 'axios';
+import type {
+  CreateHelpdeskContractDto,
+  CreatePortalUserDto,
+  HelpdeskContract,
+  PortalUser,
+  PortalUserWithPassword,
+  UpdateHelpdeskContractDto,
+  UpdatePortalUserDto,
+} from '@/types/helpdesk';
 
 // ============================================
 // Configuración de URL de la API
@@ -900,6 +909,69 @@ export const pdfService = {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(link.href);
+  },
+};
+
+// ============================================
+// Mesa de ayuda (panel)
+// ============================================
+
+export const helpdeskService = {
+  getContracts: async (customerId: string): Promise<HelpdeskContract[]> => {
+    const response = await api.get('/helpdesk/contracts', {
+      params: { customerId },
+    });
+    return response.data;
+  },
+
+  createContract: async (
+    data: CreateHelpdeskContractDto
+  ): Promise<HelpdeskContract> => {
+    const response = await api.post('/helpdesk/contracts', data);
+    return response.data;
+  },
+
+  updateContract: async (
+    id: string,
+    data: UpdateHelpdeskContractDto
+  ): Promise<HelpdeskContract> => {
+    const response = await api.patch(`/helpdesk/contracts/${id}`, data);
+    return response.data;
+  },
+
+  getPortalUsers: async (customerId: string): Promise<PortalUser[]> => {
+    const response = await api.get(
+      `/helpdesk/customers/${customerId}/portal-users`
+    );
+    return response.data;
+  },
+
+  createPortalUser: async (
+    customerId: string,
+    data: CreatePortalUserDto
+  ): Promise<PortalUserWithPassword> => {
+    const response = await api.post(
+      `/helpdesk/customers/${customerId}/portal-users`,
+      data
+    );
+    return response.data;
+  },
+
+  updatePortalUser: async (
+    id: string,
+    data: UpdatePortalUserDto
+  ): Promise<PortalUser> => {
+    const response = await api.patch(`/helpdesk/portal-users/${id}`, data);
+    return response.data;
+  },
+
+  resetPortalUserPassword: async (
+    id: string
+  ): Promise<PortalUserWithPassword> => {
+    const response = await api.post(
+      `/helpdesk/portal-users/${id}/reset-password`
+    );
+    return response.data;
   },
 };
 

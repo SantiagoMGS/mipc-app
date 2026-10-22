@@ -13,6 +13,8 @@ import { DeviceType } from '@/types/device-type';
 import DeviceFormModal from '@/components/DeviceFormModal';
 import { useToast } from '@/hooks/use-toast';
 import ConfirmDialog from '@/components/ConfirmDialog';
+import ContractSection from '@/components/helpdesk/ContractSection';
+import PortalUsersSection from '@/components/helpdesk/PortalUsersSection';
 import { useCustomer, useUpdateCustomer } from '@/hooks/useCustomers';
 import {
   useCustomerDevices,
@@ -869,6 +871,10 @@ export default function ClienteDetallesPage() {
           </>
         )}
       </div>
+
+      {/* Mesa de ayuda: contrato y usuarios del portal */}
+      <ContractSection customerId={customerId} />
+      <PortalUsersSection customerId={customerId} />
 
       {/* Modal de dispositivo */}
       <DeviceFormModal

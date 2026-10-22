@@ -248,9 +248,9 @@ export default function DetalleOrdenServicioPage() {
   const availableStatuses = getAvailableStatuses();
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 p-4 md:p-6">
+    <div className="max-w-6xl mx-auto space-y-6 md:p-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
         <div className="flex items-center gap-4">
           <button
             onClick={() => router.push('/dashboard/ordenes-servicio')}
@@ -269,7 +269,7 @@ export default function DetalleOrdenServicioPage() {
           </div>
         </div>
 
-        <div className="flex gap-2 sm:gap-3 flex-wrap sm:flex-nowrap">
+        <div className="grid grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:gap-3">
           {/* Botones de PDF */}
           <Button
             onClick={handlePreviewPDF}
@@ -279,9 +279,7 @@ export default function DetalleOrdenServicioPage() {
             title="Ver PDF"
           >
             <Eye className="w-5 h-5" />
-            <span className="hidden md:inline">
-              {isGeneratingPDF ? 'Generando...' : 'Ver PDF'}
-            </span>
+            <span>{isGeneratingPDF ? 'Generando...' : 'Ver PDF'}</span>
           </Button>
           <Button
             onClick={handleDownloadPDF}
@@ -291,9 +289,7 @@ export default function DetalleOrdenServicioPage() {
             title="Descargar PDF"
           >
             <Download className="w-5 h-5" />
-            <span className="hidden md:inline">
-              {isGeneratingPDF ? 'Generando...' : 'Descargar PDF'}
-            </span>
+            <span>{isGeneratingPDF ? 'Generando...' : 'Descargar PDF'}</span>
           </Button>
 
           {availableStatuses.length > 0 && (
@@ -303,13 +299,13 @@ export default function DetalleOrdenServicioPage() {
               className="gap-2"
             >
               <RefreshCw className="w-5 h-5" />
-              <span className="hidden md:inline">Cambiar Estado</span>
+              <span>Cambiar Estado</span>
             </Button>
           )}
           {!isEditMode ? (
             <Button onClick={() => setIsEditMode(true)} className="gap-2">
               <Edit className="w-5 h-5" />
-              <span className="hidden md:inline">Editar</span>
+              <span>Editar</span>
             </Button>
           ) : (
             <>
@@ -319,7 +315,7 @@ export default function DetalleOrdenServicioPage() {
                 className="gap-2"
               >
                 <X className="w-5 h-5" />
-                <span className="hidden md:inline">Cancelar</span>
+                <span>Cancelar</span>
               </Button>
               <Button
                 onClick={handleSaveChanges}
@@ -327,7 +323,7 @@ export default function DetalleOrdenServicioPage() {
                 className="gap-2"
               >
                 <Save className="w-5 h-5" />
-                <span className="hidden md:inline">
+                <span>
                   {updateOrderMutation.isPending ? 'Guardando...' : 'Guardar'}
                 </span>
               </Button>

@@ -353,10 +353,10 @@ export default function ClienteDetallesPage() {
   const isNatural = editableData.customerType === 'NATURAL';
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 p-6">
+    <div className="max-w-6xl mx-auto space-y-6 md:p-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-4">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex items-center gap-2 sm:gap-4 min-w-0">
           <button
             onClick={() => router.push('/dashboard/clientes')}
             className="p-2 hover:bg-gray-100 dark:hover:bg-gray-700 rounded-lg transition-colors"
@@ -364,8 +364,8 @@ export default function ClienteDetallesPage() {
           >
             <ArrowLeft className="w-6 h-6 text-gray-600 dark:text-gray-400" />
           </button>
-          <div>
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+          <div className="min-w-0">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white break-words">
               {isNatural
                 ? `${customer.firstName} ${customer.lastName}`
                 : customer.businessName}
@@ -380,15 +380,15 @@ export default function ClienteDetallesPage() {
           <div className="flex gap-3">
             <button
               onClick={() => setIsPasswordModalOpen(true)}
-              className="flex items-center gap-2 px-4 py-2 border border-blue-300 dark:border-blue-600 text-blue-600 dark:text-blue-400 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20 transition-colors"
+              className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
               title="Asignar contraseña para el portal de clientes"
             >
               <KeyRound className="w-5 h-5" />
-              <span className="hidden sm:inline">Portal</span>
+              <span>Portal</span>
             </button>
             <button
               onClick={handleEditClick}
-              className="flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors"
+              className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
             >
               <Edit className="w-5 h-5" />
               Editar Cliente
@@ -398,7 +398,7 @@ export default function ClienteDetallesPage() {
           <div className="flex gap-3">
             <button
               onClick={handleCancelEdit}
-              className="flex items-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+              className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 py-2 border border-gray-300 dark:border-gray-600 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
             >
               <X className="w-5 h-5" />
               Cancelar
@@ -406,7 +406,7 @@ export default function ClienteDetallesPage() {
             <button
               onClick={handleSaveChanges}
               disabled={updateCustomerMutation.isPending}
-              className="flex items-center gap-2 px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex flex-1 sm:flex-none items-center justify-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <Save className="w-5 h-5" />
               {updateCustomerMutation.isPending
@@ -671,7 +671,7 @@ export default function ClienteDetallesPage() {
               setEditingDevice(null);
               setIsDeviceModalOpen(true);
             }}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
           >
             <Plus className="w-5 h-5" />
             <span className="hidden sm:inline">Agregar Dispositivo</span>
@@ -689,65 +689,22 @@ export default function ClienteDetallesPage() {
             </p>
           </div>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead>
-                <tr className="border-b border-gray-200 dark:border-gray-700">
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Serial
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Tipo
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Marca/Modelo
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Especificaciones
-                  </th>
-                  <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Estado
-                  </th>
-                  <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700 dark:text-gray-300">
-                    Acciones
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                {devices.map((device) => (
-                  <tr
-                    key={device.id}
-                    className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
-                  >
-                    <td className="px-4 py-3 text-sm text-gray-800 dark:text-white">
-                      {device.serial || '-'}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-800 dark:text-white">
-                      {getDeviceTypeName(device.deviceTypeId)}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-800 dark:text-white">
-                      {device.brand && device.model
-                        ? `${device.brand} ${device.model}`
-                        : device.brand || device.model || '-'}
-                    </td>
-                    <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
-                      <div className="space-y-1">
-                        {device.processor && (
-                          <div className="text-xs">{device.processor}</div>
-                        )}
-                        {(device.ram || device.storage) && (
-                          <div className="text-xs">
-                            {device.ram && `${device.ram}GB RAM`}
-                            {device.ram && device.storage && ' • '}
-                            {device.storage &&
-                              `${device.storage}GB ${device.storageType || ''}`}
-                          </div>
-                        )}
-                      </div>
-                    </td>
-                    <td className="px-4 py-3">
+          <>
+            {/* Vista móvil: tarjetas */}
+            <div className="md:hidden divide-y divide-gray-200 dark:divide-gray-700">
+              {devices.map((device) => (
+                <div key={device.id} className="py-3 flex items-start gap-3">
+                  <div className="flex-1 min-w-0 space-y-1">
+                    <div className="flex items-center gap-2 flex-wrap">
+                      <span className="font-medium text-gray-800 dark:text-white">
+                        {device.brand && device.model
+                          ? `${device.brand} ${device.model}`
+                          : device.brand ||
+                            device.model ||
+                            getDeviceTypeName(device.deviceTypeId)}
+                      </span>
                       <span
-                        className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${
+                        className={`inline-flex items-center px-2 py-0.5 text-xs font-semibold rounded-full ${
                           device.isActive !== false
                             ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
                             : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
@@ -755,42 +712,161 @@ export default function ClienteDetallesPage() {
                       >
                         {device.isActive !== false ? 'Activo' : 'Inactivo'}
                       </span>
-                    </td>
-                    <td className="px-4 py-3 text-right">
-                      <div className="flex items-center justify-end gap-2">
-                        <button
-                          onClick={() => handleEditDevice(device)}
-                          className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
-                          title="Editar dispositivo"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </button>
+                    </div>
+                    <p className="text-xs text-gray-500 dark:text-gray-400">
+                      {getDeviceTypeName(device.deviceTypeId)}
+                      {device.serial && ` · S/N ${device.serial}`}
+                    </p>
+                    {(device.processor || device.ram || device.storage) && (
+                      <p className="text-xs text-gray-600 dark:text-gray-400">
+                        {[
+                          device.processor,
+                          device.ram && `${device.ram}GB RAM`,
+                          device.storage &&
+                            `${device.storage}GB ${device.storageType || ''}`.trim(),
+                        ]
+                          .filter(Boolean)
+                          .join(' · ')}
+                      </p>
+                    )}
+                  </div>
+                  <div className="flex items-center gap-1 flex-shrink-0">
+                    <button
+                      onClick={() => handleEditDevice(device)}
+                      className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                      title="Editar dispositivo"
+                      aria-label="Editar dispositivo"
+                    >
+                      <Edit className="w-4 h-4" />
+                    </button>
+                    {device.isActive !== false ? (
+                      <button
+                        onClick={() => handleDeleteDeviceClick(device)}
+                        className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                        title="Inactivar dispositivo"
+                        aria-label="Inactivar dispositivo"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    ) : (
+                      <button
+                        onClick={() => handleActivateDevice(device)}
+                        className="p-2 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                        title="Activar dispositivo"
+                        aria-label="Activar dispositivo"
+                      >
+                        <RotateCcw className="w-4 h-4" />
+                      </button>
+                    )}
+                  </div>
+                </div>
+              ))}
+            </div>
 
-                        {/* Botón dinámico según estado del dispositivo */}
-                        {device.isActive !== false ? (
-                          <button
-                            onClick={() => handleDeleteDeviceClick(device)}
-                            className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
-                            title="Inactivar dispositivo"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        ) : (
-                          <button
-                            onClick={() => handleActivateDevice(device)}
-                            className="p-2 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
-                            title="Activar dispositivo"
-                          >
-                            <RotateCcw className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                    </td>
+            {/* Vista escritorio: tabla */}
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-gray-200 dark:border-gray-700">
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Serial
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Tipo
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Marca/Modelo
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Especificaciones
+                    </th>
+                    <th className="px-4 py-3 text-left text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Estado
+                    </th>
+                    <th className="px-4 py-3 text-right text-sm font-semibold text-gray-700 dark:text-gray-300">
+                      Acciones
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
+                </thead>
+                <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
+                  {devices.map((device) => (
+                    <tr
+                      key={device.id}
+                      className="hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                    >
+                      <td className="px-4 py-3 text-sm text-gray-800 dark:text-white">
+                        {device.serial || '-'}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-800 dark:text-white">
+                        {getDeviceTypeName(device.deviceTypeId)}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-800 dark:text-white">
+                        {device.brand && device.model
+                          ? `${device.brand} ${device.model}`
+                          : device.brand || device.model || '-'}
+                      </td>
+                      <td className="px-4 py-3 text-sm text-gray-600 dark:text-gray-400">
+                        <div className="space-y-1">
+                          {device.processor && (
+                            <div className="text-xs">{device.processor}</div>
+                          )}
+                          {(device.ram || device.storage) && (
+                            <div className="text-xs">
+                              {device.ram && `${device.ram}GB RAM`}
+                              {device.ram && device.storage && ' • '}
+                              {device.storage &&
+                                `${device.storage}GB ${device.storageType || ''}`}
+                            </div>
+                          )}
+                        </div>
+                      </td>
+                      <td className="px-4 py-3">
+                        <span
+                          className={`inline-flex items-center px-2 py-1 text-xs font-semibold rounded-full ${
+                            device.isActive !== false
+                              ? 'bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-300'
+                              : 'bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-300'
+                          }`}
+                        >
+                          {device.isActive !== false ? 'Activo' : 'Inactivo'}
+                        </span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <button
+                            onClick={() => handleEditDevice(device)}
+                            className="p-2 text-blue-600 dark:text-blue-400 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors"
+                            title="Editar dispositivo"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </button>
+
+                          {/* Botón dinámico según estado del dispositivo */}
+                          {device.isActive !== false ? (
+                            <button
+                              onClick={() => handleDeleteDeviceClick(device)}
+                              className="p-2 text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
+                              title="Inactivar dispositivo"
+                            >
+                              <Trash2 className="w-4 h-4" />
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => handleActivateDevice(device)}
+                              className="p-2 text-green-600 dark:text-green-400 hover:bg-green-50 dark:hover:bg-green-900/20 rounded-lg transition-colors"
+                              title="Activar dispositivo"
+                            >
+                              <RotateCcw className="w-4 h-4" />
+                            </button>
+                          )}
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </>
         )}
       </div>
 

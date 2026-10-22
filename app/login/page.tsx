@@ -239,7 +239,7 @@ export default function LoginPage() {
         {/* Footer */}
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            © 2025 MIPC. Todos los derechos reservados.
+            © {new Date().getFullYear()} MIPC. Todos los derechos reservados.
           </p>
         </div>
       </div>

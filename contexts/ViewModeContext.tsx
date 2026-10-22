@@ -16,6 +16,7 @@ const ViewModeContext = createContext<ViewModeContextType | undefined>(
 
 export function ViewModeProvider({ children }: { children: React.ReactNode }) {
   const [viewMode, setViewModeState] = useState<ViewMode>('table');
+  const [isMobile, setIsMobile] = useState(false);
   const [isHydrated, setIsHydrated] = useState(false);
 
   // Cargar preferencia desde localStorage al montar
@@ -25,6 +26,16 @@ export function ViewModeProvider({ children }: { children: React.ReactNode }) {
       setViewModeState(savedMode);
     }
     setIsHydrated(true);
+  }, []);
+
+  // En pantallas pequeñas las tablas no caben: se fuerzan tarjetas sin
+  // tocar la preferencia guardada para escritorio
+  useEffect(() => {
+    const query = window.matchMedia('(max-width: 767px)');
+    const update = () => setIsMobile(query.matches);
+    update();
+    query.addEventListener('change', update);
+    return () => query.removeEventListener('change', update);
   }, []);
 
   // Guardar preferencia en localStorage cuando cambie
@@ -46,7 +57,13 @@ export function ViewModeProvider({ children }: { children: React.ReactNode }) {
   }
 
   return (
-    <ViewModeContext.Provider value={{ viewMode, setViewMode, toggleViewMode }}>
+    <ViewModeContext.Provider
+      value={{
+        viewMode: isMobile ? 'cards' : viewMode,
+        setViewMode,
+        toggleViewMode,
+      }}
+    >
       {children}
     </ViewModeContext.Provider>
   );

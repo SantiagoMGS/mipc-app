@@ -148,7 +148,7 @@ export default function NuevaOrdenServicioPage() {
           <ArrowLeft className="w-6 h-6 text-gray-600 dark:text-gray-400" />
         </button>
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
             Nueva Orden de Servicio
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">

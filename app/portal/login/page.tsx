@@ -6,6 +6,7 @@ import Image from 'next/image';
 import { customerAuthService } from '@/lib/api';
 import { Lock, CreditCard, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
+import InstallAppBanner from '@/components/InstallAppBanner';
 
 export default function PortalLoginPage() {
   const router = useRouter();
@@ -153,7 +154,7 @@ export default function PortalLoginPage() {
                 value={formData.documentNumber}
                 onChange={handleChange}
                 className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="Ingresa tu número de documento"
+                placeholder="Cédula o NIT"
               />
             </div>
           </div>
@@ -228,13 +229,17 @@ export default function PortalLoginPage() {
           </button>
         </form>
 
+        <div className="mt-4">
+          <InstallAppBanner variant="inline" />
+        </div>
+
         {/* Footer */}
         <div className="mt-8 text-center space-y-2">
           <p className="text-xs text-gray-500 dark:text-gray-400">
             Si no tienes contraseña, contacta al administrador
           </p>
           <p className="text-sm text-gray-500 dark:text-gray-400">
-            © 2025 MIPC. Todos los derechos reservados.
+            © {new Date().getFullYear()} MIPC. Todos los derechos reservados.
           </p>
         </div>
       </div>

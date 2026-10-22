@@ -316,7 +316,7 @@ function PhotoSection({
       onDragLeave={!readOnly ? handleDragLeave : undefined}
       onDrop={!readOnly ? handleDrop : undefined}
     >
-      <div className="flex items-center justify-between mb-3">
+      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-3">
         <div>
           <h4 className="font-semibold text-gray-900 dark:text-white flex items-center gap-2">
             <Camera className="h-4 w-4" />

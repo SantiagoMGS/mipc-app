@@ -114,6 +114,11 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
     currentUserRole ? item.allowedRoles.includes(currentUserRole) : true
   );
 
+  // Resalta la sección también en sus subpáginas (detalle, nueva, etc.)
+  const isActivePath = (path: string) =>
+    pathname === path ||
+    (path !== '/dashboard' && pathname.startsWith(`${path}/`));
+
   const handleLogout = () => {
     if (confirm('¿Estás seguro de que deseas cerrar sesión?')) {
       authService.logout();
@@ -128,7 +133,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
   return (
     <ProtectedRoute>
       <ViewModeProvider>
-        <div className="flex h-screen bg-gray-100 dark:bg-gray-900">
+        <div className="flex h-dvh bg-gray-100 dark:bg-gray-900">
           {/* Sidebar Desktop - Oculto en móvil */}
           <aside
             className={`${
@@ -136,31 +141,24 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             } bg-white dark:bg-gray-800 shadow-lg transition-all duration-300 ease-in-out flex-col hidden lg:flex`}
           >
             {/* Logo Section */}
-            <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200 dark:border-gray-700">
-              {isSidebarOpen ? (
-                <div className="flex items-center">
-                  <Image
-                    src="/logo_mipc_tec.png"
-                    alt="MIPC Logo"
-                    width={40}
-                    height={40}
-                    className="object-contain"
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center justify-center w-full">
-                  <Image
-                    src="/logo_mipc_tec.png"
-                    alt="MIPC Logo"
-                    width={32}
-                    height={32}
-                    className="object-contain"
-                  />
-                </div>
+            <div
+              className={`h-16 flex items-center px-4 border-b border-gray-200 dark:border-gray-700 ${
+                isSidebarOpen ? 'justify-between' : 'justify-center'
+              }`}
+            >
+              {isSidebarOpen && (
+                <Image
+                  src="/logo_mipc_tec.png"
+                  alt="MIPC Tecnología"
+                  width={96}
+                  height={46}
+                  className="object-contain"
+                />
               )}
               <button
                 onClick={() => setIsSidebarOpen(!isSidebarOpen)}
                 className="p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                aria-label={isSidebarOpen ? 'Contraer menú' : 'Expandir menú'}
               >
                 {isSidebarOpen ? (
                   <X className="w-5 h-5 text-gray-600 dark:text-gray-400" />
@@ -174,12 +172,14 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
             <nav className="flex-1 px-3 py-4 space-y-2">
               {menuItems.map((item) => {
                 const Icon = item.icon;
-                const isActive = pathname === item.path;
+                const isActive = isActivePath(item.path);
 
                 return (
                   <button
                     key={item.path}
                     onClick={() => router.push(item.path)}
+                    title={isSidebarOpen ? undefined : item.name}
+                    aria-label={item.name}
                     className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg transition-colors ${
                       isActive
                         ? 'bg-primary-500 text-white'
@@ -224,9 +224,9 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                   <div className="flex items-center">
                     <Image
                       src="/logo_mipc_tec.png"
-                      alt="MIPC Logo"
-                      width={40}
-                      height={40}
+                      alt="MIPC Tecnología"
+                      width={96}
+                      height={46}
                       className="object-contain"
                     />
                   </div>
@@ -242,7 +242,7 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
                 <nav className="px-3 py-4 space-y-2">
                   {menuItems.map((item) => {
                     const Icon = item.icon;
-                    const isActive = pathname === item.path;
+                    const isActive = isActivePath(item.path);
 
                     return (
                       <button
@@ -286,11 +286,19 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               <button
                 onClick={() => setIsMobileMenuOpen(true)}
                 className="lg:hidden p-2 rounded-lg hover:bg-gray-100 dark:hover:bg-gray-700 transition-colors"
+                aria-label="Abrir menú"
               >
                 <Menu className="w-6 h-6 text-gray-600 dark:text-gray-400" />
               </button>
 
-              <h2 className="text-lg md:text-xl font-semibold text-gray-800 dark:text-white">
+              <Image
+                src="/logo_mipc_tec.png"
+                alt="MIPC Tecnología"
+                width={84}
+                height={40}
+                className="object-contain lg:hidden"
+              />
+              <h2 className="hidden lg:block text-xl font-semibold text-gray-800 dark:text-white">
                 Sistema de Gestión
               </h2>
 

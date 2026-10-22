@@ -131,9 +131,9 @@ export default function TareasPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
             Tareas
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
@@ -144,7 +144,7 @@ export default function TareasPage() {
           <ViewModeToggle />
           <Button onClick={handleCreateNew} className="flex items-center gap-2">
             <Plus className="w-5 h-5" />
-            <span className="hidden sm:inline">Nueva Tarea</span>
+            <span>Nueva Tarea</span>
           </Button>
         </div>
       </div>

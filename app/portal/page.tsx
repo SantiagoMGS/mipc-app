@@ -9,6 +9,7 @@ import {
   API_BASE_URL,
 } from '@/lib/api';
 import ThemeToggle from '@/components/ThemeToggle';
+import InstallAppBanner from '@/components/InstallAppBanner';
 import {
   User,
   Building2,
@@ -346,6 +347,8 @@ export default function PortalPage() {
       </header>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+        <InstallAppBanner />
+
         {/* Información del cliente */}
         <div className="bg-white dark:bg-gray-800 rounded-xl shadow-sm border border-gray-200 dark:border-gray-700 p-6">
           <div className="flex items-center gap-3 mb-4">

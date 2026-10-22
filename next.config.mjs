@@ -32,6 +32,30 @@ const nextConfig = {
         },
       ],
     },
+    {
+      // El service worker se revisa en cada carga para que los cambios lleguen
+      // a la app instalada sin esperar a que expire una caché
+      source: '/sw.js',
+      headers: [
+        {
+          key: 'Cache-Control',
+          value: 'no-cache, no-store, must-revalidate',
+        },
+        {
+          key: 'Content-Type',
+          value: 'application/javascript; charset=utf-8',
+        },
+      ],
+    },
+    {
+      source: '/manifest-portal.webmanifest',
+      headers: [
+        {
+          key: 'Content-Type',
+          value: 'application/manifest+json',
+        },
+      ],
+    },
   ],
 };
 

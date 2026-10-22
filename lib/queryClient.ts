@@ -13,8 +13,9 @@ export const queryClient = new QueryClient({
       refetchOnWindowFocus: false,
     },
     mutations: {
-      // Reintentar mutaciones fallidas
-      retry: 1,
+      // Nunca reintentar escrituras: si la API alcanzó a guardar antes de
+      // fallar, el reintento duplica (así quedaron pagos repetidos)
+      retry: 0,
     },
   },
 });

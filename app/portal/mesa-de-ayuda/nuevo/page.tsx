@@ -18,6 +18,7 @@ import {
   useCreatePortalTicket,
   usePortalHelpdeskContext,
 } from '@/hooks/usePortalTickets';
+import { formatBogotaLongDate } from '@/lib/format';
 import { PriorityLevel } from '@/types/helpdesk';
 
 const MAX_FILES = 3;
@@ -79,7 +80,9 @@ export default function NewPortalTicketPage() {
 
         {!context?.hasActiveContract ? (
           <p className="rounded-lg border border-amber-200 bg-amber-50 p-4 text-sm text-amber-900 dark:border-amber-800 dark:bg-amber-900/20 dark:text-amber-200">
-            Tu empresa no tiene un contrato de mesa de ayuda activo.
+            {context?.startsOn
+              ? `El contrato de mesa de ayuda de tu empresa empieza el ${formatBogotaLongDate(context.startsOn)}.`
+              : 'Tu empresa no tiene un contrato de mesa de ayuda activo.'}
           </p>
         ) : (
           <form

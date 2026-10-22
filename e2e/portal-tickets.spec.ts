@@ -121,3 +121,99 @@ test('sin contrato activo no se abren tickets y se ve un aviso', async ({
   ).toBeVisible();
   await expect(page.getByRole('link', { name: 'Nuevo ticket' })).toHaveCount(0);
 });
+
+/** PNG de ruido (no se comprime bien): pesa más de 1 MB */
+async function noisyPng(page: import('@playwright/test').Page) {
+  const base64 = await page.evaluate(async () => {
+    const canvas = document.createElement('canvas');
+    canvas.width = 800;
+    canvas.height = 800;
+    const ctx = canvas.getContext('2d')!;
+    const image = ctx.createImageData(800, 800);
+    for (let i = 0; i < image.data.length; i++) {
+      image.data[i] = Math.floor(Math.random() * 256);
+    }
+    ctx.putImageData(image, 0, 0);
+    return canvas.toDataURL('image/png').split(',')[1];
+  });
+  return Buffer.from(base64, 'base64');
+}
+
+test('las capturas grandes se comprimen y suben de a una, por debajo del límite de nginx', async ({
+  page,
+}) => {
+  const { api, customerId } = await companyWithContract();
+  const user = await createPortalUser(api, customerId, 'CLIENT_USER');
+  await loginPortal(page, user.email, user.temporaryPassword);
+  const big = await noisyPng(page);
+  expect(big.length).toBeGreaterThan(1024 * 1024);
+  const uploads: number[] = [];
+  await page.route('**/portal/tickets/*/attachments', async (route) => {
+    uploads.push(route.request().postDataBuffer()?.length ?? 0);
+    await route.continue();
+  });
+
+  await page.getByRole('link', { name: 'Nuevo ticket' }).click();
+  await page.getByLabel('Asunto').fill('Pantallazo de error');
+  await page.getByLabel('Descripción').fill('Sale este error al abrir el ERP.');
+  await page.getByLabel('Capturas (opcional)').setInputFiles([
+    { name: 'grande-1.png', mimeType: 'image/png', buffer: big },
+    { name: 'grande-2.png', mimeType: 'image/png', buffer: big },
+  ]);
+  await page.getByRole('button', { name: 'Enviar ticket' }).click();
+
+  await expect(page).toHaveURL(/\/portal\/mesa-de-ayuda\/[0-9a-f-]{36}$/);
+  await expect(page.getByAltText(/grande-1/)).toBeVisible();
+  await expect(page.getByAltText(/grande-2/)).toBeVisible();
+  expect(uploads).toHaveLength(2);
+  for (const size of uploads) expect(size).toBeLessThan(1024 * 1024);
+});
+
+test('si la API frena una consulta, el detalle se carga igual', async ({
+  page,
+}) => {
+  const { api, customerId } = await companyWithContract();
+  const user = await createPortalUser(api, customerId, 'CLIENT_USER');
+  const ticket = await createStaffTicket(api, customerId, user.id, {
+    subject: 'Ticket con reintento',
+  });
+  await loginPortal(page, user.email, user.temporaryPassword);
+  let throttled = false;
+  await page.route(/\/portal\/tickets\/[0-9a-f-]{36}$/, async (route) => {
+    if (!throttled) {
+      throttled = true;
+      await route.fulfill({
+        status: 429,
+        contentType: 'application/json',
+        body: JSON.stringify({ statusCode: 429, message: 'Too Many Requests' }),
+      });
+      return;
+    }
+    await route.continue();
+  });
+
+  await page.goto(`/portal/mesa-de-ayuda/${ticket.id}`);
+
+  await expect(
+    page.getByRole('heading', { name: 'Ticket con reintento' })
+  ).toBeVisible();
+  expect(throttled).toBe(true);
+});
+
+test('si el contrato aún no empieza, el portal dice desde cuándo', async ({
+  page,
+}) => {
+  const api = await staffApi();
+  const customerId = await createTestCustomer(api, 'Contrato Futuro');
+  const nextYear = new Date().getUTCFullYear() + 1;
+  await createContract(api, customerId, { startDate: `${nextYear}-01-01` });
+  const user = await createPortalUser(api, customerId, 'CLIENT_USER');
+  await loginPortal(page, user.email, user.temporaryPassword);
+
+  await expect(
+    page.getByText(
+      `El contrato de mesa de ayuda de tu empresa empieza el 1 de enero de ${nextYear}`
+    )
+  ).toBeVisible();
+  await expect(page.getByRole('link', { name: 'Nuevo ticket' })).toHaveCount(0);
+});

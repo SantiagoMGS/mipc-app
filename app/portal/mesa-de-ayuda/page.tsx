@@ -13,7 +13,7 @@ import {
   usePortalHelpdeskContext,
   usePortalTickets,
 } from '@/hooks/usePortalTickets';
-import { formatBogotaDateTime } from '@/lib/format';
+import { formatBogotaDateTime, formatBogotaLongDate } from '@/lib/format';
 import { PortalTicketListItem } from '@/types/helpdesk';
 
 /** ¿Ya le respondieron? Es lo que más le importa a quien espera */
@@ -63,9 +63,9 @@ export default function PortalHelpdeskPage() {
               aria-hidden
             />
             <p className="text-sm text-amber-900 dark:text-amber-200">
-              Tu empresa no tiene un contrato de mesa de ayuda activo. Puedes
-              consultar tus tickets anteriores; para algo nuevo, escríbenos por
-              WhatsApp.
+              {context.startsOn
+                ? `El contrato de mesa de ayuda de tu empresa empieza el ${formatBogotaLongDate(context.startsOn)}. Desde ese día podrás abrir tickets aquí.`
+                : 'Tu empresa no tiene un contrato de mesa de ayuda activo. Puedes consultar tus tickets anteriores; para algo nuevo, escríbenos por WhatsApp.'}
             </p>
           </div>
         )}

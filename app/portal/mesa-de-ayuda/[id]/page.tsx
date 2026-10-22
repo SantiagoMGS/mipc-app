@@ -7,6 +7,7 @@ import PortalShell, { PortalLoading } from '@/components/portal/PortalShell';
 import AttachmentThumb from '@/components/helpdesk/AttachmentThumb';
 import PriorityBadge from '@/components/helpdesk/PriorityBadge';
 import TicketStatusBadge from '@/components/helpdesk/TicketStatusBadge';
+import { Button } from '@/components/ui/button';
 import { usePortalSession } from '@/hooks/usePortalSession';
 import {
   usePortalHelpdeskContext,
@@ -42,7 +43,12 @@ export default function PortalTicketPage() {
   const params = useParams();
   const id = params.id as string;
   const { session } = usePortalSession();
-  const { data: ticket, isLoading, error } = usePortalTicket(id, !!session);
+  const {
+    data: ticket,
+    isLoading,
+    error,
+    refetch,
+  } = usePortalTicket(id, !!session);
   const { data: context } = usePortalHelpdeskContext(!!session);
 
   if (!session || isLoading) return <PortalLoading />;
@@ -58,14 +64,28 @@ export default function PortalTicketPage() {
   );
 
   if (error || !ticket) {
+    // Solo un 404 es "no existe o no es tuyo"; lo demás se puede reintentar
+    const notFound = (error as any)?.response?.status === 404;
     return (
       <PortalShell session={session}>
         <div className="space-y-4">
           {back}
-          <p className="text-gray-700 dark:text-gray-300">
-            No encontramos este ticket. Puede que sea de otra persona de tu
-            empresa.
-          </p>
+          {notFound ? (
+            <p className="text-gray-700 dark:text-gray-300">
+              No encontramos este ticket. Puede que sea de otra persona de tu
+              empresa.
+            </p>
+          ) : (
+            <div className="space-y-3">
+              <p className="text-gray-700 dark:text-gray-300">
+                No se pudo cargar el ticket. Revisa tu conexión e intenta de
+                nuevo.
+              </p>
+              <Button variant="outline" onClick={() => refetch()}>
+                Reintentar
+              </Button>
+            </div>
+          )}
         </div>
       </PortalShell>
     );

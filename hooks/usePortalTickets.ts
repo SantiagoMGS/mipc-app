@@ -3,6 +3,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { portalTicketsService } from '@/lib/api';
 import { apiErrorMessage } from '@/lib/api-error';
+import { compressImage } from '@/lib/compress-image';
 import { CreatePortalTicketDto } from '@/types/helpdesk';
 import { useToast } from './use-toast';
 
@@ -35,9 +36,19 @@ export function usePortalTicket(id: string, enabled = true) {
     queryKey: portalTicketKeys.detail(id),
     queryFn: () => portalTicketsService.getById(id),
     enabled: enabled && !!id,
-    // Un 404 (ticket ajeno) no mejora reintentando
-    retry: false,
+    // Un 404 (ticket ajeno) no mejora reintentando; lo demás (p. ej. 429) sí
+    retry: (failureCount, error: any) =>
+      error?.response?.status !== 404 && failureCount < 3,
   });
+}
+
+/** Comprime y sube cada captura en su propia petición (nginx corta en 1 MB) */
+async function uploadEach(ticketId: string, files: File[]): Promise<void> {
+  for (const file of files) {
+    // Si el navegador no puede leerla (p. ej. HEIC en Chrome), va tal cual
+    const upload = await compressImage(file).catch(() => file);
+    await portalTicketsService.uploadAttachments(ticketId, [upload]);
+  }
 }
 
 /** Crea el ticket y después sube las capturas */
@@ -55,7 +66,7 @@ export function useCreatePortalTicket() {
       const ticket = await portalTicketsService.create(data);
       if (files.length > 0) {
         try {
-          await portalTicketsService.uploadAttachments(ticket.id, files);
+          await uploadEach(ticket.id, files);
         } catch (error) {
           // El ticket ya existe: se avisa y se sigue al detalle
           toast({

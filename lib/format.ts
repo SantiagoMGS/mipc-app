@@ -65,3 +65,13 @@ export function customerName(customer: {
     'Sin nombre'
   );
 }
+
+/** Fecha de un contrato en palabras: "1 de noviembre de 2026" */
+export function formatBogotaLongDate(iso: string): string {
+  return new Date(iso).toLocaleDateString('es-CO', {
+    timeZone: 'America/Bogota',
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+  });
+}

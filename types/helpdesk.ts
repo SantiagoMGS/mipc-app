@@ -277,7 +277,10 @@ export interface Holiday {
 // ============================================
 
 export interface PortalHelpdeskContext {
+  /** Contrato vigente hoy: solo así se abren tickets */
   hasActiveContract: boolean;
+  /** Si el contrato aún no empieza, cuándo empieza */
+  startsOn: string | null;
   priorities: {
     level: PriorityLevel;
     criterion: string;

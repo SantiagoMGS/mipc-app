@@ -112,3 +112,24 @@ export async function createPortalUser(
     name,
   };
 }
+
+/** Cliente de reparación (persona natural) con acceso al portal por documento */
+export async function createDocumentCustomer(
+  api: StaffApi
+): Promise<{ documentNumber: string; password: string }> {
+  const documentNumber = String(Math.floor(1e9 + Math.random() * 8e9));
+  const customer = await api.post('/customers', {
+    customerType: 'NATURAL',
+    firstName: 'Carlos',
+    lastName: `Prueba ${uniqueSuffix()}`,
+    documentType: 'CC',
+    documentNumber,
+    phoneNumber: '3009998877',
+  });
+  const password = 'Cliente123*';
+  await api.post('/customer-auth/set-password', {
+    customerId: customer.id,
+    password,
+  });
+  return { documentNumber, password };
+}

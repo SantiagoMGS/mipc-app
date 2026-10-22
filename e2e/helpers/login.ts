@@ -21,3 +21,27 @@ export async function expectNoHorizontalOverflow(page: Page): Promise<void> {
   });
   expect(overflow).toEqual({ doc: 0, main: 0 });
 }
+
+/**
+ * Inicia sesión en el portal (correo o documento). Si pide cambiar la
+ * contraseña temporal, la cambia por `newPassword`.
+ */
+export async function loginPortal(
+  page: Page,
+  identifier: string,
+  password: string,
+  newPassword = 'Portal123*'
+): Promise<void> {
+  await page.goto('/portal/login');
+  await page.fill('#identifier', identifier);
+  await page.fill('#password', password);
+  await page.click('button[type=submit]');
+  await page.waitForURL(/\/portal(\/|$)(?!login)/);
+  if (page.url().includes('/portal/cambiar-clave')) {
+    await page.fill('#currentPassword', password);
+    await page.fill('#newPassword', newPassword);
+    await page.fill('#confirmPassword', newPassword);
+    await page.click('button[type=submit]');
+    await page.waitForURL((url) => !url.pathname.includes('cambiar-clave'));
+  }
+}

@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { customerAuthService } from '@/lib/api';
+import { parsePortalSession, portalHomeFor } from '@/lib/portal-session';
 import { Lock, Eye, EyeOff, AlertCircle, ShieldCheck } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 
@@ -46,7 +47,9 @@ export default function CambiarClavePage() {
         formData.currentPassword,
         formData.newPassword
       );
-      router.replace('/portal');
+      // Persona de una empresa → mesa de ayuda; cliente de reparación → equipos
+      const validation = await customerAuthService.validate();
+      router.replace(portalHomeFor(parsePortalSession(validation)));
     } catch (err: any) {
       console.error('Error al cambiar contraseña:', err);
       let errorMessage = 'Error al cambiar la contraseña. Intenta de nuevo.';

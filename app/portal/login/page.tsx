@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { customerAuthService } from '@/lib/api';
+import { parsePortalSession, portalHomeFor } from '@/lib/portal-session';
 import { Lock, CreditCard, AlertCircle, Eye, EyeOff } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import InstallAppBanner from '@/components/InstallAppBanner';
@@ -11,7 +12,7 @@ import InstallAppBanner from '@/components/InstallAppBanner';
 export default function PortalLoginPage() {
   const router = useRouter();
   const [formData, setFormData] = useState({
-    documentNumber: '',
+    identifier: '',
     password: '',
   });
   const [error, setError] = useState('');
@@ -26,7 +27,7 @@ export default function PortalLoginPage() {
       try {
         const validation = await customerAuthService.validate();
         if (validation.valid) {
-          router.push('/portal');
+          router.push(portalHomeFor(parsePortalSession(validation)));
         } else {
           // Token inválido, limpiar
           localStorage.removeItem('customerToken');
@@ -47,24 +48,23 @@ export default function PortalLoginPage() {
     setIsLoading(true);
 
     try {
+      // La API deja la sesión en cookies httpOnly
       const response = await customerAuthService.login(
-        formData.documentNumber,
+        formData.identifier,
         formData.password
       );
 
-      if (response.accessToken) {
-        // Guardar en cookie para middleware
-        document.cookie = `customerToken=${response.accessToken}; path=/; max-age=${
-          60 * 60 * 24 * 7
-        }; SameSite=Strict`;
-      }
-
-      // Si debe cambiar contraseña, redirigir a cambiar-clave
-      if (response.mustChangePassword) {
-        router.replace('/portal/cambiar-clave');
-      } else {
-        router.replace('/portal');
-      }
+      // Persona de una empresa → mesa de ayuda; cliente de reparación →
+      // sus equipos; con contraseña temporal → cambiarla primero
+      router.replace(
+        portalHomeFor({
+          type: response.type,
+          role: response.role,
+          name: response.name,
+          customerId: response.customerId,
+          mustChangePassword: response.mustChangePassword,
+        })
+      );
     } catch (err: any) {
       console.error('Error en login:', err);
 
@@ -136,24 +136,26 @@ export default function PortalLoginPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
             <label
-              htmlFor="documentNumber"
+              htmlFor="identifier"
               className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2"
             >
-              Número de Documento
+              Correo o documento
             </label>
             <div className="relative">
               <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
                 <CreditCard className="h-5 w-5 text-gray-400 dark:text-gray-500" />
               </div>
               <input
-                id="documentNumber"
-                name="documentNumber"
+                id="identifier"
+                name="identifier"
                 type="text"
+                autoComplete="username"
+                autoCapitalize="none"
                 required
-                value={formData.documentNumber}
+                value={formData.identifier}
                 onChange={handleChange}
                 className="block w-full pl-10 pr-3 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
-                placeholder="Cédula o NIT"
+                placeholder="Tu correo, cédula o NIT"
               />
             </div>
           </div>

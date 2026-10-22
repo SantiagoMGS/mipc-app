@@ -1025,9 +1025,11 @@ portalApi.interceptors.response.use(
 );
 
 export const customerAuthService = {
-  login: async (documentNumber: string, password: string) => {
+  /** `identifier` es el correo (usuario de una empresa) o el documento (cliente) */
+  login: async (identifier: string, password: string) => {
+    const value = identifier.trim();
     const response = await portalApi.post('/customer-auth/login', {
-      documentNumber,
+      ...(value.includes('@') ? { email: value } : { documentNumber: value }),
       password,
     });
     if (response.data.accessToken) {
@@ -1083,6 +1085,34 @@ export const customerAuthService = {
       localStorage.setItem('customerName', response.data.name);
       localStorage.removeItem('mustChangePassword');
     }
+    return response.data;
+  },
+};
+
+/** Usuarios de su empresa, gestionados por el administrador del cliente */
+export const portalUsersService = {
+  getAll: async (): Promise<PortalUser[]> => {
+    const response = await portalApi.get('/portal/users');
+    return response.data;
+  },
+
+  create: async (
+    data: CreatePortalUserDto
+  ): Promise<PortalUserWithPassword> => {
+    const response = await portalApi.post('/portal/users', data);
+    return response.data;
+  },
+
+  update: async (
+    id: string,
+    data: UpdatePortalUserDto
+  ): Promise<PortalUser> => {
+    const response = await portalApi.patch(`/portal/users/${id}`, data);
+    return response.data;
+  },
+
+  resetPassword: async (id: string): Promise<PortalUserWithPassword> => {
+    const response = await portalApi.post(`/portal/users/${id}/reset-password`);
     return response.data;
   },
 };

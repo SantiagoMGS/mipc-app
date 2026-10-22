@@ -5,13 +5,22 @@ import type {
   InternalAxiosRequestConfig,
 } from 'axios';
 import type {
+  ContractWithCustomer,
   CreateHelpdeskContractDto,
   CreatePortalUserDto,
+  CreateStaffTicketDto,
   HelpdeskContract,
+  Holiday,
+  Paginated,
   PortalUser,
   PortalUserWithPassword,
+  ResolveTicketDto,
+  StaffTicketDetail,
+  StaffTicketFilters,
+  StaffTicketListItem,
   UpdateHelpdeskContractDto,
   UpdatePortalUserDto,
+  UpdateTicketDto,
 } from '@/types/helpdesk';
 
 // ============================================
@@ -972,6 +981,100 @@ export const helpdeskService = {
       `/helpdesk/portal-users/${id}/reset-password`
     );
     return response.data;
+  },
+
+  /** Todos los contratos, con el nombre del cliente */
+  getAllContracts: async (): Promise<ContractWithCustomer[]> => {
+    const response = await api.get('/helpdesk/contracts');
+    return response.data;
+  },
+
+  getTickets: async (
+    filters: StaffTicketFilters
+  ): Promise<Paginated<StaffTicketListItem>> => {
+    const response = await api.get('/helpdesk/tickets', { params: filters });
+    return response.data;
+  },
+
+  getTicket: async (id: string): Promise<StaffTicketDetail> => {
+    const response = await api.get(`/helpdesk/tickets/${id}`);
+    return response.data;
+  },
+
+  createTicket: async (
+    data: CreateStaffTicketDto
+  ): Promise<StaffTicketListItem> => {
+    const response = await api.post('/helpdesk/tickets', data);
+    return response.data;
+  },
+
+  takeTicket: async (
+    id: string,
+    firstResponseAt?: string
+  ): Promise<StaffTicketDetail> => {
+    const response = await api.post(`/helpdesk/tickets/${id}/take`, {
+      firstResponseAt,
+    });
+    return response.data;
+  },
+
+  updateTicket: async (
+    id: string,
+    data: UpdateTicketDto
+  ): Promise<StaffTicketDetail> => {
+    const response = await api.patch(`/helpdesk/tickets/${id}`, data);
+    return response.data;
+  },
+
+  resolveTicket: async (
+    id: string,
+    data: ResolveTicketDto
+  ): Promise<StaffTicketDetail> => {
+    const response = await api.post(`/helpdesk/tickets/${id}/resolve`, data);
+    return response.data;
+  },
+
+  reopenTicket: async (id: string): Promise<StaffTicketDetail> => {
+    const response = await api.post(`/helpdesk/tickets/${id}/reopen`);
+    return response.data;
+  },
+
+  cancelTicket: async (
+    id: string,
+    reason: string
+  ): Promise<StaffTicketDetail> => {
+    const response = await api.post(`/helpdesk/tickets/${id}/cancel`, {
+      reason,
+    });
+    return response.data;
+  },
+
+  /** El adjunto llega con la sesión; se muestra con una URL local */
+  getAttachmentBlob: async (
+    ticketId: string,
+    attachmentId: string
+  ): Promise<Blob> => {
+    const response = await api.get(
+      `/helpdesk/tickets/${ticketId}/attachments/${attachmentId}`,
+      { responseType: 'blob' }
+    );
+    return response.data;
+  },
+
+  getHolidays: async (year: number): Promise<Holiday[]> => {
+    const response = await api.get('/helpdesk/holidays', {
+      params: { year },
+    });
+    return response.data;
+  },
+
+  addHoliday: async (date: string, name: string): Promise<Holiday> => {
+    const response = await api.post('/helpdesk/holidays', { date, name });
+    return response.data;
+  },
+
+  removeHoliday: async (date: string): Promise<void> => {
+    await api.delete(`/helpdesk/holidays/${date}`);
   },
 };
 

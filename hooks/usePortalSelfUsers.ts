@@ -4,13 +4,9 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { portalUsersService } from '@/lib/api';
 import { CreatePortalUserDto, UpdatePortalUserDto } from '@/types/helpdesk';
 import { useToast } from './use-toast';
+import { apiErrorMessage as errorMessage } from '@/lib/api-error';
 
 const KEY = ['portal-self-users'] as const;
-
-function errorMessage(error: any, fallback: string): string {
-  const message = error?.response?.data?.message;
-  return Array.isArray(message) ? message.join(', ') : message || fallback;
-}
 
 /** Usuarios de su empresa, para el administrador del cliente en el portal */
 export function usePortalSelfUsers() {

@@ -4,15 +4,11 @@ import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { helpdeskService } from '@/lib/api';
 import { CreatePortalUserDto, UpdatePortalUserDto } from '@/types/helpdesk';
 import { useToast } from './use-toast';
+import { apiErrorMessage as errorMessage } from '@/lib/api-error';
 
 export const portalUserKeys = {
   byCustomer: (customerId: string) => ['portal-users', customerId] as const,
 };
-
-function errorMessage(error: any, fallback: string): string {
-  const message = error?.response?.data?.message;
-  return Array.isArray(message) ? message.join(', ') : message || fallback;
-}
 
 export function usePortalUsers(customerId: string) {
   return useQuery({

@@ -133,3 +133,20 @@ export async function createDocumentCustomer(
   });
   return { documentNumber, password };
 }
+
+/** Ticket abierto por el personal a nombre de un usuario del portal */
+export async function createStaffTicket(
+  api: StaffApi,
+  customerId: string,
+  requesterId: string,
+  body: Record<string, unknown> = {}
+): Promise<{ id: string; number: string }> {
+  return api.post('/helpdesk/tickets', {
+    customerId,
+    requesterId,
+    subject: 'La impresora no imprime',
+    description: 'Llamó por WhatsApp: la impresora de recepción no responde.',
+    priority: 'ALTA',
+    ...body,
+  });
+}

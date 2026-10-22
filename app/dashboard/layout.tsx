@@ -14,6 +14,7 @@ import {
   ClipboardList,
   UserCog,
   CheckSquare,
+  LifeBuoy,
 } from 'lucide-react';
 import { authService } from '@/lib/api';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -75,6 +76,12 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
       name: 'Órdenes de Servicio',
       icon: ClipboardList,
       path: '/dashboard/ordenes-servicio',
+      allowedRoles: ['ADMIN', 'TECNICO', 'AUXILIAR'],
+    },
+    {
+      name: 'Mesa de ayuda',
+      icon: LifeBuoy,
+      path: '/dashboard/mesa-de-ayuda',
       allowedRoles: ['ADMIN', 'TECNICO', 'AUXILIAR'],
     },
     {

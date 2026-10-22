@@ -93,7 +93,181 @@ export const PRIORITY_LABELS: Record<PriorityLevel, string> = {
   SOLICITUD: 'Solicitud',
 };
 
+/** De la más urgente a la menos */
+export const PRIORITY_LEVELS = Object.keys(PRIORITY_LABELS) as PriorityLevel[];
+
 export const PORTAL_ROLE_LABELS: Record<PortalUserRole, string> = {
   CLIENT_ADMIN: 'Administrador',
   CLIENT_USER: 'Usuario',
 };
+
+// ============================================
+// Tickets
+// ============================================
+
+export type TicketStatus = 'ABIERTO' | 'EN_ATENCION' | 'RESUELTO' | 'CANCELADO';
+export type ResponseStatus = 'PENDIENTE' | 'VENCIDO' | 'A_TIEMPO' | 'TARDE';
+
+export const TICKET_STATUS_LABELS: Record<TicketStatus, string> = {
+  ABIERTO: 'Abierto',
+  EN_ATENCION: 'En atención',
+  RESUELTO: 'Resuelto',
+  CANCELADO: 'Cancelado',
+};
+
+export const RESPONSE_STATUS_LABELS: Record<ResponseStatus, string> = {
+  PENDIENTE: 'Por vencer',
+  VENCIDO: 'Vencidos',
+  A_TIEMPO: 'Respondidos a tiempo',
+  TARDE: 'Respondidos tarde',
+};
+
+export interface ContractCustomer {
+  id: string;
+  businessName: string | null;
+  firstName: string | null;
+  lastName: string | null;
+}
+
+export interface ContractWithCustomer extends HelpdeskContract {
+  customer: ContractCustomer;
+}
+
+interface TicketBase {
+  id: string;
+  number: string;
+  customerId: string;
+  requesterId: string;
+  deviceId: string | null;
+  subject: string;
+  description: string;
+  priority: PriorityLevel;
+  receivedAt: string;
+  responseDueAt: string;
+  status: TicketStatus;
+  firstResponseAt: string | null;
+  resolvedAt: string | null;
+  resolutionNote: string | null;
+  billableMinutes: number | null;
+  isBillable: boolean;
+  billingMonth: string | null;
+  responseStatus: ResponseStatus;
+  createdAt: string;
+}
+
+export interface StaffTicketListItem extends TicketBase {
+  assignedTechnicianId: string | null;
+  createdByStaffId: string | null;
+  cancelReason: string | null;
+  customer: ContractCustomer;
+  requester: { id: string; name: string };
+  assignedTechnician: { id: string; name: string } | null;
+}
+
+export interface TicketAttachment {
+  id: string;
+  originalName: string;
+  mimeType: string;
+  size: number;
+  createdAt: string;
+}
+
+export interface TicketDevice {
+  id: string;
+  brand: string | null;
+  model: string | null;
+  deviceUser: string | null;
+  serial: string | null;
+  deviceType: { name: string };
+}
+
+export type TicketEventType =
+  | 'CREATED'
+  | 'TAKEN'
+  | 'ASSIGNED'
+  | 'STATUS_CHANGED'
+  | 'PRIORITY_CHANGED'
+  | 'TIMES_CHANGED'
+  | 'RESOLVED'
+  | 'REOPENED'
+  | 'CANCELLED'
+  | 'BILLING_CHANGED';
+
+export interface TicketEvent {
+  id: string;
+  type: TicketEventType;
+  data: Record<string, unknown> | null;
+  createdAt: string;
+  actorUser: { id: string; name: string } | null;
+  actorPortalUser: { id: string; name: string } | null;
+}
+
+export interface StaffTicketDetail extends Omit<
+  StaffTicketListItem,
+  'requester'
+> {
+  requester: { id: string; name: string; email: string; phone: string };
+  createdByStaff: { id: string; name: string } | null;
+  device: TicketDevice | null;
+  attachments: TicketAttachment[];
+  events: TicketEvent[];
+}
+
+export interface Paginated<T> {
+  data: T[];
+  total: number;
+  page: number;
+  limit: number;
+}
+
+export interface StaffTicketFilters {
+  status?: TicketStatus;
+  priority?: PriorityLevel;
+  customerId?: string;
+  assignedTo?: string;
+  responseStatus?: ResponseStatus;
+  page?: number;
+  limit?: number;
+}
+
+export interface ResolvedTicketInput {
+  firstResponseAt: string;
+  resolvedAt: string;
+  billableMinutes: number;
+  resolutionNote: string;
+  isBillable?: boolean;
+}
+
+export interface CreateStaffTicketDto {
+  customerId: string;
+  requesterId: string;
+  subject: string;
+  description: string;
+  priority: PriorityLevel;
+  deviceId?: string;
+  receivedAt?: string;
+  resolved?: ResolvedTicketInput;
+}
+
+export interface UpdateTicketDto {
+  priority?: PriorityLevel;
+  assignedTechnicianId?: string;
+  firstResponseAt?: string;
+  resolvedAt?: string;
+  billableMinutes?: number;
+  isBillable?: boolean;
+  resolutionNote?: string;
+}
+
+export interface ResolveTicketDto {
+  billableMinutes: number;
+  resolutionNote: string;
+  resolvedAt?: string;
+}
+
+export interface Holiday {
+  date: string; // AAAA-MM-DD
+  name: string;
+  source: 'API' | 'MANUAL';
+  isActive: boolean;
+}

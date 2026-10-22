@@ -7,16 +7,12 @@ import {
   UpdateHelpdeskContractDto,
 } from '@/types/helpdesk';
 import { useToast } from './use-toast';
+import { apiErrorMessage as errorMessage } from '@/lib/api-error';
 
 export const contractKeys = {
   byCustomer: (customerId: string) =>
     ['helpdesk-contracts', customerId] as const,
 };
-
-function errorMessage(error: any, fallback: string): string {
-  const message = error?.response?.data?.message;
-  return Array.isArray(message) ? message.join(', ') : message || fallback;
-}
 
 /** Contrato vigente del cliente: el activo, o el más reciente si no hay activo */
 export function useCustomerContract(customerId: string) {

@@ -57,7 +57,8 @@ export function EditItemDialog({
         quantity,
         unitPrice,
         discount,
-        observation: observation.trim() || undefined,
+        // Vacía se envía como null para poder borrarla
+        observation: observation.trim() || null,
         hasIva,
       });
       onClose();

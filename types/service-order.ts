@@ -61,12 +61,13 @@ export interface CreateServiceOrderDto {
 
 export interface UpdateServiceOrderDto {
   problemDescription?: string;
-  diagnosticNotes?: string;
-  observations?: string;
-  internalNotes?: string;
-  deliveryNotes?: string;
+  // null borra el campo; undefined lo deja como está
+  diagnosticNotes?: string | null;
+  observations?: string | null;
+  internalNotes?: string | null;
+  deliveryNotes?: string | null;
   isDelivered?: boolean;
-  invoice?: string;
+  invoice?: string | null;
   invoiceNumber?: string;
   totalCost?: number;
   totalPaid?: number;

@@ -36,7 +36,8 @@ export interface UpdateOrderItemDto {
   quantity?: number;
   unitPrice?: number;
   discount?: number;
-  observation?: string;
+  // null borra la observación; undefined la deja como está
+  observation?: string | null;
   hasIva?: boolean;
 }
 

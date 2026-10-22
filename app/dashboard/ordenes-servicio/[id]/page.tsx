@@ -111,12 +111,14 @@ export default function DetalleOrdenServicioPage() {
         data: {
           // Es obligatoria: si se deja vacía no se envía y se conserva la actual
           problemDescription: problemDescription.trim() || undefined,
-          diagnosticNotes: diagnosticNotes.trim() || undefined,
-          observations: observations.trim() || undefined,
-          internalNotes: internalNotes.trim() || undefined,
-          deliveryNotes: deliveryNotes.trim() || undefined,
+          // Las notas y la factura sí se pueden borrar: vacías se envían como
+          // null (undefined significaría "no cambiar" y la nota volvía a salir)
+          diagnosticNotes: diagnosticNotes.trim() || null,
+          observations: observations.trim() || null,
+          internalNotes: internalNotes.trim() || null,
+          deliveryNotes: deliveryNotes.trim() || null,
           isDelivered,
-          invoice: invoice.trim() || undefined,
+          invoice: invoice.trim() || null,
         },
       });
       setIsEditMode(false);

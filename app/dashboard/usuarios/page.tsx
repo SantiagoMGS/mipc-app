@@ -82,7 +82,7 @@ function UsersPageContent() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900 dark:text-white">
             Usuarios
@@ -101,50 +101,50 @@ function UsersPageContent() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+      <div className="grid grid-cols-3 gap-3 md:gap-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 md:p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Total Usuarios
               </p>
-              <p className="text-3xl font-bold text-gray-900 dark:text-white mt-1">
+              <p className="text-2xl md:text-3xl font-bold text-gray-900 dark:text-white mt-1">
                 {users.length}
               </p>
             </div>
-            <div className="w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg flex items-center justify-center">
+            <div className="hidden sm:flex w-12 h-12 bg-blue-100 dark:bg-blue-900/30 rounded-lg items-center justify-center">
               <UsersIcon className="w-6 h-6 text-blue-600 dark:text-blue-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 md:p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Usuarios Activos
               </p>
-              <p className="text-3xl font-bold text-green-600 dark:text-green-400 mt-1">
+              <p className="text-2xl md:text-3xl font-bold text-green-600 dark:text-green-400 mt-1">
                 {activeUsers}
               </p>
             </div>
-            <div className="w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg flex items-center justify-center">
+            <div className="hidden sm:flex w-12 h-12 bg-green-100 dark:bg-green-900/30 rounded-lg items-center justify-center">
               <UsersIcon className="w-6 h-6 text-green-600 dark:text-green-400" />
             </div>
           </div>
         </div>
 
-        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-6">
+        <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4 md:p-6">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm text-gray-600 dark:text-gray-400">
                 Usuarios Inactivos
               </p>
-              <p className="text-3xl font-bold text-red-600 dark:text-red-400 mt-1">
+              <p className="text-2xl md:text-3xl font-bold text-red-600 dark:text-red-400 mt-1">
                 {inactiveUsers}
               </p>
             </div>
-            <div className="w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg flex items-center justify-center">
+            <div className="hidden sm:flex w-12 h-12 bg-red-100 dark:bg-red-900/30 rounded-lg items-center justify-center">
               <UsersIcon className="w-6 h-6 text-red-600 dark:text-red-400" />
             </div>
           </div>
@@ -153,11 +153,11 @@ function UsersPageContent() {
 
       {/* Filters */}
       <div className="bg-white dark:bg-gray-800 rounded-lg border border-gray-200 dark:border-gray-700 p-4">
-        <div className="flex items-center gap-4">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:gap-4">
           <span className="text-sm font-medium text-gray-700 dark:text-gray-300">
             Filtrar por rol:
           </span>
-          <div className="flex gap-2">
+          <div className="flex flex-wrap gap-2">
             <Button
               variant={roleFilter === 'ALL' ? 'default' : 'outline'}
               size="sm"

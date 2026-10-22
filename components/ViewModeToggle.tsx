@@ -13,7 +13,7 @@ export function ViewModeToggle() {
       variant="outline"
       size="icon"
       title={viewMode === 'table' ? 'Ver como tarjetas' : 'Ver como tabla'}
-      className="flex-shrink-0"
+      className="hidden md:inline-flex flex-shrink-0"
     >
       {viewMode === 'table' ? (
         <LayoutGrid className="w-5 h-5" />

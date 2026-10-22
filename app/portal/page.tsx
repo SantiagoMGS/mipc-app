@@ -315,9 +315,9 @@ export default function PortalPage() {
           <div className="flex items-center gap-3">
             <Image
               src="/logo_mipc_tec.png"
-              alt="MIPC Logo"
-              width={40}
-              height={40}
+              alt="MIPC Tecnología"
+              width={72}
+              height={35}
               className="object-contain"
             />
             <div>
@@ -426,13 +426,13 @@ export default function PortalPage() {
                 {/* Cabecera del dispositivo (clickeable) */}
                 <button
                   onClick={() => toggleDevice(device.id)}
-                  className="w-full px-6 py-4 flex items-center justify-between hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
+                  className="w-full px-4 sm:px-6 py-4 flex items-center justify-between gap-3 hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
+                  <div className="flex items-center gap-4 min-w-0">
+                    <div className="hidden sm:block p-2 bg-blue-50 dark:bg-blue-900/30 rounded-lg">
                       <Laptop className="w-5 h-5 text-blue-600 dark:text-blue-400" />
                     </div>
-                    <div className="text-left">
+                    <div className="text-left min-w-0">
                       <h3 className="font-semibold text-gray-800 dark:text-white">
                         {device.brand && device.model
                           ? `${device.brand} ${device.model}`
@@ -464,8 +464,8 @@ export default function PortalPage() {
                       </div>
                     </div>
                   </div>
-                  <div className="flex items-center gap-3">
-                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full">
+                  <div className="flex items-center gap-2 sm:gap-3 flex-shrink-0">
+                    <span className="text-xs font-medium text-gray-500 dark:text-gray-400 bg-gray-100 dark:bg-gray-700 px-2 py-1 rounded-full whitespace-nowrap">
                       {device.serviceOrders.length}{' '}
                       {device.serviceOrders.length === 1 ? 'orden' : 'órdenes'}
                     </span>
@@ -639,8 +639,9 @@ export default function PortalPage() {
       </main>
 
       {/* Footer */}
-      <footer className="mt-12 py-6 text-center text-sm text-gray-400 dark:text-gray-500">
-        © 2025 MIPC Tecnología. Todos los derechos reservados.
+      <footer className="mt-12 px-4 py-6 text-center text-sm text-gray-400 dark:text-gray-500">
+        © {new Date().getFullYear()} MIPC Tecnología. Todos los derechos
+        reservados.
       </footer>
     </div>
   );

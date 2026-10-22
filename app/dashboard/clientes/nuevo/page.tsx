@@ -283,7 +283,7 @@ export default function NuevoClientePage() {
           <ArrowLeft className="w-6 h-6 text-gray-600 dark:text-gray-400" />
         </button>
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
             Nuevo Cliente
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-1">
@@ -540,10 +540,11 @@ export default function NuevoClientePage() {
               type="button"
               onClick={handleAddDevice}
               disabled={isLoadingDeviceTypes}
-              className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              aria-label="Agregar Dispositivo"
             >
               <Plus className="w-5 h-5" />
-              Agregar Dispositivo
+              <span className="hidden sm:inline">Agregar Dispositivo</span>
             </button>
           </div>
 
@@ -754,7 +755,7 @@ export default function NuevoClientePage() {
         </div>
 
         {/* Botones de acción */}
-        <div className="flex gap-3 justify-end">
+        <div className="flex flex-col-reverse gap-3 sm:flex-row sm:justify-end">
           <button
             type="button"
             onClick={() => router.push('/dashboard/clientes')}
@@ -765,7 +766,7 @@ export default function NuevoClientePage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="flex items-center gap-2 px-6 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+            className="flex items-center justify-center gap-2 px-6 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
           >
             <Save className="w-5 h-5" />
             {isLoading ? 'Guardando...' : 'Guardar Cliente'}

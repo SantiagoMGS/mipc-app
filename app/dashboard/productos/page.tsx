@@ -147,9 +147,9 @@ export default function ProductosPage() {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
             Productos y Servicios
           </h1>
           <p className="text-gray-600 dark:text-gray-400 mt-2">
@@ -160,10 +160,10 @@ export default function ProductosPage() {
           <ViewModeToggle />
           <button
             onClick={openCreateModal}
-            className="flex items-center gap-2 px-4 py-2 bg-primary-500 text-white rounded-lg hover:bg-primary-600 transition-colors"
+            className="flex items-center gap-2 px-4 py-2 bg-primary text-primary-foreground rounded-lg hover:bg-primary/90 transition-colors"
           >
             <Plus className="w-5 h-5" />
-            <span className="hidden sm:inline">Nuevo Item</span>
+            <span>Nuevo Item</span>
           </button>
         </div>
       </div>

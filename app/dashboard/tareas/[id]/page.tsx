@@ -109,9 +109,10 @@ export default function DetalleTaskPage() {
           variant="ghost"
           onClick={handleBack}
           className="flex items-center gap-2"
+          aria-label="Volver a Tareas"
         >
           <ArrowLeft className="w-5 h-5" />
-          Volver a Tareas
+          <span className="hidden sm:inline">Volver a Tareas</span>
         </Button>
         <div className="flex gap-3">
           <Button
@@ -135,16 +136,16 @@ export default function DetalleTaskPage() {
 
       {/* Información Principal */}
       <div className="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6">
-        <div className="flex items-start justify-between mb-6">
+        <div className="flex flex-col gap-3 sm:flex-row sm:items-start sm:justify-between mb-6">
           <div>
-            <h1 className="text-3xl font-bold text-gray-800 dark:text-white">
+            <h1 className="text-2xl md:text-3xl font-bold text-gray-800 dark:text-white">
               {task.customer}
             </h1>
             <p className="text-gray-600 dark:text-gray-400 mt-1">
               Tarea #{task.id.slice(0, 8)}
             </p>
           </div>
-          <div className="flex flex-col gap-2">
+          <div className="flex flex-row flex-wrap gap-2 sm:flex-col">
             {task.isDone ? (
               <span className="inline-flex items-center gap-1 px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 dark:bg-green-900/30 text-green-800 dark:text-green-300">
                 <CheckCircle className="w-4 h-4" />
@@ -240,10 +241,10 @@ export default function DetalleTaskPage() {
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Nombre
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="hidden sm:table-cell px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Cantidad
                     </th>
-                    <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
+                    <th className="hidden sm:table-cell px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
                       Precio Unitario
                     </th>
                     <th className="px-4 py-3 text-right text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -256,11 +257,15 @@ export default function DetalleTaskPage() {
                     <tr key={item.id}>
                       <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200">
                         {item.name}
+                        <span className="block sm:hidden text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                          {item.quantity} × $
+                          {item.price.toLocaleString('es-CO')}
+                        </span>
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right">
+                      <td className="hidden sm:table-cell px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right">
                         {item.quantity}
                       </td>
-                      <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right">
+                      <td className="hidden sm:table-cell px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right">
                         ${item.price.toLocaleString('es-CO')}
                       </td>
                       <td className="px-4 py-3 text-sm font-medium text-gray-800 dark:text-gray-200 text-right">
@@ -273,8 +278,11 @@ export default function DetalleTaskPage() {
                   <tr>
                     <td
                       colSpan={3}
-                      className="px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 text-right"
+                      className="hidden sm:table-cell px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 text-right"
                     >
+                      Total:
+                    </td>
+                    <td className="sm:hidden px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 text-right">
                       Total:
                     </td>
                     <td className="px-4 py-3 text-sm font-bold text-gray-800 dark:text-gray-200 text-right">

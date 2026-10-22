@@ -111,7 +111,7 @@ export function PaymentsSection({
                 Total a Cobrar
               </p>
               <p className="text-2xl font-bold text-gray-900 dark:text-white">
-                ${totalCost.toLocaleString('es-CO')}
+                ${Number(totalCost).toLocaleString('es-CO')}
               </p>
             </div>
           </div>

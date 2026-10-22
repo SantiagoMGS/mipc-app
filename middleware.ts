@@ -15,6 +15,12 @@ export function middleware(request: NextRequest) {
 
   // Para rutas del portal de clientes, verificar customerToken
   if (pathname.startsWith('/portal')) {
+    // Con la cookie de refresh la sesión sigue viva aunque el access token
+    // (que dura minutos) ya no esté: la app lo renueva al cargar
+    if (request.cookies.get('customerRefreshToken')?.value) {
+      return NextResponse.next();
+    }
+
     const token = request.cookies.get('customerToken')?.value;
 
     if (!token) {
@@ -38,6 +44,12 @@ export function middleware(request: NextRequest) {
 
   // Para rutas protegidas (dashboard), verificar token
   if (pathname.startsWith('/dashboard')) {
+    // Con la cookie de refresh la sesión sigue viva aunque el access token
+    // (que dura minutos) ya no esté: la app lo renueva al cargar
+    if (request.cookies.get('refreshToken')?.value) {
+      return NextResponse.next();
+    }
+
     // Intentar obtener el token de las cookies
     const token = request.cookies.get('authToken')?.value;
 

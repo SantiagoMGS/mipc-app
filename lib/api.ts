@@ -1,4 +1,9 @@
 import axios from 'axios';
+import type {
+  AxiosError,
+  AxiosInstance,
+  InternalAxiosRequestConfig,
+} from 'axios';
 
 // ============================================
 // Configuración de URL de la API
@@ -54,6 +59,124 @@ const api = axios.create({
   withCredentials: true, // Importante: enviar cookies en cada petición
 });
 
+// ============================================
+// Renovación de sesión (refresh token)
+// ============================================
+
+// El access token dura minutos. El refresh token vive en una cookie httpOnly
+// que la API cambia por uno nuevo en cada renovación. Si varias peticiones
+// reciben 401 a la vez, todas esperan la misma renovación.
+type SessionKind = 'staff' | 'customer';
+
+const SESSION_STORAGE = {
+  staff: { refreshPath: '/auth/refresh', tokenKey: 'authToken', nameKey: null },
+  customer: {
+    refreshPath: '/customer-auth/refresh',
+    tokenKey: 'customerToken',
+    nameKey: 'customerName',
+  },
+} as const;
+
+export type RefreshResult =
+  | { status: 'ok'; accessToken: string }
+  // La sesión terminó (venció, se cerró o se cambió la contraseña)
+  | { status: 'expired' }
+  // Sin red o con la API caída: la sesión se conserva para reintentar
+  | { status: 'error' };
+
+const pendingRefresh: Partial<Record<SessionKind, Promise<RefreshResult>>> = {};
+
+export function refreshSession(kind: SessionKind): Promise<RefreshResult> {
+  const pending = pendingRefresh[kind];
+  if (pending) return pending;
+
+  const storage = SESSION_STORAGE[kind];
+  const refresh = axios
+    .post(
+      `${API_BASE_URL}${storage.refreshPath}`,
+      {},
+      { withCredentials: true }
+    )
+    .then((response): RefreshResult => {
+      localStorage.setItem(storage.tokenKey, response.data.accessToken);
+      if (storage.nameKey) {
+        localStorage.setItem(storage.nameKey, response.data.name);
+      }
+      return { status: 'ok', accessToken: response.data.accessToken };
+    })
+    .catch((error: AxiosError): RefreshResult =>
+      error.response?.status === 401
+        ? { status: 'expired' }
+        : { status: 'error' }
+    )
+    .finally(() => {
+      delete pendingRefresh[kind];
+    });
+
+  pendingRefresh[kind] = refresh;
+  return refresh;
+}
+
+/**
+ * fetch a la API con la sesión indicada, para descargar archivos (PDF).
+ * Si el access token venció, renueva la sesión y repite una vez.
+ */
+async function fetchWithSession(
+  kind: SessionKind,
+  path: string
+): Promise<Response> {
+  const request = () => {
+    const token = localStorage.getItem(SESSION_STORAGE[kind].tokenKey);
+    return fetch(`${API_BASE_URL}${path}`, {
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+      credentials: 'include',
+    });
+  };
+
+  const response = await request();
+  if (response.status !== 401) return response;
+
+  const result = await refreshSession(kind);
+  return result.status === 'ok' ? request() : response;
+}
+
+/**
+ * Ante un 401 renueva la sesión y repite la petición una vez. Solo si la
+ * sesión ya no existe llama a onExpired (que manda al login).
+ */
+function retryAfterRefresh(
+  instance: AxiosInstance,
+  kind: SessionKind,
+  skipPaths: string[],
+  onExpired: () => void
+) {
+  return async (error: AxiosError) => {
+    const original = error.config as
+      (InternalAxiosRequestConfig & { _retry?: boolean }) | undefined;
+    const url = original?.url || '';
+
+    if (
+      error.response?.status !== 401 ||
+      !original ||
+      original._retry ||
+      skipPaths.some((path) => url.includes(path))
+    ) {
+      return Promise.reject(error);
+    }
+
+    original._retry = true;
+    const result = await refreshSession(kind);
+    if (result.status === 'ok') {
+      original.headers.Authorization = `Bearer ${result.accessToken}`;
+      return instance(original);
+    }
+    if (result.status === 'expired') {
+      onExpired();
+    }
+    return Promise.reject(error);
+  };
+}
+
 // Interceptor para agregar el token a las peticiones (fallback para compatibilidad)
 api.interceptors.request.use(
   (config) => {
@@ -69,21 +192,21 @@ api.interceptors.request.use(
   }
 );
 
-// Interceptor para manejar errores de autenticación
+// Interceptor para manejar errores de autenticación: renueva la sesión y, si
+// ya no existe, manda al login. El 401 del propio login (contraseña errada) no
+// recarga la página, para que se vea el mensaje de error.
 api.interceptors.response.use(
   (response) => response,
-  (error) => {
-    if (error.response?.status === 401) {
-      // Limpiar storage local
+  retryAfterRefresh(
+    api,
+    'staff',
+    ['/auth/login', '/auth/refresh', '/auth/logout'],
+    () => {
       localStorage.removeItem('authToken');
       localStorage.removeItem('user');
-
-      // El servidor se encargará de limpiar la cookie httpOnly
-      // Redirigir al login
       window.location.href = '/login';
     }
-    return Promise.reject(error);
-  }
+  )
 );
 
 export const authService = {
@@ -112,6 +235,9 @@ export const authService = {
       window.location.href = '/login';
     }
   },
+
+  /** Renueva la sesión con el refresh token (cookie httpOnly) */
+  refresh: () => refreshSession('staff'),
 
   // Validar token actual
   validateToken: async () => {
@@ -734,29 +860,15 @@ export const tasksService = {
 // PDF Service
 // ============================================
 
-/**
- * Obtiene el token de autenticación desde localStorage
- */
-const getAuthToken = (): string | null => {
-  if (typeof window === 'undefined') return null;
-  return localStorage.getItem('authToken');
-};
-
 export const pdfService = {
   /**
    * Previsualiza el PDF de una orden de servicio en una nueva pestaña
    */
   previewPDF: async (orderId: string): Promise<void> => {
-    const token = getAuthToken();
-    if (!token) {
-      throw new Error('No se encontró token de autenticación');
-    }
-
-    const url = `${API_BASE_URL}/service-orders/${orderId}/pdf/preview`;
-
-    const response = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await fetchWithSession(
+      'staff',
+      `/service-orders/${orderId}/pdf/preview`
+    );
 
     if (!response.ok) {
       throw new Error('Error al generar la vista previa del PDF');
@@ -771,16 +883,10 @@ export const pdfService = {
    * Descarga el PDF de una orden de servicio
    */
   downloadPDF: async (orderId: string, orderNumber: string): Promise<void> => {
-    const token = getAuthToken();
-    if (!token) {
-      throw new Error('No se encontró token de autenticación');
-    }
-
-    const url = `${API_BASE_URL}/service-orders/${orderId}/pdf`;
-
-    const response = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
+    const response = await fetchWithSession(
+      'staff',
+      `/service-orders/${orderId}/pdf`
+    );
 
     if (!response.ok) {
       throw new Error('Error al descargar el PDF');
@@ -824,23 +930,26 @@ portalApi.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
-// Interceptor para manejar errores de autenticación del portal
+// Interceptor para manejar errores de autenticación del portal: renueva la
+// sesión y, si ya no existe, manda al login del portal
 portalApi.interceptors.response.use(
   (response) => response,
-  (error) => {
-    const url = error.config?.url || '';
-    const isAuthEndpoint =
-      url.includes('/customer-auth/login') ||
-      url.includes('/customer-auth/change-password');
-
-    if (error.response?.status === 401 && !isAuthEndpoint) {
+  retryAfterRefresh(
+    portalApi,
+    'customer',
+    [
+      '/customer-auth/login',
+      '/customer-auth/change-password',
+      '/customer-auth/refresh',
+      '/customer-auth/logout',
+    ],
+    () => {
       localStorage.removeItem('customerToken');
       localStorage.removeItem('customerName');
       localStorage.removeItem('mustChangePassword');
       window.location.href = '/portal/login';
     }
-    return Promise.reject(error);
-  }
+  )
 );
 
 export const customerAuthService = {
@@ -875,12 +984,21 @@ export const customerAuthService = {
   },
 
   validate: async () => {
-    try {
-      const response = await portalApi.get('/customer-auth/validate');
-      return response.data;
-    } catch {
-      return { valid: false };
-    }
+    const check = async () => {
+      try {
+        const response = await portalApi.get('/customer-auth/validate');
+        return response.data;
+      } catch {
+        return { valid: false };
+      }
+    };
+
+    const validation = await check();
+    if (validation.valid) return validation;
+
+    // El access token venció o no está: se intenta con el refresh token
+    const result = await refreshSession('customer');
+    return result.status === 'ok' ? check() : validation;
   },
 
   changePassword: async (currentPassword: string, newPassword: string) => {
@@ -892,8 +1010,6 @@ export const customerAuthService = {
       localStorage.setItem('customerToken', response.data.accessToken);
       localStorage.setItem('customerName', response.data.name);
       localStorage.removeItem('mustChangePassword');
-      // Actualizar cookie
-      document.cookie = `customerToken=${response.data.accessToken}; path=/; max-age=${60 * 60 * 24 * 7}; SameSite=Strict`;
     }
     return response.data;
   },
@@ -911,16 +1027,10 @@ export const customerPortalService = {
   },
 
   previewOrderPdf: async (orderId: string): Promise<void> => {
-    const token = localStorage.getItem('customerToken');
-    if (!token) {
-      throw new Error('No se encontró token de autenticación');
-    }
-
-    const url = `${API_BASE_URL}/customer-portal/orders/${orderId}/pdf/preview`;
-    const response = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
-      credentials: 'include',
-    });
+    const response = await fetchWithSession(
+      'customer',
+      `/customer-portal/orders/${orderId}/pdf/preview`
+    );
 
     if (!response.ok) {
       throw new Error('Error al generar la vista previa del PDF');
@@ -935,16 +1045,10 @@ export const customerPortalService = {
     orderId: string,
     orderNumber: string
   ): Promise<void> => {
-    const token = localStorage.getItem('customerToken');
-    if (!token) {
-      throw new Error('No se encontró token de autenticación');
-    }
-
-    const url = `${API_BASE_URL}/customer-portal/orders/${orderId}/pdf`;
-    const response = await fetch(url, {
-      headers: { Authorization: `Bearer ${token}` },
-      credentials: 'include',
-    });
+    const response = await fetchWithSession(
+      'customer',
+      `/customer-portal/orders/${orderId}/pdf`
+    );
 
     if (!response.ok) {
       throw new Error('Error al descargar el PDF');

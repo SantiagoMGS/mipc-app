@@ -21,22 +21,21 @@ export default function PortalLoginPage() {
   useEffect(() => {
     // Si ya está autenticado como cliente, validar token y redirigir al portal
     const checkExistingSession = async () => {
-      const token = localStorage.getItem('customerToken');
-      if (token) {
-        try {
-          const validation = await customerAuthService.validate();
-          if (validation.valid) {
-            router.push('/portal');
-          } else {
-            // Token inválido, limpiar
-            localStorage.removeItem('customerToken');
-            localStorage.removeItem('customerName');
-          }
-        } catch {
-          // Error de red, dejar al usuario en login
+      // validate() renueva con la cookie de refresh si el access token venció,
+      // así que se revisa aunque no haya token guardado
+      try {
+        const validation = await customerAuthService.validate();
+        if (validation.valid) {
+          router.push('/portal');
+        } else {
+          // Token inválido, limpiar
           localStorage.removeItem('customerToken');
           localStorage.removeItem('customerName');
         }
+      } catch {
+        // Error de red, dejar al usuario en login
+        localStorage.removeItem('customerToken');
+        localStorage.removeItem('customerName');
       }
     };
     checkExistingSession();

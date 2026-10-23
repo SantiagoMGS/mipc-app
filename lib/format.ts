@@ -92,3 +92,13 @@ export function formatMonth(month: string): string {
   });
   return label.charAt(0).toUpperCase() + label.slice(1);
 }
+
+/** "hace 5 minutos", "ayer"… */
+export function formatRelative(iso: string, now: number = Date.now()): string {
+  const minutes = Math.round((new Date(iso).getTime() - now) / 60_000);
+  const rtf = new Intl.RelativeTimeFormat('es', { numeric: 'auto' });
+  if (Math.abs(minutes) < 60) return rtf.format(minutes, 'minute');
+  const hours = Math.round(minutes / 60);
+  if (Math.abs(hours) < 24) return rtf.format(hours, 'hour');
+  return rtf.format(Math.round(hours / 24), 'day');
+}

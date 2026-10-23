@@ -342,3 +342,21 @@ export interface MonthSummary {
   response: { onTime: number; late: number; total: number };
   tickets: MonthTicket[];
 }
+
+// ============================================
+// Avisos del panel (campana)
+// ============================================
+
+export interface StaffNotification {
+  id: string;
+  ticketId: string | null;
+  type: string;
+  title: string;
+  readAt: string | null;
+  createdAt: string;
+}
+
+export interface NotificationsResponse {
+  data: StaffNotification[];
+  unreadCount: number;
+}

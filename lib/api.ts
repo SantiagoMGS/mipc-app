@@ -13,6 +13,7 @@ import type {
   HelpdeskContract,
   Holiday,
   MonthSummary,
+  NotificationsResponse,
   Paginated,
   PortalHelpdeskContext,
   PortalTicketDetail,
@@ -1242,6 +1243,25 @@ export const portalUsersService = {
   resetPassword: async (id: string): Promise<PortalUserWithPassword> => {
     const response = await portalApi.post(`/portal/users/${id}/reset-password`);
     return response.data;
+  },
+};
+
+// ============================================
+// Avisos del panel (campana)
+// ============================================
+
+export const notificationsService = {
+  list: async (): Promise<NotificationsResponse> => {
+    const response = await api.get('/notifications');
+    return response.data;
+  },
+
+  markRead: async (id: string): Promise<void> => {
+    await api.post(`/notifications/${id}/read`);
+  },
+
+  markAllRead: async (): Promise<void> => {
+    await api.post('/notifications/read-all');
   },
 };
 

@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { authService } from '@/lib/api';
 import ThemeToggle from '@/components/ThemeToggle';
+import NotificationBell from '@/components/helpdesk/NotificationBell';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { ViewModeProvider } from '@/contexts/ViewModeContext';
 import { USER_ROLE_LABELS, UserRole } from '@/types/user';
@@ -310,6 +311,10 @@ export default function DashboardLayout({ children }: DashboardLayoutProps) {
               </h2>
 
               <div className="flex items-center gap-2 md:gap-4">
+                {/* Avisos de la mesa de ayuda (AUXILIAR no los recibe) */}
+                {(currentUserRole === 'ADMIN' ||
+                  currentUserRole === 'TECNICO') && <NotificationBell />}
+
                 {/* Theme Toggle */}
                 <ThemeToggle />
 

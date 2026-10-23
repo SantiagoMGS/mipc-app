@@ -150,3 +150,33 @@ export async function createStaffTicket(
     ...body,
   });
 }
+
+/** Abre un ticket como lo haría una persona desde el portal */
+export async function createPortalTicket(
+  email: string,
+  password: string,
+  body: Record<string, unknown> = {}
+): Promise<{ id: string; number: string }> {
+  const login = await fetch(`${API}/customer-auth/login`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ email, password }),
+  });
+  if (!login.ok) throw new Error(`Login del portal falló: ${login.status}`);
+  const { accessToken } = await login.json();
+  const res = await fetch(`${API}/portal/tickets`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${accessToken}`,
+    },
+    body: JSON.stringify({
+      subject: 'El correo no sincroniza',
+      description: 'Outlook no descarga correos desde esta mañana.',
+      priority: 'ALTA',
+      ...body,
+    }),
+  });
+  if (!res.ok) throw new Error(`Crear ticket falló: ${res.status}`);
+  return res.json();
+}

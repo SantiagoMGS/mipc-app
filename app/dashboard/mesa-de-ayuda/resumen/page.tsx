@@ -12,6 +12,7 @@ import MonthSummaryCards from '@/components/helpdesk/MonthSummaryCards';
 import { SELECT_CLASS } from '@/components/helpdesk/field-styles';
 import { useAllContracts } from '@/hooks/useHelpdeskTickets';
 import { useCloseMonth, useContractMonth } from '@/hooks/useHelpdeskSummary';
+import { apiErrorMessage } from '@/lib/api-error';
 import { getCurrentUserRole } from '@/lib/auth-utils';
 import {
   currentBogotaMonth,
@@ -74,7 +75,12 @@ function SummaryPage() {
     contracts[0]?.id ||
     '';
 
-  const { data: summary, isLoading } = useContractMonth(contractId, month);
+  const {
+    data: summary,
+    isLoading,
+    error,
+    refetch,
+  } = useContractMonth(contractId, month);
   const closeMonth = useCloseMonth(contractId, month);
   const isCurrent = month === thisMonth;
   const canClose = isAdmin && summary && !summary.closed && month < thisMonth;
@@ -122,7 +128,17 @@ function SummaryPage() {
         <MonthPicker value={month} onChange={setMonth} max={thisMonth} />
       </div>
 
-      {isLoading || !summary ? (
+      {error ? (
+        <div className="space-y-3 rounded-lg border border-red-200 bg-red-50 p-4 dark:border-red-800 dark:bg-red-900/20">
+          <p className="text-sm text-red-800 dark:text-red-300">
+            No se pudo cargar el resumen:{' '}
+            {apiErrorMessage(error, 'revisa la conexión e intenta de nuevo.')}
+          </p>
+          <Button variant="outline" size="sm" onClick={() => refetch()}>
+            Reintentar
+          </Button>
+        </div>
+      ) : isLoading || !summary ? (
         contractId && (
           <div className="flex justify-center p-10">
             <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary-500" />

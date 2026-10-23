@@ -1,9 +1,11 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
 import PortalShell, { PortalLoading } from '@/components/portal/PortalShell';
 import MonthPicker from '@/components/helpdesk/MonthPicker';
 import MonthSummaryCards from '@/components/helpdesk/MonthSummaryCards';
+import { Button } from '@/components/ui/button';
 import { usePortalSession } from '@/hooks/usePortalSession';
 import { usePortalHours } from '@/hooks/useHelpdeskSummary';
 import {
@@ -18,7 +20,13 @@ export default function PortalHoursPage() {
   const { session } = usePortalSession({ adminOnly: true });
   const thisMonth = currentBogotaMonth();
   const [month, setMonth] = useState(thisMonth);
-  const { data: summary, isLoading, error } = usePortalHours(month, !!session);
+  const {
+    data: summary,
+    isLoading,
+    error,
+    refetch,
+  } = usePortalHours(month, !!session);
+  const noContract = (error as any)?.response?.status === 404;
 
   if (!session) return <PortalLoading />;
 
@@ -43,10 +51,20 @@ export default function PortalHoursPage() {
           <div className="flex justify-center p-10">
             <div className="h-8 w-8 animate-spin rounded-full border-b-2 border-primary-500" />
           </div>
-        ) : error || !summary ? (
+        ) : noContract ? (
           <p className="rounded-lg bg-white p-4 text-sm text-gray-700 shadow-sm dark:bg-gray-800 dark:text-gray-300">
             Tu empresa no tiene un contrato de mesa de ayuda.
           </p>
+        ) : error || !summary ? (
+          <div className="space-y-3 rounded-lg bg-white p-4 shadow-sm dark:bg-gray-800">
+            <p className="text-sm text-gray-700 dark:text-gray-300">
+              No se pudieron cargar las horas. Revisa tu conexión e intenta de
+              nuevo.
+            </p>
+            <Button variant="outline" onClick={() => refetch()}>
+              Reintentar
+            </Button>
+          </div>
         ) : (
           <>
             <MonthSummaryCards summary={summary} />
@@ -81,28 +99,30 @@ export default function PortalHoursPage() {
               ) : (
                 <ul className="divide-y divide-gray-200 dark:divide-gray-700">
                   {summary.tickets.map((ticket) => (
-                    <li
-                      key={ticket.id}
-                      className="flex items-start justify-between gap-3 p-4"
-                    >
-                      <div className="min-w-0">
-                        <p className="font-mono text-xs text-gray-500 dark:text-gray-400">
-                          {ticket.number}
+                    <li key={ticket.id}>
+                      <Link
+                        href={`/portal/mesa-de-ayuda/${ticket.id}`}
+                        className="flex items-start justify-between gap-3 p-4 hover:bg-gray-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-inset focus-visible:ring-primary-500 dark:hover:bg-gray-700/50"
+                      >
+                        <div className="min-w-0">
+                          <p className="font-mono text-xs text-gray-500 dark:text-gray-400">
+                            {ticket.number}
+                          </p>
+                          <p className="break-words font-medium text-gray-900 dark:text-white">
+                            {ticket.subject}
+                          </p>
+                          <p className="text-sm text-gray-600 dark:text-gray-400">
+                            {ticket.requester.name}
+                            {ticket.resolvedAt &&
+                              ` · ${formatBogotaDateTime(ticket.resolvedAt)}`}
+                          </p>
+                        </div>
+                        <p className="flex-shrink-0 text-right text-sm font-medium tabular-nums text-gray-900 dark:text-white">
+                          {ticket.isBillable && ticket.billableMinutes
+                            ? formatMinutes(ticket.billableMinutes)
+                            : 'No descuenta'}
                         </p>
-                        <p className="break-words font-medium text-gray-900 dark:text-white">
-                          {ticket.subject}
-                        </p>
-                        <p className="text-sm text-gray-600 dark:text-gray-400">
-                          {ticket.requester.name}
-                          {ticket.resolvedAt &&
-                            ` · ${formatBogotaDateTime(ticket.resolvedAt)}`}
-                        </p>
-                      </div>
-                      <p className="flex-shrink-0 text-right text-sm font-medium tabular-nums text-gray-900 dark:text-white">
-                        {ticket.isBillable && ticket.billableMinutes
-                          ? formatMinutes(ticket.billableMinutes)
-                          : 'No descuenta'}
-                      </p>
+                      </Link>
                     </li>
                   ))}
                 </ul>

@@ -140,3 +140,79 @@ test.describe('en el portal (390 px)', () => {
     await expect(userPage).toHaveURL(/\/portal\/mesa-de-ayuda$/);
   });
 });
+
+test('si el resumen no carga, el panel lo dice', async ({ page }) => {
+  const { contractId } = await companyWithResolvedTicket();
+  await loginStaff(page);
+  await page.goto(
+    `/dashboard/mesa-de-ayuda/resumen?contrato=${contractId}&mes=2026-13`
+  );
+
+  await expect(page.getByText(/No se pudo cargar el resumen/)).toBeVisible();
+});
+
+test('al corregir el tiempo de un ticket, el resumen muestra la cifra nueva', async ({
+  page,
+}) => {
+  const { contractId, month } = await companyWithResolvedTicket();
+  await loginStaff(page);
+  await page.goto(
+    `/dashboard/mesa-de-ayuda/resumen?contrato=${contractId}&mes=${month}`
+  );
+  await expect(page.getByRole('group', { name: 'Usado' })).toContainText(
+    '1 h 15 min'
+  );
+
+  await page.getByRole('link', { name: /TK-\d{2}-\d{4}/ }).click();
+  await page.getByRole('button', { name: 'Corregir registro' }).click();
+  const dialog = page.getByRole('dialog', { name: 'Corregir registro' });
+  await dialog.getByLabel('Tiempo dedicado').selectOption('90');
+  await dialog.getByRole('button', { name: 'Guardar cambios' }).click();
+  await expect(dialog).toHaveCount(0);
+  await page.goBack();
+
+  await expect(page.getByRole('group', { name: 'Usado' })).toContainText(
+    '1 h 30 min'
+  );
+});
+
+test.describe('horas en el portal (390 px)', () => {
+  test.use({ viewport: { width: 390, height: 844 } });
+
+  test('desde Horas se abre el ticket para ver qué se hizo', async ({
+    page,
+  }) => {
+    const { api, customerId } = await companyWithResolvedTicket();
+    const admin = await createPortalUser(api, customerId, 'CLIENT_ADMIN');
+    await loginPortal(page, admin.email, admin.temporaryPassword);
+    await page.goto('/portal/horas');
+
+    await page.getByRole('link', { name: /La impresora no imprime/ }).click();
+
+    await expect(page).toHaveURL(/\/portal\/mesa-de-ayuda\/[0-9a-f-]{36}$/);
+    await expect(page.getByText('Se configuró la VPN.')).toBeVisible();
+  });
+
+  test('si la consulta falla, no dice que la empresa no tiene contrato', async ({
+    page,
+  }) => {
+    const { api, customerId } = await companyWithResolvedTicket();
+    const admin = await createPortalUser(api, customerId, 'CLIENT_ADMIN');
+    await loginPortal(page, admin.email, admin.temporaryPassword);
+    await page.route('**/portal/hours**', (route) =>
+      route.fulfill({
+        status: 500,
+        contentType: 'application/json',
+        body: JSON.stringify({ statusCode: 500, message: 'Error' }),
+      })
+    );
+    await page.goto('/portal/horas');
+
+    await expect(page.getByText(/No se pudieron cargar las horas/)).toBeVisible(
+      {
+        timeout: 20_000,
+      }
+    );
+    await expect(page.getByText(/no tiene un contrato/)).toHaveCount(0);
+  });
+});

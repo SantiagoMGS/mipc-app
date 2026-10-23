@@ -11,6 +11,7 @@ import {
   UpdateTicketDto,
 } from '@/types/helpdesk';
 import { useToast } from './use-toast';
+import { summaryKeys } from './useHelpdeskSummary';
 
 export const ticketKeys = {
   all: ['helpdesk-tickets'] as const,
@@ -61,6 +62,7 @@ export function useCreateTicket() {
       helpdeskService.createTicket(data),
     onSuccess: (ticket) => {
       queryClient.invalidateQueries({ queryKey: ticketKeys.all });
+      queryClient.invalidateQueries({ queryKey: summaryKeys.all });
       toast({ title: `Ticket ${ticket.number} creado` });
     },
     onError: (error: any) => {
@@ -114,6 +116,7 @@ export function useTicketAction(id: string) {
       queryClient.invalidateQueries({
         queryKey: [...ticketKeys.all, 'list'],
       });
+      queryClient.invalidateQueries({ queryKey: summaryKeys.all });
       toast({ title: SUCCESS[action.type] });
     },
     onError: (error: any) => {

@@ -5,7 +5,8 @@ import { helpdeskService, portalTicketsService } from '@/lib/api';
 import { apiErrorMessage } from '@/lib/api-error';
 import { useToast } from './use-toast';
 
-const summaryKeys = {
+export const summaryKeys = {
+  all: ['helpdesk-summary'] as const,
   contract: (contractId: string, month: string) =>
     ['helpdesk-summary', contractId, month] as const,
   portal: (month: string) => ['portal-hours', month] as const,
@@ -16,6 +17,11 @@ export function useContractMonth(contractId: string, month: string) {
     queryKey: summaryKeys.contract(contractId, month),
     queryFn: () => helpdeskService.getMonthSummary(contractId, month),
     enabled: !!contractId,
+    // Un mes o contrato inválido (4xx) no mejora reintentando
+    retry: (failureCount, error: any) => {
+      const status = error?.response?.status ?? 0;
+      return (status < 400 || status >= 500) && failureCount < 3;
+    },
   });
 }
 
@@ -49,5 +55,8 @@ export function usePortalHours(month: string, enabled = true) {
     queryKey: summaryKeys.portal(month),
     queryFn: () => portalTicketsService.getHours(month),
     enabled,
+    // Un 404 (sin contrato) no mejora reintentando; lo demás sí
+    retry: (failureCount, error: any) =>
+      error?.response?.status !== 404 && failureCount < 3,
   });
 }

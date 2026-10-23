@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Headset, Laptop, LogOut, Users } from 'lucide-react';
+import { Clock, Headset, Laptop, LogOut, Users } from 'lucide-react';
 import ThemeToggle from '@/components/ThemeToggle';
 import { customerAuthService } from '@/lib/api';
 import { PortalSession } from '@/lib/portal-session';
@@ -20,6 +20,7 @@ function navItems(session: PortalSession): NavItem[] {
   ];
   if (session.role === 'CLIENT_ADMIN') {
     items.push(
+      { href: '/portal/horas', label: 'Horas', icon: Clock },
       { href: '/portal', label: 'Equipos', icon: Laptop },
       { href: '/portal/usuarios', label: 'Usuarios', icon: Users }
     );

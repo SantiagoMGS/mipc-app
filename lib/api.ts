@@ -12,6 +12,7 @@ import type {
   CreateStaffTicketDto,
   HelpdeskContract,
   Holiday,
+  MonthSummary,
   Paginated,
   PortalHelpdeskContext,
   PortalTicketDetail,
@@ -1080,6 +1081,26 @@ export const helpdeskService = {
   removeHoliday: async (date: string): Promise<void> => {
     await api.delete(`/helpdesk/holidays/${date}`);
   },
+
+  getMonthSummary: async (
+    contractId: string,
+    month: string
+  ): Promise<MonthSummary> => {
+    const response = await api.get(
+      `/helpdesk/contracts/${contractId}/months/${month}`
+    );
+    return response.data;
+  },
+
+  closeMonth: async (
+    contractId: string,
+    month: string
+  ): Promise<MonthSummary> => {
+    const response = await api.post(
+      `/helpdesk/contracts/${contractId}/months/${month}/close`
+    );
+    return response.data;
+  },
 };
 
 // ============================================
@@ -1229,6 +1250,14 @@ export const portalUsersService = {
 // ============================================
 
 export const portalTicketsService = {
+  /** Horas del mes de la empresa (solo el administrador del cliente) */
+  getHours: async (month: string): Promise<MonthSummary> => {
+    const response = await portalApi.get('/portal/hours', {
+      params: { month },
+    });
+    return response.data;
+  },
+
   getContext: async (): Promise<PortalHelpdeskContext> => {
     const response = await portalApi.get('/portal/helpdesk/context');
     return response.data;

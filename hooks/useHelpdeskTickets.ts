@@ -36,6 +36,14 @@ export function useStaffTicket(id: string) {
   });
 }
 
+/** Todos los contratos, con el nombre de la empresa */
+export function useAllContracts() {
+  return useQuery({
+    queryKey: ['helpdesk-contracts', 'all'],
+    queryFn: () => helpdeskService.getAllContracts(),
+  });
+}
+
 /** Contratos activos, con el nombre de la empresa */
 export function useActiveContracts() {
   return useQuery({

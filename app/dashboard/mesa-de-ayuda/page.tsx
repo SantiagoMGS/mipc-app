@@ -3,7 +3,13 @@
 import { Suspense, useState } from 'react';
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { AlertCircle, CalendarOff, LifeBuoy, Plus } from 'lucide-react';
+import {
+  AlertCircle,
+  BarChart3,
+  CalendarOff,
+  LifeBuoy,
+  Plus,
+} from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import Pagination from '@/components/Pagination';
 import PriorityBadge from '@/components/helpdesk/PriorityBadge';
@@ -86,6 +92,12 @@ function TicketList() {
           </p>
         </div>
         <div className="flex flex-wrap gap-2">
+          <Button variant="outline" asChild>
+            <Link href="/dashboard/mesa-de-ayuda/resumen">
+              <BarChart3 />
+              Resumen del mes
+            </Link>
+          </Button>
           <Button variant="outline" asChild>
             <Link href="/dashboard/mesa-de-ayuda/festivos">
               <CalendarOff />

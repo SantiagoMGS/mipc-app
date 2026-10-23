@@ -2,6 +2,7 @@
 
 import { useState } from 'react';
 import { Headset, Loader2, Pencil } from 'lucide-react';
+import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -152,17 +153,28 @@ export default function ContractSection({
           <Headset className="w-6 h-6 text-primary-500" />
           Mesa de ayuda
         </h2>
-        {contract && isAdmin && !editing && (
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={startEditing}
-            className="gap-1"
-          >
-            <Pencil className="w-4 h-4" />
-            Editar
-          </Button>
-        )}
+        <div className="flex flex-wrap justify-end gap-2">
+          {contract && !editing && (
+            <Button variant="ghost" size="sm" asChild>
+              <Link
+                href={`/dashboard/mesa-de-ayuda/resumen?contrato=${contract.id}`}
+              >
+                Ver horas del mes
+              </Link>
+            </Button>
+          )}
+          {contract && isAdmin && !editing && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={startEditing}
+              className="gap-1"
+            >
+              <Pencil className="w-4 h-4" />
+              Editar
+            </Button>
+          )}
+        </div>
       </div>
 
       {isLoading ? (

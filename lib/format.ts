@@ -75,3 +75,20 @@ export function formatBogotaLongDate(iso: string): string {
     year: 'numeric',
   });
 }
+
+/** Suma (o resta) meses a 'AAAA-MM' */
+export function shiftMonth(month: string, delta: number): string {
+  const [year, m] = month.split('-').map(Number);
+  const index = year * 12 + (m - 1) + delta;
+  return `${Math.floor(index / 12)}-${String((index % 12) + 1).padStart(2, '0')}`;
+}
+
+/** 'AAAA-MM' → "Septiembre de 2026" */
+export function formatMonth(month: string): string {
+  const label = new Date(`${month}-15T12:00:00Z`).toLocaleDateString('es-CO', {
+    timeZone: 'UTC',
+    month: 'long',
+    year: 'numeric',
+  });
+  return label.charAt(0).toUpperCase() + label.slice(1);
+}

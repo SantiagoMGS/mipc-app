@@ -306,3 +306,39 @@ export interface CreatePortalTicketDto {
   priority: PriorityLevel;
   deviceId?: string;
 }
+
+// ============================================
+// Cuentas del mes
+// ============================================
+
+export interface MonthTicket {
+  id: string;
+  number: string;
+  subject: string;
+  priority: PriorityLevel;
+  status: TicketStatus;
+  receivedAt: string;
+  responseDueAt: string;
+  firstResponseAt: string | null;
+  resolvedAt: string | null;
+  billableMinutes: number | null;
+  isBillable: boolean;
+  requester: { id: string; name: string };
+  responseStatus: ResponseStatus;
+}
+
+export interface MonthSummary {
+  month: string; // AAAA-MM
+  closed: boolean;
+  closedAt: string | null;
+  closedBy: { name: string } | null;
+  monthlyMinutes: number;
+  consumedMinutes: number;
+  includedMinutes: number;
+  extraMinutes: number;
+  availableMinutes: number;
+  /** Abiertos o en atención (solo el mes actual): aún no descuentan */
+  inProgressCount: number;
+  response: { onTime: number; late: number; total: number };
+  tickets: MonthTicket[];
+}

@@ -29,6 +29,10 @@ export interface CreateTaskItemDto {
   price: number;
 }
 
+export interface UpdateTaskItemDto extends CreateTaskItemDto {
+  id: string;
+}
+
 export interface CreateTaskDto {
   customer: string;
   description: string;
@@ -43,6 +47,7 @@ export interface UpdateTaskDto {
   isDone?: boolean;
   hasInvoice?: boolean;
   items?: CreateTaskItemDto[];
+  updatedItems?: UpdateTaskItemDto[];
 }
 
 export interface TaskFilters {

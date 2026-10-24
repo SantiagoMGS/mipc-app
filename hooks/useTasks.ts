@@ -152,6 +152,8 @@ export function useDeleteTaskItem() {
       queryClient.invalidateQueries({
         queryKey: taskKeys.detail(variables.taskId),
       });
+      // y el listado, que también trae los items de cada tarea
+      queryClient.invalidateQueries({ queryKey: taskKeys.lists() });
       toast({
         title: 'Éxito',
         description: '¡Item eliminado exitosamente!',

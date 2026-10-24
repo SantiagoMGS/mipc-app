@@ -1,16 +1,142 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { X, Plus, Trash2 } from 'lucide-react';
-import { Task, CreateTaskDto, CreateTaskItemDto, TaskItem } from '@/types/task';
+import {
+  Task,
+  CreateTaskDto,
+  CreateTaskItemDto,
+  TaskItem,
+  UpdateTaskDto,
+} from '@/types/task';
 import { useDeleteTaskItem } from '@/hooks/useTasks';
 
 interface TaskFormModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSubmit: (data: CreateTaskDto) => Promise<void>;
+  onSubmit: (data: CreateTaskDto & UpdateTaskDto) => Promise<void>;
   task?: Task | null;
   title: string;
+}
+
+const inputClass =
+  'block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500';
+
+// Un campo numérico vacío queda en NaN para poder borrarlo y escribir otro
+// valor; la validación lo rechaza al agregar o al guardar.
+const parseNumber = (value: string) => (value === '' ? NaN : Number(value));
+const showNumber = (value: number) => (Number.isNaN(value) ? '' : value);
+
+const emptyItem = (): CreateTaskItemDto => ({
+  name: '',
+  quantity: 1,
+  price: NaN,
+});
+
+function validateItem(item: CreateTaskItemDto): string | null {
+  if (!item.name.trim()) return 'El nombre del item es requerido';
+  if (!Number.isInteger(item.quantity) || item.quantity < 1) {
+    return 'La cantidad debe ser un número entero de al menos 1';
+  }
+  if (Number.isNaN(item.price)) {
+    return 'El precio es requerido (0 si no tiene costo)';
+  }
+  if (item.price < 0) return 'El precio no puede ser negativo';
+  return null;
+}
+
+const trimItem = (item: CreateTaskItemDto): CreateTaskItemDto => ({
+  name: item.name.trim(),
+  quantity: item.quantity,
+  price: item.price,
+});
+
+const subtotalOf = (item: CreateTaskItemDto) =>
+  (item.quantity || 0) * (item.price || 0);
+
+interface ItemRowProps {
+  item: CreateTaskItemDto;
+  tag?: React.ReactNode;
+  className: string;
+  onChange: (changes: Partial<CreateTaskItemDto>) => void;
+  onRemove: () => void;
+  removeDisabled?: boolean;
+}
+
+/**
+ * Fila editable de un item. En el celular el nombre va arriba y cantidad,
+ * precio y subtotal debajo; desde md va todo en una línea bajo el encabezado.
+ */
+function ItemRow({
+  item,
+  tag,
+  className,
+  onChange,
+  onRemove,
+  removeDisabled,
+}: ItemRowProps) {
+  const mobileLabel =
+    'md:hidden block text-xs text-gray-500 dark:text-gray-400 mb-1';
+
+  return (
+    <div
+      className={`grid grid-cols-12 gap-2 items-end md:items-center p-3 rounded-lg ${className}`}
+    >
+      <div className="col-span-11 md:col-span-5">
+        <input
+          type="text"
+          aria-label="Nombre del item"
+          value={item.name}
+          onChange={(e) => onChange({ name: e.target.value })}
+          className={inputClass}
+        />
+        {tag}
+      </div>
+      <div className="col-span-1 flex justify-center self-start md:self-center md:order-last">
+        <button
+          type="button"
+          onClick={onRemove}
+          disabled={removeDisabled}
+          className="p-2 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          title="Eliminar item"
+        >
+          <Trash2 className="w-4 h-4" />
+        </button>
+      </div>
+      <label className="col-span-3 md:col-span-2">
+        <span className={mobileLabel}>Cantidad</span>
+        <input
+          type="number"
+          inputMode="numeric"
+          aria-label="Cantidad"
+          min="1"
+          step="1"
+          value={showNumber(item.quantity)}
+          onChange={(e) => onChange({ quantity: parseNumber(e.target.value) })}
+          className={`${inputClass} text-right`}
+        />
+      </label>
+      <label className="col-span-5 md:col-span-2">
+        <span className={mobileLabel}>Precio</span>
+        <input
+          type="number"
+          inputMode="decimal"
+          aria-label="Precio"
+          min="0"
+          step="0.01"
+          value={showNumber(item.price)}
+          onChange={(e) => onChange({ price: parseNumber(e.target.value) })}
+          className={`${inputClass} text-right`}
+        />
+      </label>
+      <div className="col-span-4 md:col-span-2 text-right">
+        <span className={mobileLabel}>Subtotal</span>
+        <p className="py-2 text-sm font-medium text-gray-800 dark:text-gray-200">
+          ${subtotalOf(item).toLocaleString()}
+        </p>
+      </div>
+    </div>
+  );
 }
 
 export default function TaskFormModal({
@@ -29,22 +155,22 @@ export default function TaskFormModal({
   });
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
+  const errorRef = useRef<HTMLDivElement>(null);
 
-  // Items existentes CON IDs (para poder eliminarlos del backend)
+  // Items existentes CON IDs (editables; se eliminan directo en el backend)
   const [existingItems, setExistingItems] = useState<TaskItem[]>([]);
-  // Items nuevos a agregar (solo estos se envían al backend en modo edición)
+  // Items nuevos a agregar en modo edición
   const [newItemsToAdd, setNewItemsToAdd] = useState<CreateTaskItemDto[]>([]);
 
   // Hook para eliminar items del backend
   const deleteItemMutation = useDeleteTaskItem();
 
   // Item temporal para agregar nuevos items
-  const [newItem, setNewItem] = useState<CreateTaskItemDto>({
-    name: '',
-    quantity: 1,
-    price: 0,
-  });
+  const [newItem, setNewItem] = useState<CreateTaskItemDto>(emptyItem);
 
+  // Se reinicia al abrir el modal o al cambiar de tarea, no cada vez que se
+  // vuelve a consultar la tarea (por ejemplo tras eliminar un item): eso
+  // borraría lo que el usuario lleva editado.
   useEffect(() => {
     if (task) {
       // Modo edición
@@ -55,9 +181,8 @@ export default function TaskFormModal({
         hasInvoice: task.hasInvoice,
         items: [], // No enviamos items existentes
       });
-      // Guardamos los items existentes CON IDs para poder eliminarlos
       setExistingItems(task.taskItems || []);
-      setNewItemsToAdd([]); // Limpiamos items nuevos
+      setNewItemsToAdd([]);
     } else {
       // Modo creación
       setFormData({
@@ -71,8 +196,15 @@ export default function TaskFormModal({
       setNewItemsToAdd([]);
     }
     setError('');
-    setNewItem({ name: '', quantity: 1, price: 0 });
-  }, [task, isOpen]);
+    setNewItem(emptyItem());
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [task?.id, isOpen]);
+
+  useEffect(() => {
+    if (error) {
+      errorRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }, [error]);
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
@@ -94,16 +226,9 @@ export default function TaskFormModal({
   };
 
   const handleAddItem = () => {
-    if (!newItem.name.trim()) {
-      setError('El nombre del item es requerido');
-      return;
-    }
-    if (newItem.quantity < 1) {
-      setError('La cantidad debe ser al menos 1');
-      return;
-    }
-    if (newItem.price < 0) {
-      setError('El precio no puede ser negativo');
+    const itemError = validateItem(newItem);
+    if (itemError) {
+      setError(itemError);
       return;
     }
 
@@ -117,8 +242,30 @@ export default function TaskFormModal({
         items: [...(formData.items || []), newItem],
       });
     }
-    setNewItem({ name: '', quantity: 1, price: 0 });
+    setNewItem(emptyItem());
     setError('');
+  };
+
+  const updateAt = <T,>(items: T[], index: number, changes: Partial<T>) =>
+    items.map((item, i) => (i === index ? { ...item, ...changes } : item));
+
+  const handleChangeExistingItem = (
+    index: number,
+    changes: Partial<CreateTaskItemDto>
+  ) => setExistingItems((items) => updateAt<TaskItem>(items, index, changes));
+
+  const handleChangeNewItem = (
+    index: number,
+    changes: Partial<CreateTaskItemDto>
+  ) => {
+    if (task) {
+      setNewItemsToAdd((items) => updateAt(items, index, changes));
+    } else {
+      setFormData((data) => ({
+        ...data,
+        items: updateAt(data.items || [], index, changes),
+      }));
+    }
   };
 
   const handleRemoveItem = async (index: number, isExisting: boolean) => {
@@ -133,7 +280,9 @@ export default function TaskFormModal({
           itemId: itemToDelete.id,
         });
         // Remover de la lista local después de eliminar del backend
-        setExistingItems(existingItems.filter((_, i) => i !== index));
+        setExistingItems((items) =>
+          items.filter((item) => item.id !== itemToDelete.id)
+        );
       } catch (error) {
         console.error('Error al eliminar item:', error);
         // El toast ya se muestra en el hook useDeleteTaskItem
@@ -150,6 +299,19 @@ export default function TaskFormModal({
         });
       }
     }
+  };
+
+  const originalItems = new Map(
+    (task?.taskItems || []).map((item) => [item.id, item])
+  );
+  const isModified = (item: TaskItem) => {
+    const original = originalItems.get(item.id);
+    return (
+      !!original &&
+      (original.name !== item.name ||
+        original.quantity !== item.quantity ||
+        original.price !== item.price)
+    );
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -170,24 +332,40 @@ export default function TaskFormModal({
         );
       }
 
-      const dataToSubmit: CreateTaskDto = {
+      const itemsToSave = task
+        ? [...existingItems, ...newItemsToAdd]
+        : formData.items || [];
+      for (const item of itemsToSave) {
+        const itemError = validateItem(item);
+        if (itemError) {
+          throw new Error(
+            `${itemError} (${item.name.trim() || 'item sin nombre'})`
+          );
+        }
+      }
+
+      const dataToSubmit: CreateTaskDto & UpdateTaskDto = {
         customer: formData.customer.trim(),
         description: formData.description.trim(),
         isDone: formData.isDone,
         hasInvoice: formData.hasInvoice,
       };
 
-      // En modo edición, solo enviar nuevos items si hay
-      // En modo creación, enviar todos los items de formData
       if (task) {
-        // Modo edición: solo enviar items nuevos agregados en esta sesión
+        // Modo edición: items nuevos de esta sesión y existentes modificados
         if (newItemsToAdd.length > 0) {
-          dataToSubmit.items = newItemsToAdd;
+          dataToSubmit.items = newItemsToAdd.map(trimItem);
+        }
+        const updatedItems = existingItems
+          .filter(isModified)
+          .map((item) => ({ id: item.id, ...trimItem(item) }));
+        if (updatedItems.length > 0) {
+          dataToSubmit.updatedItems = updatedItems;
         }
       } else {
         // Modo creación: enviar todos los items
         if (formData.items && formData.items.length > 0) {
-          dataToSubmit.items = formData.items;
+          dataToSubmit.items = formData.items.map(trimItem);
         }
       }
 
@@ -209,11 +387,10 @@ export default function TaskFormModal({
 
   if (!isOpen) return null;
 
-  const totalItems =
-    formData.items?.reduce(
-      (sum, item) => sum + item.quantity * item.price,
-      0
-    ) || 0;
+  const allItems: CreateTaskItemDto[] = task
+    ? [...existingItems, ...newItemsToAdd]
+    : formData.items || [];
+  const total = allItems.reduce((sum, item) => sum + subtotalOf(item), 0);
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
@@ -231,7 +408,10 @@ export default function TaskFormModal({
         </div>
         <form onSubmit={handleSubmit} className="p-6 space-y-6">
           {error && (
-            <div className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <div
+              ref={errorRef}
+              className="p-4 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg"
+            >
               <p className="text-sm text-red-700 dark:text-red-300">{error}</p>
             </div>
           )}
@@ -253,7 +433,7 @@ export default function TaskFormModal({
                 maxLength={255}
                 value={formData.customer}
                 onChange={handleChange}
-                className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className={inputClass}
                 placeholder="Nombre del cliente"
               />
             </div>
@@ -273,7 +453,7 @@ export default function TaskFormModal({
                 rows={4}
                 value={formData.description}
                 onChange={handleChange}
-                className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                className={inputClass}
                 placeholder="Descripción de la tarea"
               />
               <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
@@ -335,38 +515,41 @@ export default function TaskFormModal({
                     onChange={(e) =>
                       setNewItem({ ...newItem, name: e.target.value })
                     }
-                    className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className={inputClass}
                   />
                 </div>
                 <div className="md:col-span-2">
                   <input
                     type="number"
+                    inputMode="numeric"
                     placeholder="Cantidad"
                     min="1"
-                    value={newItem.quantity}
+                    step="1"
+                    value={showNumber(newItem.quantity)}
                     onChange={(e) =>
                       setNewItem({
                         ...newItem,
-                        quantity: parseInt(e.target.value) || 1,
+                        quantity: parseNumber(e.target.value),
                       })
                     }
-                    className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className={inputClass}
                   />
                 </div>
                 <div className="md:col-span-3">
                   <input
                     type="number"
+                    inputMode="decimal"
                     placeholder="Precio"
                     min="0"
                     step="0.01"
-                    value={newItem.price}
+                    value={showNumber(newItem.price)}
                     onChange={(e) =>
                       setNewItem({
                         ...newItem,
-                        price: parseFloat(e.target.value) || 0,
+                        price: parseNumber(e.target.value),
                       })
                     }
-                    className="block w-full px-3 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500"
+                    className={inputClass}
                   />
                 </div>
                 <div className="md:col-span-2">
@@ -382,156 +565,75 @@ export default function TaskFormModal({
               </div>
             </div>
 
-            {/* Lista de items */}
-            {(task
-              ? existingItems.length + newItemsToAdd.length
-              : formData.items?.length || 0) > 0 ? (
+            {/* Lista de items (editables) */}
+            {allItems.length > 0 ? (
               <div className="space-y-2">
-                <div className="overflow-x-auto">
-                  <table className="w-full">
-                    <thead className="bg-gray-100 dark:bg-gray-700">
-                      <tr>
-                        <th className="px-4 py-2 text-left text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
-                          Nombre
-                        </th>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
-                          Cantidad
-                        </th>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
-                          Precio
-                        </th>
-                        <th className="px-4 py-2 text-right text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
-                          Subtotal
-                        </th>
-                        <th className="px-4 py-2 text-center text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
-                          Acciones
-                        </th>
-                      </tr>
-                    </thead>
-                    <tbody className="divide-y divide-gray-200 dark:divide-gray-700">
-                      {/* Items existentes (solo en modo edición) */}
-                      {task &&
-                        existingItems.map((item, index) => (
-                          <tr
-                            key={`existing-${index}`}
-                            className="bg-white dark:bg-gray-800"
-                          >
-                            <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200">
-                              {item.name}
-                              <span className="ml-2 text-xs text-gray-500 dark:text-gray-400">
-                                (Existente)
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right">
-                              {item.quantity}
-                            </td>
-                            <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right">
-                              ${item.price.toLocaleString()}
-                            </td>
-                            <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right font-medium">
-                              ${(item.quantity * item.price).toLocaleString()}
-                            </td>
-                            <td className="px-4 py-3 text-center">
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveItem(index, true)}
-                                disabled={deleteItemMutation.isPending}
-                                className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-                                title="Eliminar del backend"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
+                <div className="hidden md:grid grid-cols-12 gap-2 px-3 py-2 bg-gray-100 dark:bg-gray-700 rounded-lg text-xs font-medium text-gray-700 dark:text-gray-300 uppercase">
+                  <span className="col-span-5">Nombre</span>
+                  <span className="col-span-2 text-right">Cantidad</span>
+                  <span className="col-span-2 text-right">Precio</span>
+                  <span className="col-span-2 text-right">Subtotal</span>
+                  <span className="col-span-1" />
+                </div>
 
-                      {/* Items nuevos a agregar (en modo edición) */}
-                      {task &&
-                        newItemsToAdd.map((item, index) => (
-                          <tr
-                            key={`new-${index}`}
-                            className="bg-green-50 dark:bg-green-900/10"
-                          >
-                            <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200">
-                              {item.name}
-                              <span className="ml-2 text-xs text-green-600 dark:text-green-400 font-medium">
-                                (Nuevo)
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right">
-                              {item.quantity}
-                            </td>
-                            <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right">
-                              ${item.price.toLocaleString()}
-                            </td>
-                            <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right font-medium">
-                              ${(item.quantity * item.price).toLocaleString()}
-                            </td>
-                            <td className="px-4 py-3 text-center">
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveItem(index, false)}
-                                className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
+                {/* Items existentes (solo en modo edición) */}
+                {task &&
+                  existingItems.map((item, index) => {
+                    const modified = isModified(item);
+                    return (
+                      <ItemRow
+                        key={item.id}
+                        item={item}
+                        className={
+                          modified
+                            ? 'bg-amber-50 dark:bg-amber-900/10'
+                            : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
+                        }
+                        tag={
+                          modified && (
+                            <p className="mt-1 text-xs text-amber-700 dark:text-amber-400 font-medium">
+                              Modificado (se guarda al pulsar Guardar)
+                            </p>
+                          )
+                        }
+                        onChange={(changes) =>
+                          handleChangeExistingItem(index, changes)
+                        }
+                        onRemove={() => handleRemoveItem(index, true)}
+                        removeDisabled={deleteItemMutation.isPending}
+                      />
+                    );
+                  })}
 
-                      {/* Items en modo creación */}
-                      {!task &&
-                        formData.items?.map((item, index) => (
-                          <tr key={index} className="bg-white dark:bg-gray-800">
-                            <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200">
-                              {item.name}
-                            </td>
-                            <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right">
-                              {item.quantity}
-                            </td>
-                            <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right">
-                              ${item.price.toLocaleString()}
-                            </td>
-                            <td className="px-4 py-3 text-sm text-gray-800 dark:text-gray-200 text-right font-medium">
-                              ${(item.quantity * item.price).toLocaleString()}
-                            </td>
-                            <td className="px-4 py-3 text-center">
-                              <button
-                                type="button"
-                                onClick={() => handleRemoveItem(index, false)}
-                                className="p-1 text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20 rounded transition-colors"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </button>
-                            </td>
-                          </tr>
-                        ))}
-                    </tbody>
-                    <tfoot className="bg-gray-50 dark:bg-gray-700">
-                      <tr>
-                        <td
-                          colSpan={3}
-                          className="px-4 py-3 text-sm font-semibold text-gray-800 dark:text-gray-200 text-right"
-                        >
-                          Total:
-                        </td>
-                        <td className="px-4 py-3 text-sm font-bold text-gray-800 dark:text-gray-200 text-right">
-                          $
-                          {(task
-                            ? [...existingItems, ...newItemsToAdd].reduce(
-                                (sum, item) => sum + item.quantity * item.price,
-                                0
-                              )
-                            : formData.items?.reduce(
-                                (sum, item) => sum + item.quantity * item.price,
-                                0
-                              ) || 0
-                          ).toLocaleString()}
-                        </td>
-                        <td></td>
-                      </tr>
-                    </tfoot>
-                  </table>
+                {/* Items nuevos (en edición) o items en modo creación */}
+                {(task ? newItemsToAdd : formData.items || []).map(
+                  (item, index) => (
+                    <ItemRow
+                      key={`new-${index}`}
+                      item={item}
+                      className={
+                        task
+                          ? 'bg-green-50 dark:bg-green-900/10'
+                          : 'bg-white dark:bg-gray-800 border border-gray-200 dark:border-gray-700'
+                      }
+                      tag={
+                        task && (
+                          <p className="mt-1 text-xs text-green-600 dark:text-green-400 font-medium">
+                            Nuevo
+                          </p>
+                        )
+                      }
+                      onChange={(changes) =>
+                        handleChangeNewItem(index, changes)
+                      }
+                      onRemove={() => handleRemoveItem(index, false)}
+                    />
+                  )
+                )}
+
+                <div className="flex justify-end gap-4 px-3 py-3 bg-gray-50 dark:bg-gray-700 rounded-lg text-sm text-gray-800 dark:text-gray-200">
+                  <span className="font-semibold">Total:</span>
+                  <span className="font-bold">${total.toLocaleString()}</span>
                 </div>
               </div>
             ) : (
